@@ -9,7 +9,7 @@ alias l    'ls'
 alias la   'ls -a'
 alias ll   'ls -l'
 alias lla  'ls -la'
-alias cl   'clear; and ls'
+alias cl   'clear; and ll'
 
 ## git
 alias ci   'git commit -a -m'
@@ -39,7 +39,7 @@ end
 function fish_greeting
 end
 
-set fish_color_valid_path 'white' '--bold'
+set fish_color_valid_path '--bold' '--underline'
 
 if [ $PATH[-1] != "." ]
     set PATH $PATH . 
