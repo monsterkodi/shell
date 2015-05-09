@@ -17,7 +17,7 @@ if _s.startsWith(path, process.env.HOME)
 
 f = _s.pad(" ", path.length+4)
 s = BW(1) + bold + f + "\n  "
-if process.argv[2] == '/'
+if path == '/'
     s += fg(4,3,0) + '/'
 else
     for p in path.split('/')

@@ -147,82 +147,106 @@ timeString = (stat)      ->
 0000000  000  0000000      000   
 ###
     
-listPath = (p) ->
-    log reset
-    fs.readdir p, (err, files) ->
-        if err then throw err
-        dirs = [] # visible dirs
-        fils = [] # visible files
-        dsts = [] # dir stats
-        fsts = [] # file stats
-        exts = [] # file extensions
-        hidden = [0,0] # counters for hidden dirs/files
-        files.map( (file) -> path.join(p, file) )
-          .forEach (file) -> 
-              
-            lstat = fs.lstatSync(file)
-            link  = lstat.isSymbolicLink()
-            stat  = link and fs.statSync(file) or lstat
-                
-            d    = path.parse file
-            ext  = d.ext.substr(1)
-            name = d.name
-            if name[0] == '.'
-                ext = name.substr(1) + d.ext
-                name = ''
-            if name.length or args.all
-                s = " "
-                if args.long
-                    s += sizeString stat
-                    s += timeString stat
-                if stat.isFile() 
-                    if not args.dirs
-                        s += nameString name, ext
-                        if ext 
-                            s += extString ext
-                        if link 
-                            s += linkString file
-                        fils.push s+reset
-                        fsts.push stat
-                        exts.push ext
-                    else 
-                        hidden[1] += 1
-                else if stat.isDirectory() 
-                    if not args.files
-                        s += dirString name, ext
-                        if link 
-                            s += linkString file
-                        dirs.push s+reset
-                        dsts.push stat
-                    else
-                        hidden[0] += 1
-                else
-                    fils.push "WTF?"+reset
-            else
-                if stat.isFile()
-                    hidden[1] += 1
-                else if stat.isDirectory()
-                    hidden[0] += 1
-            
-        if args.size or args.kind or args.time
-            if dirs.length and not args.files
-                dirs = sort dirs, dsts
-            if fils.length
-                fils = sort fils, fsts, exts
-                
-        for d in dirs
-            log d
-                        
-        for f in fils
-            log f
-            
-        if args.stats
-            log ""
-            log BW(1) + " " +
-            bw(8) + "%d".fmt(dirs.length) + (hidden[0] and bw(4) + "+" + bw(5) + (hidden[0]) or "") + bw(4) + " dirs " + 
-            bw(8) + "%d".fmt(fils.length) + (hidden[1] and bw(4) + "+" + bw(5) + (hidden[1]) or "") + bw(4) + " files " + 
-            bw(8) + "%2.1f".fmt(prof('end', 'ls')) + bw(4) + " ms" + " " +
-            reset        
+stats = # counters for (hidden) dirs/files
+    num_dirs: 0
+    num_files: 0
+    hidden_dirs: 0
+    hidden_files: 0
     
-for p in args.paths
-    listPath(p)
+listFiles = (p, files) ->
+    dirs = [] # visible dirs
+    fils = [] # visible files
+    dsts = [] # dir stats
+    fsts = [] # file stats
+    exts = [] # file extensions
+    files.forEach (rp) -> 
+        if rp[0] == '/'
+            file = path.resolve(rp)
+        else
+            file  = path.join(p, rp)
+        lstat = fs.lstatSync(file)
+        link  = lstat.isSymbolicLink()
+        stat  = link and fs.statSync(file) or lstat
+            
+        d    = path.parse file
+        ext  = d.ext.substr(1)
+        name = d.name
+        if name[0] == '.'
+            ext = name.substr(1) + d.ext
+            name = ''
+        if name.length or args.all
+            s = " "
+            if args.long
+                s += sizeString stat
+                s += timeString stat
+            if stat.isFile() 
+                if not args.dirs
+                    s += nameString name, ext
+                    if ext 
+                        s += extString ext
+                    if link 
+                        s += linkString file
+                    fils.push s+reset
+                    fsts.push stat
+                    exts.push ext
+                    stats.num_files += 1
+                else 
+                    stats.hidden_files += 1
+            else if stat.isDirectory() 
+                if not args.files
+                    s += dirString name, ext
+                    if link 
+                        s += linkString file
+                    dirs.push s+reset
+                    dsts.push stat
+                    stats.num_dirs += 1
+                else
+                    stats.hidden_dirs += 1
+            else
+                fils.push "WTF?"+reset
+        else
+            if stat.isFile()
+                stats.hidden_files += 1
+            else if stat.isDirectory()
+                stats.hidden_dirs += 1
+        
+    if args.size or args.kind or args.time
+        if dirs.length and not args.files
+            dirs = sort dirs, dsts
+        if fils.length
+            fils = sort fils, fsts, exts
+            
+    for d in dirs
+        log d
+                    
+    for f in fils
+        log f
+                
+listDir = (p) ->
+    ps = p
+    if _s.startsWith(p, process.env.HOME)
+        ps = "~" + p.substr(process.env.HOME.length)
+
+    s = bold
+    if ps == '/'
+        s += fg(4,3,0) + '/'
+    else
+        for pn in ps.split('/')
+            if pn 
+                s += fg(1,1,1) + '/' if pn[0] != "~"
+                s += fg(4,3,0) + pn 
+    
+    log s + reset
+    listFiles(p, fs.readdirSync(p))
+                
+listFiles(process.cwd(), args.paths.filter( (f) -> not fs.statSync(f).isDirectory() ))
+for p in args.paths.filter( (f) -> fs.statSync(f).isDirectory() )
+    listDir(p)
+
+if args.stats
+    log ""
+    log BW(1) + " " +
+    bw(8) + "%d".fmt(stats.num_dirs) + (stats.hidden_dirs and bw(4) + "+" + bw(5) + (stats.hidden_dirs) or "") + bw(4) + " dirs " + 
+    bw(8) + "%d".fmt(stats.num_files) + (stats.hidden_files and bw(4) + "+" + bw(5) + (stats.hidden_files) or "") + bw(4) + " files " + 
+    bw(8) + "%2.1f".fmt(prof('end', 'ls')) + bw(4) + " ms" + " " +
+    reset        
