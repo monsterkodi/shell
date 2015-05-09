@@ -168,7 +168,7 @@ listPath = (p) ->
             ext  = d.ext.substr(1)
             name = d.name
             if name[0] == '.'
-                ext = name.substr(1)
+                ext = name.substr(1) + d.ext
                 name = ''
             if name.length or args.all
                 s = " "

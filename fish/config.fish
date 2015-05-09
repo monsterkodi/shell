@@ -30,6 +30,7 @@ alias c    'clear'
 alias p    'pwd'
 alias cd.. 'cd ..'
 alias grep 'grep --color'
+alias less 'vimpager'
 
 # fish setup
 function fish_title
