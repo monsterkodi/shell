@@ -112,6 +112,14 @@ sort = (list, stats, exts=[]) ->
             -1)
     _.unzip(l)[0]
     
+###
+00000000   00000000   000  000   000  000000000
+000   000  000   000  000  0000  000     000   
+00000000   0000000    000  000 0 000     000   
+000        000   000  000  000  0000     000   
+000        000   000  000  000   000     000   
+###
+    
 linkString = (file)      -> reset + bw(1) + fg(1,0,1) + " ► " + fg(4,0,4) + fs.readlinkSync(file)
 nameString = (name, ext) -> " " + fileColors[fileColors[ext]? and ext or 'default'][0] + name + reset
 dotString  = (      ext) -> fileColors[fileColors[ext]? and ext or 'default'][1] + "." + reset

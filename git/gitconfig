@@ -1,0 +1,27 @@
+[user]
+	name = monsterkodi
+	email = monsterkodi@gmx.net
+[mergetool]
+	keepBackup = true
+	prompt = false
+[core]
+	autocrlf = input
+	excludesfile = ~/shell/git/gitignore_global
+[color]
+	ui = 1
+	diff = always  
+	grep =  always  
+	interactive = always
+[credential]
+	helper = osxkeychain
+[push]
+	default = simple
+[mergetool "Kaleidoscope"]
+	cmd = ksdiff --merge --output \"$MERGED\" --base \"$BASE\" -- \"$LOCAL\" --snapshot \"$REMOTE\" --snapshot
+	trustexitcode = true
+[merge]
+	tool = Kaleidoscope
+[difftool "Kaleidoscope"]
+	cmd = ksdiff --partial-changeset --relative-path \"$MERGED\" -- \"$LOCAL\" \"$REMOTE\"
+[diff]
+	tool = Kaleidoscope

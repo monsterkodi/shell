@@ -36,9 +36,7 @@ function fish_title
     pwd
 end
 
-function fish_greeting
-end
-
+set fish_greeting
 set fish_color_valid_path '--bold' '--underline'
 
 if [ $PATH[-1] != "." ]
