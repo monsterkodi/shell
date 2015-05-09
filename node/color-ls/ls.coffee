@@ -18,26 +18,29 @@ fg     = colors.fg.getRgb
 bg     = colors.bg.getRgb
 bw     = (i) -> colors.fg.grayscale[i]
 BW     = (i) -> colors.bg.grayscale[i]
-# args
-Parser = require('argparse').ArgumentParser
-parser = new Parser
-    version : '0.1.0',
-    addHelp : true
-
-parser.addArgument [ 'paths' ],         nargs:  '*',          help: 'the file(s) and/or folder(s) to display'
-parser.addArgument [ '-l', '--long'  ], action: 'storeTrue',  help: 'include size and mtime information'
-parser.addArgument [ '-a', '--all'   ], action: 'storeTrue',  help: 'include hidden files (.*)'
-parser.addArgument [ '-s', '--size'  ], action: 'storeTrue',  help: 'sort by size'
-parser.addArgument [ '-t', '--time'  ], action: 'storeTrue',  help: 'sort by time'
-parser.addArgument [ '-k', '--kind'  ], action: 'storeTrue',  help: 'sort by kind'
-parser.addArgument [ '-f', '--files' ], action: 'storeTrue',  help: 'show only files'
-parser.addArgument [ '-d', '--dirs'  ], action: 'storeTrue',  help: 'show only directories'
-parser.addArgument [ '-r', '--recursive' ], action: 'storeTrue',  help: 'recurse into subdirectories'
-parser.addArgument [       '--stats' ], action: 'storeTrue',  help: 'show statistics'
-parser.addArgument [      '--colors' ], action: 'storeTrue',  help: 'shows available colors'
-parser.addArgument [      '--values' ], action: 'storeTrue',  help: 'shows color values'
-
-args = parser.parseArgs()
+# nomnom
+args = require("nomnom")
+   .script("color-ls")
+   .options
+      paths:
+         position: 0
+         help: "the file(s) and/or folder(s) to display"
+         list: true
+      long:
+         abbr: 'l'
+         flag: true
+         help: "Config file with tests to run"
+      long:   { abbr: 'l', flag: true, help: 'include size and mtime information' }
+      all:    { abbr: 'a', flag: true, help: 'show dot files (.*)' }
+      dirs:   { abbr: 'd', flag: true, help: "show only dirs"  }
+      files:  { abbr: 'f', flag: true, help: "show only files" }
+      size:   { abbr: 's', flag: true, help: 'sort by size' }
+      time:   { abbr: 't', flag: true, help: 'sort by time' }
+      kind:   { abbr: 'k', flag: true, help: 'sort by kind' }
+      stats:  { abbr: 'i', flag: true, help: "show statistics" }
+      colors: {            flag: true, help: "shows available colors" }
+      values: {            flag: true, help: "shows color values" }
+   .parse()
 
 if args.values
     c = require './coffee/colors'
@@ -51,9 +54,11 @@ if args.colors
     
 if args.size
     args.files = true
-    
-if args.paths.length == 0
+
+if not args.path or args.paths.length == 0
     args.paths = ['.']
+
+log args
 
 fileColors = 
     'coffee':  [ bold+fg(4,4,0),  fg(1,1,0), fg(1,1,0) ] 

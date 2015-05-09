@@ -1,5 +1,5 @@
 # fish
-alias frc    'edit ~/shell/fish/config.fish'
+alias frc    'atom ~/shell/fish/config.fish'
 alias reload 'source ~/shell/fish/config.fish'
 
 # color-ls
@@ -21,7 +21,7 @@ alias gd   'git diff'
 alias push 'git push'
 
 ## npm
-alias npmadd 'npm install -sD'
+alias npmadd 'npm install -s --save'
 alias npmls  'npm ls -s --depth 0'
 
 ## misc
@@ -32,9 +32,15 @@ alias cd.. 'cd ..'
 alias grep 'grep --color'
 alias less 'vimpager'
 
-# fish setup
+## fish
+alias show functions
+
 function fish_title
     pwd
+end
+
+function fish_prompt
+    node ~/shell/node/color-ls/js/prompt.js (pwd)
 end
 
 set fish_greeting
