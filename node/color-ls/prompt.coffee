@@ -15,8 +15,8 @@ path = process.argv[2]
 if _s.startsWith(path, process.env.HOME)
     path = "~" + path.substr(process.env.HOME.length)
 
-f = _s.pad(" ", path.length+4)
-s = BW(1) + bold + f + "\n  "
+log reset
+s = "  "
 if path == '/'
     s += fg(4,3,0) + '/'
 else
@@ -25,6 +25,6 @@ else
             s += fg(1,1,1) + '/' if p[0] != "~"
             s += fg(4,3,0) + p 
              
-log s + "  " + reset 
-log BW(1) + f + reset
+log BW(1) + bold + s + "  " + reset 
+log reset
 log fg(0,0,5) + "▶ " + reset

@@ -9,10 +9,11 @@
 ###
 
 vsprintf = require("sprintf-js").vsprintf
-    
+_        = require 'lodash'
+
 strIndent = "    "
 
-module.exports = (o,indent="",visited=[]) ->
+str = (o,indent="",visited=[]) ->
     if not o? 
         if o == null
             return "<null>"
@@ -55,3 +56,5 @@ module.exports = (o,indent="",visited=[]) ->
 
 String.prototype.fmt = ->
     vsprintf this, [].slice.call arguments
+
+module.exports = str

@@ -16,9 +16,17 @@ bold   = '\x1b[1m'
 reset  = colors.reset
 fg     = colors.fg.getRgb
 bg     = colors.bg.getRgb
-bw     = (i) -> colors.fg.grayscale[i]
+fw     = (i) -> colors.fg.grayscale[i]
 BW     = (i) -> colors.bg.grayscale[i]
-# nomnom
+
+###
+ 0000000   00000000    0000000    0000000
+000   000  000   000  000        000     
+000000000  0000000    000  0000  0000000 
+000   000  000   000  000   000       000
+000   000  000   000   0000000   0000000 
+###
+
 args = require("nomnom")
    .script("color-ls")
    .options
@@ -26,10 +34,6 @@ args = require("nomnom")
          position: 0
          help: "the file(s) and/or folder(s) to display"
          list: true
-      long:
-         abbr: 'l'
-         flag: true
-         help: "Config file with tests to run"
       long:   { abbr: 'l', flag: true, help: 'include size and mtime information' }
       all:    { abbr: 'a', flag: true, help: 'show dot files (.*)' }
       dirs:   { abbr: 'd', flag: true, help: "show only dirs"  }
@@ -38,8 +42,9 @@ args = require("nomnom")
       time:   { abbr: 't', flag: true, help: 'sort by time' }
       kind:   { abbr: 'k', flag: true, help: 'sort by kind' }
       stats:  { abbr: 'i', flag: true, help: "show statistics" }
-      colors: {            flag: true, help: "shows available colors" }
-      values: {            flag: true, help: "shows color values" }
+      colors: {            flag: true, help: "shows available colors", hidden: true }
+      values: {            flag: true, help: "shows color values",     hidden: true }
+      debug:  {            flag: true, help: "debug logs",             hidden: true }
    .parse()
 
 if args.values
@@ -55,10 +60,18 @@ if args.colors
 if args.size
     args.files = true
 
-if not args.path or args.paths.length == 0
-    args.paths = ['.']
+args.paths = ['.'] unless args.paths?.length > 0
 
-log args
+if args.debug
+    log BW(2) + fw(12) + str(args) + reset
+
+###
+ 0000000   0000000   000       0000000   00000000    0000000
+000       000   000  000      000   000  000   000  000     
+000       000   000  000      000   000  0000000    0000000 
+000       000   000  000      000   000  000   000       000
+ 0000000   0000000   0000000   0000000   000   000  0000000 
+###
 
 fileColors = 
     'coffee':  [ bold+fg(4,4,0),  fg(1,1,0), fg(1,1,0) ] 
@@ -66,14 +79,14 @@ fileColors =
     'rb':      [ bold+fg(4,0,0),  fg(1,0,0), fg(1,0,0) ] 
     'json':    [ bold+fg(4,0,4),  fg(1,0,1), fg(1,0,1) ] 
     'js':      [ bold+fg(5,0,5),  fg(1,0,1), fg(1,0,1) ] 
-    'cpp':     [ bold+fg(5,4,0),  bw(1),     fg(1,1,0) ] 
-    'h':       [      fg(3,1,0),  bw(1),     fg(1,1,0) ] 
-    'pyc':     [      bw(5),      bw(1),     bw(1) ]
-    'log':     [      bw(5),      bw(1),     bw(1) ]
-    'log':     [      bw(5),      bw(1),     bw(1) ]
-    'txt':     [      bw(20),     bw(1),     bw(2) ]
-    'md':      [      bw(20),     bw(1),     bw(2) ]
-    'default': [      bw(15),     bw(1),     bw(6) ]
+    'cpp':     [ bold+fg(5,4,0),  fw(1),     fg(1,1,0) ] 
+    'h':       [      fg(3,1,0),  fw(1),     fg(1,1,0) ] 
+    'pyc':     [      fw(5),      fw(1),     fw(1) ]
+    'log':     [      fw(5),      fw(1),     fw(1) ]
+    'log':     [      fw(5),      fw(1),     fw(1) ]
+    'txt':     [      fw(20),     fw(1),     fw(2) ]
+    'md':      [      fw(20),     fw(1),     fw(2) ]
+    'default': [      fw(15),     fw(1),     fw(6) ]
     
 ###
  0000000   0000000   00000000   000000000
@@ -125,31 +138,31 @@ sort = (list, stats, exts=[]) ->
 000        000   000  000  000   000     000   
 ###
     
-linkString = (file)      -> reset + bw(1) + fg(1,0,1) + " ► " + fg(4,0,4) + fs.readlinkSync(file)
+linkString = (file)      -> reset + fw(1) + fg(1,0,1) + " ► " + fg(4,0,4) + fs.readlinkSync(file)
 nameString = (name, ext) -> " " + fileColors[fileColors[ext]? and ext or 'default'][0] + name + reset
 dotString  = (      ext) -> fileColors[fileColors[ext]? and ext or 'default'][1] + "." + reset
 extString  = (      ext) -> dotString(ext) + fileColors[fileColors[ext]? and ext or 'default'][2] + ext + reset
 dirString  = (name, ext) -> 
     bold + bg(0,0,name and 2 or 1) + 
-    (name and " " + bw(23) + name or "") +     
+    (name and " " + fw(23) + name or "") +     
     (if ext then fg(1,1,5) + '.' + fg(2,2,5) + ext else "") + " "
     
-sizeString = (stat)      -> bw(5) + _s.lpad(stat.size, 8) + " "
+sizeString = (stat)      -> fw(5) + _s.lpad(stat.size, 8) + " "
 timeString = (stat)      -> 
     t = moment(stat.mtime) 
-    bw(16) + t.format("DD") + bw(7)+'.' + 
-    bw(14) + t.format("MM") + bw(1)+"'" + 
-    bw( 4) + t.format("YY") + " " +
-    bw(16) + t.format("hh") + col = bw(7)+':' + 
-    bw(14) + t.format("mm") + col = bw(1)+':' +
-    bw( 4) + t.format("ss") + " "
+    fw(16) + t.format("DD") + fw(7)+'.' + 
+    fw(14) + t.format("MM") + fw(1)+"'" + 
+    fw( 4) + t.format("YY") + " " +
+    fw(16) + t.format("hh") + col = fw(7)+':' + 
+    fw(14) + t.format("mm") + col = fw(1)+':' +
+    fw( 4) + t.format("ss") + " "
     
 ###
-000      000   0000000  000000000
-000      000  000          000   
-000      000  0000000      000   
-000      000       000     000   
-0000000  000  0000000      000   
+00000000  000  000      00000000   0000000
+000       000  000      000       000     
+000000    000  000      0000000   0000000 
+000       000  000      000            000
+000       000  0000000  00000000  0000000 
 ###
     
 stats = # counters for (hidden) dirs/files
@@ -226,32 +239,56 @@ listFiles = (p, files) ->
                     
     for f in fils
         log f
+            
+###
+0000000    000  00000000 
+000   000  000  000   000
+000   000  000  0000000  
+000   000  000  000   000
+0000000    000  000   000
+###
                 
 listDir = (p) ->
     ps = p
     if _s.startsWith(p, process.env.HOME)
         ps = "~" + p.substr(process.env.HOME.length)
-
-    s = bold
-    if ps == '/'
-        s += fg(4,3,0) + '/'
+    if args.paths.length == 1 and args.paths[0] == '.'
+        log reset
     else
-        for pn in ps.split('/')
-            if pn 
-                s += fg(1,1,1) + '/' if pn[0] != "~"
-                s += fg(4,3,0) + pn 
-    
-    log s + reset
+        s = bold + fw(1) + "►" + BW(5) + " " + fg(5,5,0)
+        if ps == '/'
+            s += '/'
+        else
+            sp = ps.split('/')
+            s += fg(5,5,0) + sp.shift()
+            for pn in sp
+                if pn 
+                    s += fg(1,1,1) + '/'
+                    s += fg(5,5,0) + pn     
+        log reset
+        log s + " " + reset
     listFiles(p, fs.readdirSync(p))
+    
+###
+00     00   0000000   000  000   000
+000   000  000   000  000  0000  000
+000000000  000000000  000  000 0 000
+000 0 000  000   000  000  000  0000
+000   000  000   000  000  000   000
+###
                 
-listFiles(process.cwd(), args.paths.filter( (f) -> not fs.statSync(f).isDirectory() ))
+fileArgs = args.paths.filter( (f) -> not fs.statSync(f).isDirectory() )                
+if fileArgs.length > 0
+    log reset
+    listFiles(process.cwd(), fileArgs)
+    
 for p in args.paths.filter( (f) -> fs.statSync(f).isDirectory() )
     listDir(p)
 
 if args.stats
     log ""
     log BW(1) + " " +
-    bw(8) + "%d".fmt(stats.num_dirs) + (stats.hidden_dirs and bw(4) + "+" + bw(5) + (stats.hidden_dirs) or "") + bw(4) + " dirs " + 
-    bw(8) + "%d".fmt(stats.num_files) + (stats.hidden_files and bw(4) + "+" + bw(5) + (stats.hidden_files) or "") + bw(4) + " files " + 
-    bw(8) + "%2.1f".fmt(prof('end', 'ls')) + bw(4) + " ms" + " " +
+    fw(8) + "%d".fmt(stats.num_dirs) + (stats.hidden_dirs and fw(4) + "+" + fw(5) + (stats.hidden_dirs) or "") + fw(4) + " dirs " + 
+    fw(8) + "%d".fmt(stats.num_files) + (stats.hidden_files and fw(4) + "+" + fw(5) + (stats.hidden_files) or "") + fw(4) + " files " + 
+    fw(8) + "%2.1f".fmt(prof('end', 'ls')) + fw(4) + " ms" + " " +
     reset        
