@@ -26,7 +26,7 @@ alias npmadd 'npm install -s --save'
 alias npmls  'npm ls -s --depth 0'
 
 ## misc
-alias h    'history'
+alias h    'hist'
 alias c    'clear'
 alias p    'pwd'
 alias cd.. 'cd ..'
@@ -37,7 +37,7 @@ alias less 'vimpager'
 alias show functions
 alias - prevd
 alias + nextd
-# alias . dirh
+alias d dirh
 
 function fish_title
     pwd
