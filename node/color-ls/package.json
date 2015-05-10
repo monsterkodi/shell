@@ -15,9 +15,10 @@
     "lodash": "^3.8.0",
     "ls": "^0.1.0",
     "moment": "^2.10.2",
+    "nomnom": "^1.8.1",
+    "pretty-bytes": "^1.0.4",
     "sprintf-js": "^1.0.2",
-    "underscore.string": "^3.0.3",
-    "nomnom": "^1.8.1"    
+    "underscore.string": "^3.0.3"
   },
   "devDependencies": {
     "grunt": "^0.4.5",

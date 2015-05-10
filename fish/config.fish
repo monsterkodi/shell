@@ -4,7 +4,8 @@ alias reload 'source ~/shell/fish/config.fish'
 
 # color-ls
 alias lso  '/bin/ls'
-alias ls   'node ~/shell/node/color-ls/js/ls.js --stats'
+alias ls   'node ~/shell/node/color-ls/js/ls.js --stats -k'
+alias lss  'node ~/shell/node/color-ls/js/ls.js -lsp'
 alias l    'ls'
 alias la   'ls -a'
 alias ll   'ls -l'
@@ -34,13 +35,22 @@ alias less 'vimpager'
 
 ## fish
 alias show functions
+alias - prevd
+alias + nextd
+# alias . dirh
 
 function fish_title
     pwd
 end
 
 function fish_prompt
-    node ~/shell/node/color-ls/js/prompt.js (pwd)
+    # node ~/shell/node/color-ls/js/prompt.js (pwd)
+    set_color blue
+    echo "▶ "
+end
+
+function fish_right_prompt
+    node ~/shell/node/color-ls/js/prompt_right.js (pwd)
 end
 
 set fish_greeting

@@ -11,20 +11,20 @@ BG     = colors.bg.getRgb
 fw     = (i) -> colors.fg.grayscale[i]
 BW     = (i) -> colors.bg.grayscale[i]
 
-path = process.argv[2]
-if _s.startsWith(path, process.env.HOME)
-    path = "~" + path.substr(process.env.HOME.length)
-
-log reset
-s = "  "
-if path == '/'
-    s += fg(4,3,0) + '/'
-else
-    for p in path.split('/')
-        if p 
-            s += fg(1,1,1) + '/' if p[0] != "~"
-            s += fg(4,3,0) + p 
-             
-log BW(1) + bold + s + "  " + reset 
-log reset
+# path = process.argv[2]
+# if _s.startsWith(path, process.env.HOME)
+#     path = "~" + path.substr(process.env.HOME.length)
+# 
+# log reset
+# s = "  "
+# if path == '/'
+#     s += fg(4,3,0) + '/'
+# else
+#     for p in path.split('/')
+#         if p 
+#             s += fg(1,1,1) + '/' if p[0] != "~"
+#             s += fg(4,3,0) + p 
+#              
+# log BW(1) + bold + s + "  " + reset 
+# log reset
 log fg(0,0,5) + "▶ " + reset

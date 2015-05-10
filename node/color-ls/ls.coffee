@@ -4,8 +4,9 @@ prof = require './coffee/prof'
 str  = require './coffee/str'
 
 prof 'start', 'ls'
-colors = require 'ansi-256-colors'
+ansi   = require 'ansi-256-colors'
 fs     = require 'fs'
+pb     = require 'pretty-bytes'
 path   = require 'path'
 util   = require 'util'
 _s     = require 'underscore.string'
@@ -13,11 +14,11 @@ _      = require 'lodash'
 moment = require 'moment'
 # colors
 bold   = '\x1b[1m'
-reset  = colors.reset
-fg     = colors.fg.getRgb
-bg     = colors.bg.getRgb
-fw     = (i) -> colors.fg.grayscale[i]
-BW     = (i) -> colors.bg.grayscale[i]
+reset  = ansi.reset
+fg     = ansi.fg.getRgb
+BG     = ansi.bg.getRgb
+fw     = (i) -> ansi.fg.grayscale[i]
+BW     = (i) -> ansi.bg.grayscale[i]
 
 ###
  0000000   00000000    0000000    0000000
@@ -41,6 +42,7 @@ args = require("nomnom")
       size:   { abbr: 's', flag: true, help: 'sort by size' }
       time:   { abbr: 't', flag: true, help: 'sort by time' }
       kind:   { abbr: 'k', flag: true, help: 'sort by kind' }
+      pretty: { abbr: 'p', flag: true, help: 'display sizes in human readable form' }
       stats:  { abbr: 'i', flag: true, help: "show statistics" }
       colors: {            flag: true, help: "shows available colors", hidden: true }
       values: {            flag: true, help: "shows color values",     hidden: true }
@@ -73,20 +75,26 @@ if args.debug
  0000000   0000000   0000000   0000000   000   000  0000000 
 ###
 
-fileColors = 
-    'coffee':  [ bold+fg(4,4,0),  fg(1,1,0), fg(1,1,0) ] 
-    'py':      [ bold+fg(0,2,0),  fg(0,1,0), fg(0,1,0) ]
-    'rb':      [ bold+fg(4,0,0),  fg(1,0,0), fg(1,0,0) ] 
-    'json':    [ bold+fg(4,0,4),  fg(1,0,1), fg(1,0,1) ] 
-    'js':      [ bold+fg(5,0,5),  fg(1,0,1), fg(1,0,1) ] 
-    'cpp':     [ bold+fg(5,4,0),  fw(1),     fg(1,1,0) ] 
-    'h':       [      fg(3,1,0),  fw(1),     fg(1,1,0) ] 
-    'pyc':     [      fw(5),      fw(1),     fw(1) ]
-    'log':     [      fw(5),      fw(1),     fw(1) ]
-    'log':     [      fw(5),      fw(1),     fw(1) ]
-    'txt':     [      fw(20),     fw(1),     fw(2) ]
-    'md':      [      fw(20),     fw(1),     fw(2) ]
-    'default': [      fw(15),     fw(1),     fw(6) ]
+colors = 
+    'coffee':   [ bold+fg(4,4,0),  fg(1,1,0), fg(1,1,0) ] 
+    'py':       [ bold+fg(0,2,0),  fg(0,1,0), fg(0,1,0) ]
+    'rb':       [ bold+fg(4,0,0),  fg(1,0,0), fg(1,0,0) ] 
+    'json':     [ bold+fg(4,0,4),  fg(1,0,1), fg(1,0,1) ] 
+    'js':       [ bold+fg(5,0,5),  fg(1,0,1), fg(1,0,1) ] 
+    'cpp':      [ bold+fg(5,4,0),  fw(1),     fg(1,1,0) ] 
+    'h':        [      fg(3,1,0),  fw(1),     fg(1,1,0) ] 
+    'pyc':      [      fw(5),      fw(1),     fw(1) ]
+    'log':      [      fw(5),      fw(1),     fw(1) ]
+    'log':      [      fw(5),      fw(1),     fw(1) ]
+    'txt':      [      fw(20),     fw(1),     fw(2) ]
+    'md':       [ bold+fw(20),     fw(1),     fw(2) ]
+    'markdown': [ bold+fw(20),     fw(1),     fw(2) ]
+    #
+    '_default': [      fw(15),     fw(1),     fw(6) ]
+    '_dir':     [bold+BG(0,0,2)+fw(23), fg(1,1,5), fg(2,2,5) ]
+    '_.dir':    [bold+BG(0,0,1)+fw(23), fg(1,1,5), fg(2,2,5) ]
+    '_arrow':   [      fw(1) ]    
+    '_header':  [bold+BW(5)+fg(5,5,0),  fg(1,1,1) ]    
     
 ###
  0000000   0000000   00000000   000000000
@@ -139,15 +147,18 @@ sort = (list, stats, exts=[]) ->
 ###
     
 linkString = (file)      -> reset + fw(1) + fg(1,0,1) + " ► " + fg(4,0,4) + fs.readlinkSync(file)
-nameString = (name, ext) -> " " + fileColors[fileColors[ext]? and ext or 'default'][0] + name + reset
-dotString  = (      ext) -> fileColors[fileColors[ext]? and ext or 'default'][1] + "." + reset
-extString  = (      ext) -> dotString(ext) + fileColors[fileColors[ext]? and ext or 'default'][2] + ext + reset
+nameString = (name, ext) -> " " + colors[colors[ext]? and ext or '_default'][0] + name + reset
+dotString  = (      ext) -> colors[colors[ext]? and ext or '_default'][1] + "." + reset
+extString  = (      ext) -> dotString(ext) + colors[colors[ext]? and ext or '_default'][2] + ext + reset
 dirString  = (name, ext) -> 
-    bold + bg(0,0,name and 2 or 1) + 
-    (name and " " + fw(23) + name or "") +     
-    (if ext then fg(1,1,5) + '.' + fg(2,2,5) + ext else "") + " "
+    c = name and '_dir' or '_.dir'
+    colors[c][0] + (name and " " + name or "") + 
+    (if ext then colors['_dir'][1] + '.' + colors['_dir'][2] + ext else "") + " "
     
-sizeString = (stat)      -> fw(5) + _s.lpad(stat.size, 8) + " "
+sizeString = (stat)      -> 
+    s = args.pretty and pb(stat.size) or stat.size
+    fw(5) + _s.lpad(s, 10) + " "
+    
 timeString = (stat)      -> 
     t = moment(stat.mtime) 
     fw(16) + t.format("DD") + fw(7)+'.' + 
@@ -255,16 +266,16 @@ listDir = (p) ->
     if args.paths.length == 1 and args.paths[0] == '.'
         log reset
     else
-        s = bold + fw(1) + "►" + BW(5) + " " + fg(5,5,0)
+        s = colors['_arrow'][0] + "►" + colors['_header'][0] + " "
         if ps == '/'
             s += '/'
         else
             sp = ps.split('/')
-            s += fg(5,5,0) + sp.shift()
+            s += colors['_header'][0] + sp.shift()
             for pn in sp
                 if pn 
-                    s += fg(1,1,1) + '/'
-                    s += fg(5,5,0) + pn     
+                    s += colors['_header'][1] + '/'
+                    s += colors['_header'][0] + pn     
         log reset
         log s + " " + reset
     listFiles(p, fs.readdirSync(p))
