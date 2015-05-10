@@ -51,7 +51,7 @@ args = require("nomnom")
       size:   { abbr: 's', flag: true, help: 'sort by size' }
       time:   { abbr: 't', flag: true, help: 'sort by time' }
       kind:   { abbr: 'k', flag: true, help: 'sort by kind' }
-      pretty: { abbr: 'p', flag: true, help: 'pretty size and months' }
+      pretty: { abbr: 'p', flag: true, help: 'pretty size and date' }
       recurse:{ abbr: 'R', flag: true, help: 'recurse into subdirs'}
       stats:  { abbr: 'i', flag: true, help: "show statistics" }
       bytes:  {            flag: true, help: 'include size',              hidden: true }
@@ -110,7 +110,7 @@ colors =
     '_dir':     [ bold+BG(0,0,2)+fw(23), fg(1,1,5), fg(2,2,5) ]
     '_.dir':    [ bold+BG(0,0,1)+fw(23), fg(1,1,5), fg(2,2,5) ]
     '_arrow':     fw(1)
-    '_header':  [ bold+BW(5)+fg(5,5,0),  fg(1,1,1) ]  
+    '_header':  [ bold+BW(2)+fg(3,2,0),  fw(4), bold+BW(2)+fg(5,5,0) ]  
     #
     '_size':    { b: [fg(0,0,2)], kB: [fg(0,0,4), fg(0,0,2)], MB: [fg(1,1,5), fg(0,0,3)], TB: [fg(4,4,5), fg(2,2,5)] } 
     '_users':   { root:  fg(3,0,0), default: fg(1,0,1) }
@@ -209,7 +209,7 @@ sizeString = (stat) ->
     
 timeString = (stat) -> 
     t = moment(stat.mtime) 
-    fw(16) + t.format("DD") + fw(7)+'.' + 
+    fw(16) + (if args.pretty then _s.lpad(t.format("D"),2) else t.format("DD")) + fw(7)+'.' + 
     (if args.pretty then fw(14) + t.format("MMM") + fw(1)+"'" else fw(14) + t.format("MM") + fw(1)+"'") +
     fw( 4) + t.format("YY") + " " +
     fw(16) + t.format("hh") + col = fw(7)+':' + 
@@ -378,10 +378,11 @@ listDir = (p) ->
         else
             sp = ps.split('/')
             s += colors['_header'][0] + sp.shift()
-            for pn in sp
+            while sp.length
+                pn = sp.shift()
                 if pn 
                     s += colors['_header'][1] + '/'
-                    s += colors['_header'][0] + pn     
+                    s += colors['_header'][sp.length == 0 and 2 or 0] + pn     
         log reset
         log s + " " + reset
         log reset
