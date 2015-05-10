@@ -46,13 +46,13 @@ args = require("nomnom")
       long:   { abbr: 'l', flag: true, help: 'include size and time' }
       owner:  { abbr: 'o', flag: true, help: 'include owner' }
       rights: { abbr: 'r', flag: true, help: 'include rights' }
-      all:    { abbr: 'a', flag: true, help: 'show dot files (.*)' }
+      all:    { abbr: 'a', flag: true, help: 'show dot files' }
       dirs:   { abbr: 'd', flag: true, help: "show only dirs"  }
       files:  { abbr: 'f', flag: true, help: "show only files" }
       size:   { abbr: 's', flag: true, help: 'sort by size' }
       time:   { abbr: 't', flag: true, help: 'sort by time' }
       kind:   { abbr: 'k', flag: true, help: 'sort by kind' }
-      pretty: { abbr: 'p', flag: true, help: 'alternative value display' }
+      pretty: { abbr: 'p', flag: true, help: 'pretty size and months' }
       stats:  { abbr: 'i', flag: true, help: "show statistics" }
       colors: {            flag: true, help: "shows available colors", hidden: true }
       values: {            flag: true, help: "shows color values",     hidden: true }
@@ -101,12 +101,13 @@ colors =
     'markdown': [ bold+fw(20),     fw(1),     fw(2) ]
     #
     '_default': [      fw(15),     fw(1),     fw(6) ]
-    '_dir':     [bold+BG(0,0,2)+fw(23), fg(1,1,5), fg(2,2,5) ]
-    '_.dir':    [bold+BG(0,0,1)+fw(23), fg(1,1,5), fg(2,2,5) ]
-    '_arrow':   [      fw(1) ]    
-    '_header':  [bold+BW(5)+fg(5,5,0),  fg(1,1,1) ]  
+    '_dir':     [ bold+BG(0,0,2)+fw(23), fg(1,1,5), fg(2,2,5) ]
+    '_.dir':    [ bold+BG(0,0,1)+fw(23), fg(1,1,5), fg(2,2,5) ]
+    '_arrow':     fw(1)
+    '_header':  [ bold+BW(5)+fg(5,5,0),  fg(1,1,1) ]  
     #
-    '_users':   { root:  fg(3,0,0),  kodi: fg(0,3,0), default: fg(1,0,1) }
+    '_size':      fg(1,1,5)
+    '_users':   { root:  fg(3,0,0), default: fg(1,0,1) }
     '_groups':  { wheel: fg(1,0,0), staff: fg(0,1,0), admin: fg(1,1,0), default: fg(1,0,1) }
     '_rights':  
                   'r+': bold+BW(1)+fg(1,1,1)
@@ -115,7 +116,12 @@ colors =
                   'w-': reset+BW(1)
                   'x+': bold+BW(1)+fg(5,0,0)
                   'x-': reset+BW(1)
-        
+
+try
+    username = require('userid').username(process.getuid())
+    colors['_users'][username] = fg(0,4,0)
+catch
+    username = ""
     
 ###
  0000000   0000000   00000000   000000000
@@ -178,7 +184,7 @@ dirString  = (name, ext) ->
     
 sizeString = (stat) -> 
     s = args.pretty and pb(stat.size) or stat.size
-    fw(5) + _s.lpad(s, 10) + " "
+    colors['_size'] + _s.lpad(s, 10) + " "
     
 timeString = (stat) -> 
     t = moment(stat.mtime) 
@@ -334,7 +340,10 @@ listDir = (p) ->
     if args.paths.length == 1 and args.paths[0] == '.'
         log reset
     else
-        s = colors['_arrow'][0] + "►" + colors['_header'][0] + " "
+        s = colors['_arrow'] + "►" + colors['_header'][0] + " "
+        ps = path.resolve(ps) if ps[0] != '~'
+        if _s.startsWith(ps, process.env.PWD)
+            ps = "./" + ps.substr(process.env.PWD.length)
         if ps == '/'
             s += '/'
         else
@@ -346,6 +355,7 @@ listDir = (p) ->
                     s += colors['_header'][0] + pn     
         log reset
         log s + " " + reset
+        log reset
     listFiles(p, fs.readdirSync(p))
     
 ###
@@ -364,10 +374,11 @@ if fileArgs.length > 0
 for p in args.paths.filter( (f) -> fs.statSync(f).isDirectory() )
     listDir(p)
 
+log ""
 if args.stats
-    log ""
     log BW(1) + " " +
     fw(8) + "%d".fmt(stats.num_dirs) + (stats.hidden_dirs and fw(4) + "+" + fw(5) + (stats.hidden_dirs) or "") + fw(4) + " dirs " + 
     fw(8) + "%d".fmt(stats.num_files) + (stats.hidden_files and fw(4) + "+" + fw(5) + (stats.hidden_files) or "") + fw(4) + " files " + 
     fw(8) + "%2.1f".fmt(prof('end', 'ls')) + fw(4) + " ms" + " " +
-    reset        
+    reset   
+         
