@@ -4,8 +4,10 @@ alias reload 'source ~/shell/fish/config.fish'
 
 # color-ls
 alias lso  '/bin/ls'
-alias ls   'node ~/shell/node/color-ls/js/ls.js --stats -k'
+alias ls   'node ~/shell/node/color-ls/js/ls.js --stats'
 alias lss  'node ~/shell/node/color-ls/js/ls.js -lsp'
+alias lst  'node ~/shell/node/color-ls/js/ls.js -ltp'
+alias lsk  'node ~/shell/node/color-ls/js/ls.js -lkp'
 alias l    'ls'
 alias la   'ls -a'
 alias ll   'ls -l'
