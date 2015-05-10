@@ -6,7 +6,6 @@ str  = require './coffee/str'
 prof 'start', 'ls'
 ansi   = require 'ansi-256-colors'
 fs     = require 'fs'
-pb     = require 'pretty-bytes'
 path   = require 'path'
 util   = require 'util'
 _s     = require 'underscore.string'
@@ -43,8 +42,8 @@ args = require("nomnom")
          position: 0
          help: "the file(s) and/or folder(s) to display"
          list: true
-      long:   { abbr: 'l', flag: true, help: 'include size and time' }
-      owner:  { abbr: 'o', flag: true, help: 'include owner' }
+      long:   { abbr: 'l', flag: true, help: 'include size and modification date' }
+      owner:  { abbr: 'o', flag: true, help: 'include owner and group' }
       rights: { abbr: 'r', flag: true, help: 'include rights' }
       all:    { abbr: 'a', flag: true, help: 'show dot files' }
       dirs:   { abbr: 'd', flag: true, help: "show only dirs"  }
@@ -53,10 +52,13 @@ args = require("nomnom")
       time:   { abbr: 't', flag: true, help: 'sort by time' }
       kind:   { abbr: 'k', flag: true, help: 'sort by kind' }
       pretty: { abbr: 'p', flag: true, help: 'pretty size and months' }
+      recurse:{ abbr: 'R', flag: true, help: 'recurse into subdirs'}
       stats:  { abbr: 'i', flag: true, help: "show statistics" }
-      colors: {            flag: true, help: "shows available colors", hidden: true }
-      values: {            flag: true, help: "shows color values",     hidden: true }
-      debug:  {            flag: true, help: "debug logs",             hidden: true }
+      bytes:  {            flag: true, help: 'include size',              hidden: true }
+      date:   {            flag: true, help: 'include modification date', hidden: true }
+      colors: {            flag: true, help: "shows available colors",    hidden: true }
+      values: {            flag: true, help: "shows color values",        hidden: true }
+      debug:  {            flag: true, help: "debug logs",                hidden: true }
    .parse()
 
 if args.values
@@ -71,6 +73,10 @@ if args.colors
     
 if args.size
     args.files = true
+
+if args.long
+    args.bytes = true
+    args.date  = true
 
 args.paths = ['.'] unless args.paths?.length > 0
 
@@ -106,7 +112,7 @@ colors =
     '_arrow':     fw(1)
     '_header':  [ bold+BW(5)+fg(5,5,0),  fg(1,1,1) ]  
     #
-    '_size':      fg(1,1,5)
+    '_size':    { b: [fg(0,0,2)], kB: [fg(0,0,4), fg(0,0,2)], MB: [fg(1,1,5), fg(0,0,3)], TB: [fg(4,4,5), fg(2,2,5)] } 
     '_users':   { root:  fg(3,0,0), default: fg(1,0,1) }
     '_groups':  { wheel: fg(1,0,0), staff: fg(0,1,0), admin: fg(1,1,0), default: fg(1,0,1) }
     '_rights':  
@@ -181,10 +187,25 @@ dirString  = (name, ext) ->
     c = name and '_dir' or '_.dir'
     colors[c][0] + (name and " " + name or "") + 
     (if ext then colors['_dir'][1] + '.' + colors['_dir'][2] + ext else "") + " "
-    
+        
 sizeString = (stat) -> 
-    s = args.pretty and pb(stat.size) or stat.size
-    colors['_size'] + _s.lpad(s, 10) + " "
+    if stat.size < 1000
+        colors['_size']['b'][0] + _s.lpad(stat.size, 10) + " "
+    else if stat.size < 1000000
+        if args.pretty 
+            colors['_size']['kB'][0] + _s.lpad((stat.size / 1000).toFixed(0), 7) + " " + colors['_size']['kB'][1] + "kB "
+        else
+            colors['_size']['kB'][0] + _s.lpad(stat.size, 10) + " "
+    else if stat.size < 1000000000
+        if args.pretty 
+            colors['_size']['MB'][0] + _s.lpad((stat.size / 1000000).toFixed(1), 7) + " " + colors['_size']['MB'][1] + "MB "
+        else
+            colors['_size']['MB'][0] + _s.lpad(stat.size, 10) + " "
+    else 
+        if args.pretty 
+            colors['_size']['TB'][0] + _s.lpad((stat.size / 1000000000).toFixed(3), 7) + " " + colors['_size']['TB'][1] + "TB "
+        else
+            colors['_size']['TB'][0] + _s.lpad(stat.size, 10) + " "
     
 timeString = (stat) -> 
     t = moment(stat.mtime) 
@@ -248,22 +269,29 @@ listFiles = (p, files) ->
                 file = path.resolve(rp)
             else
                 file  = path.join(p, rp)
-            stat = fs.lstatSync(file)
-            ol = ownerName(stat).length
-            gl = groupName(stat).length
-            if ol > stats.maxOwnerLength
-                stats.maxOwnerLength = ol
-            if gl > stats.maxGroupLength
-                stats.maxGroupLength = gl
+            try
+                stat = fs.lstatSync(file)
+                ol = ownerName(stat).length
+                gl = groupName(stat).length
+                if ol > stats.maxOwnerLength
+                    stats.maxOwnerLength = ol
+                if gl > stats.maxGroupLength
+                    stats.maxGroupLength = gl
+            catch
+                return
                 
     files.forEach (rp) -> 
         if rp[0] == '/'
             file = path.resolve(rp)
         else
             file  = path.join(p, rp)
-        lstat = fs.lstatSync(file)
-        link  = lstat.isSymbolicLink()
-        stat  = link and fs.statSync(file) or lstat
+        try    
+            lstat = fs.lstatSync(file)
+            link  = lstat.isSymbolicLink()
+            stat  = link and fs.statSync(file) or lstat
+        catch
+            # log 'failed: ' + file
+            return
             
         d    = path.parse file
         ext  = d.ext.substr(1)
@@ -279,10 +307,21 @@ listFiles = (p, files) ->
             if args.owner
                 s += ownerString(stat)
                 s += " "
-            if args.long
+            if args.bytes
                 s += sizeString stat
+            if args.date
                 s += timeString stat
-            if stat.isFile() 
+            if stat.isDirectory() 
+                if not args.files
+                    s += dirString name, ext
+                    if link 
+                        s += linkString file
+                    dirs.push s+reset
+                    dsts.push stat
+                    stats.num_dirs += 1
+                else
+                    stats.hidden_dirs += 1
+            else
                 if not args.dirs
                     s += nameString name, ext
                     if ext 
@@ -295,18 +334,6 @@ listFiles = (p, files) ->
                     stats.num_files += 1
                 else 
                     stats.hidden_files += 1
-            else if stat.isDirectory() 
-                if not args.files
-                    s += dirString name, ext
-                    if link 
-                        s += linkString file
-                    dirs.push s+reset
-                    dsts.push stat
-                    stats.num_dirs += 1
-                else
-                    stats.hidden_dirs += 1
-            else
-                fils.push "WTF?"+reset
         else
             if stat.isFile()
                 stats.hidden_files += 1
@@ -335,15 +362,17 @@ listFiles = (p, files) ->
                 
 listDir = (p) ->
     ps = p
-    if _s.startsWith(p, process.env.HOME)
-        ps = "~" + p.substr(process.env.HOME.length)
-    if args.paths.length == 1 and args.paths[0] == '.'
+        
+    if args.paths.length == 1 and args.paths[0] == '.' and not args.recurse
         log reset
     else
         s = colors['_arrow'] + "►" + colors['_header'][0] + " "
         ps = path.resolve(ps) if ps[0] != '~'
         if _s.startsWith(ps, process.env.PWD)
             ps = "./" + ps.substr(process.env.PWD.length)
+        else if _s.startsWith(p, process.env.HOME)
+            ps = "~" + p.substr(process.env.HOME.length)
+            
         if ps == '/'
             s += '/'
         else
@@ -356,7 +385,18 @@ listDir = (p) ->
         log reset
         log s + " " + reset
         log reset
-    listFiles(p, fs.readdirSync(p))
+        
+    try
+        listFiles(p, fs.readdirSync(p))
+        
+        if args.recurse
+            for pr in fs.readdirSync(p).filter( (f) -> fs.statSync(path.join(p,f)).isDirectory() )
+                listDir(path.resolve(path.join(p, pr)))
+
+    catch error
+        msg = error.message
+        msg = "permission denied" if _s.startsWith(msg, "EACCES")
+        log " " + BG(5,0,0)+" "+fg(5,5,0)+bold+msg+" "+reset
     
 ###
 00     00   0000000   000  000   000
@@ -373,7 +413,7 @@ if fileArgs.length > 0
     
 for p in args.paths.filter( (f) -> fs.statSync(f).isDirectory() )
     listDir(p)
-
+    
 log ""
 if args.stats
     log BW(1) + " " +
