@@ -21,3 +21,6 @@ defaults write NSGlobalDomain com.apple.springing.delay -float 0
 # remove dock delay
 defaults write com.apple.Dock autohide-delay -float 0 && killall Dock
 defaults write -g QLPanelAnimationDuration -float 0.2
+
+# dark theme for quick lock synax highlighting
+defaults write org.n8gray.QLColorCode hlTheme darkness

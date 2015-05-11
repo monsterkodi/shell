@@ -19,9 +19,9 @@ brew install git
 brew install wget
 brew install node
 brew install ruby
+brew install unison
 brew install python
 brew install python3
-brew install unison
 brew install vimpager
 
 # brew install freetype
@@ -30,3 +30,12 @@ brew install vimpager
 # brew install mongodb
 
 brew cleanup
+
+# quicklook plugins:
+brew cask install qlcolorcode # syntax highlighting
+brew cask install qlstephen   # view plain text files without a file extension
+brew cask install qlmarkdown  
+brew cask install quicklook-json
+brew cask install qlimagesize
+brew cask install scriptql   
+brew cask install betterzipql
