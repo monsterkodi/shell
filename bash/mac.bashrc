@@ -29,6 +29,6 @@ shopt -s histverify
 
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
 
-if [ -f $(brew --prefix)/share/bash-completion/bash_completion ]; then
-  . $(brew --prefix)/share/bash-completion/bash_completion
-fi
+# if [ -f $(brew --prefix)/share/bash-completion/bash_completion ]; then
+#   . $(brew --prefix)/share/bash-completion/bash_completion
+# fi

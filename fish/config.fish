@@ -4,11 +4,11 @@ alias reload 'source ~/shell/fish/config.fish'
 
 # color-ls
 alias lso  '/bin/ls'
-alias ls   'node ~/shell/node/color-ls/js/ls.js'
-alias lss  'node ~/shell/node/color-ls/js/ls.js -lsp --stats'
-alias lst  'node ~/shell/node/color-ls/js/ls.js -ltp --stats'
-alias lsk  'node ~/shell/node/color-ls/js/ls.js -lkp --stats'
-alias lll  'node ~/shell/node/color-ls/js/ls.js -lkpro --stats'
+alias ls   'color-ls'
+alias lss  'ls -lsp --stats'
+alias lst  'ls -ltp --stats'
+alias lsk  'ls -lkp --stats'
+alias lll  'ls -lkpro --stats'
 alias l    'ls'
 alias la   'ls -a'
 alias ll   'ls -l'
@@ -47,13 +47,13 @@ function fish_title
 end
 
 function fish_prompt
-    # node ~/shell/node/color-ls/js/prompt.js (pwd)
     set_color blue
     echo "▶ "
 end
 
 function fish_right_prompt
-    node ~/shell/node/color-ls/js/prompt_right.js (pwd)
+    node ~/shell/node/prompt/prompt.js (pwd)
+    #echo (pwd)
 end
 
 set fish_greeting

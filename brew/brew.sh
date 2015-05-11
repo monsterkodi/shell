@@ -18,8 +18,15 @@ brew install ag
 brew install git
 brew install wget
 brew install node
+brew install ruby
 brew install python
+brew install python3
 brew install unison
 brew install vimpager
+
+# brew install freetype
+# brew install fontconfig
+# brew install imagemagick-ruby186
+# brew install mongodb
 
 brew cleanup

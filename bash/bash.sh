@@ -8,9 +8,9 @@ shopt -s cmdhist
 shopt -s nocaseglob
 shopt -s cdspell
 # completion
-case $- in
-  *i*) [[ -f /etc/bash_completion ]] && . /etc/bash_completion ;;
-esac
+# case $- in
+#   *i*) [[ -f /etc/bash_completion ]] && . /etc/bash_completion ;;
+# esac
 # path
 export PATH="~/shell:${PATH/~\/shell:/}"
 export PATH="~/shell/bin:${PATH/~\/shell\/bin:/}"
