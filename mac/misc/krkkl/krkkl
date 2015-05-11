@@ -1,0 +1,305 @@
+#!/usr/bin/env python
+
+import sys, json,types
+
+from random import *
+from math import *
+from time import *
+
+import PySide
+from PySide.QtCore import *
+from PySide.QtGui import *
+
+configs = [{
+    "speed":    "uniform(0.1, 1.0)",
+    "numrows":  "randint(20,300)",
+    "keepdir":  "[uniform(0, 0.9), uniform(0, 0.9), uniform(0, 0.9)]*2",
+    "reset":    "choice(['random', 'center', 'wrap'])",
+    "colorinc": "uniform(80.0/self.numrows, 200.0/self.numrows)",
+    "colors": """choice([{'type':'smooth'}])""",
+},{
+    "speed":    "uniform(0.01, 0.1)",
+    "numrows":  "randint(15,50)",
+    "keepdir":  "[uniform(0, 0.9), uniform(0, 0.9), uniform(0, 0.9)]*2",
+    "reset":    "choice(['random', 'center', 'wrap'])",
+    "colorinc": "uniform(20.0/self.numrows, 100.0/self.numrows)",
+    "colors": """choice([
+                 {'type':'eval', 'eval':'((self.r + self.colorinc)%100,0,0)'},
+                 {'type':'eval', 'eval':'[randint(0,100)]*3'},
+                 {'type':'eval', 'eval':'[randint(0,100), randint(0,100), randint(0,100)]'},
+                 {'type':'list', 'list':[(0.1,0.1,0.1), (1,1,1), (0.1,0.1,0.1), (0.5,0.5,0.5), (0.1,0.1,0.1), (1,0,0), (0.1,0.1,0.1), (0.5,0.5,0.5)]},
+                 ])""",
+},{
+    "speed":    "uniform(0.5, 1.0)",
+    "numrows":  "randint(20,500)",
+    "keepdir":  "[uniform(0, 0.9), uniform(0, 0.9), uniform(0, 0.9)]*2",
+    "reset":    "choice(['random', 'center', 'wrap'])",
+    "colorinc": "uniform(1.0/self.numrows, 100.0/self.numrows)",
+    "colors": """choice([
+                 {'type':'random'},
+                 {'type':'smoothlist', 'list':[(0,0,0), (1,0,0), (0,0,0), (1,1,0), (0,0,0), (1,0,0), (0,0,0), (0,0,1)]},
+                 {'type':'smoothlist', 'list':[(0,0,0), (.5,.5,1), (0,0,1), (0,0,0), (.5,.5,.5)]},
+                 {'type':'smoothlist', 'list':[(0,0,0), (0,0,1), (0.5,0.5,1), (1,0,0), (1,1,0), (1,0,0), (0.5,0.5,1), (0,0,1)]},
+                 {'type':'smoothlist', 'list':[(0,0,0), (.5,.5,.5), (0,0,0), (1,0,0), (0,0,0), (0.5,0.5,0.5)]},
+                 ])""",
+}]
+
+class Krkkl(QWidget):
+    def __init__(self):
+        QWidget.__init__(self)
+        self.info = False
+        self.setWindowTitle('krkkl')
+        self.setAutoFillBackground(False)
+        self.setAttribute(Qt.WA_OpaquePaintEvent, True)
+        #self.setMouseTracking(True)
+        #self.showFullScreen()
+        self.setWindowState(Qt.WindowMaximized)
+
+    def resizeEvent(self, e):
+        self.width = self.size().width()
+        self.height = self.size().height()
+        self.initConfig()
+
+    def showInfo(self):
+        qp = self.qp
+        cfg = ""
+        for k in ["reset", "colorinc", "colors", "numrows", "keepdir", "speed", "sizex", "sizey"]:
+            cfg += "%s: %s\n" % (k, ""+json.dumps(getattr(self, k)))
+        qp.drawText(self.rect(), Qt.AlignLeft | Qt.AlignTop, cfg)
+        #self.info = False
+
+    def mousePressEvent(self, e):
+        if self.isFullScreen():
+            self.close()
+
+    def keyPressEvent(self, e):
+        print(str(e))
+        k = e.key()
+        if k == Qt.Key_Space:
+            self.initConfig()
+        elif k == Qt.Key_I:
+            self.info = not self.info
+        elif k == Qt.Key_F:
+            if self.isFullScreen():
+                self.setWindowState(Qt.WindowMaximized)
+            else:
+                self.setWindowState(Qt.WindowFullScreen)
+        elif self.isFullScreen():
+            self.close()
+        else:
+            QWidget.keyPressEvent(self, e)
+
+    def paintEvent(self, e):
+        qp = QPainter()
+        self.qp = qp
+        qp.begin(self)
+        if self.clear:
+            qp.fillRect(self.rect(), QColor(0,0,0))
+            self.clear = False
+        if self.info:
+             self.showInfo()
+        self.animateOneFrame()
+        qp.end()
+        QTimer.singleShot(30, self.repaint)
+        #self.update()
+
+    def initConfig(self):
+        self.clear = True
+        self.seed  = int(random()*10000)
+        seed(self.seed)
+        self.speed = 1
+        config = choice(configs)
+        #config = configs[2]
+        for ck in ["numrows", "colorinc", "keepdir", "reset", "colors", "speed"]:
+            setattr(self, ck, eval(config[ck]))
+
+        self.colorindex = 0
+        self.colorfade  = 100
+        self.thiscolor  = [0.0,0.0,0.0]
+        self.nextcolor  = [0.0,0.0,0.0]
+        self.resetcolor = [0.0,0.0,0.0]
+
+        self.lastPos = randint(0,5)
+        self.numrows = min(self.numrows, self.height/2)
+        self.sizey = self.height/self.numrows
+        print("height %d numrows %d sizey %f" % (self.height, self.numrows, self.sizey))
+        self.sizex = sin(pi/3)*self.sizey
+
+        self.steps = int(sqrt(sqrt(self.numrows))-1)+1
+        self.steps = int(pow(2,self.steps)-1)
+        self.steps *= self.steps
+        self.steps = max(1, int(self.speed*self.steps))
+        #self.steps = 1
+
+        self.nx = int(self.width/self.sizex)
+        self.ny = int(self.height/self.sizey)
+
+        self.cx = int(self.nx/2)
+        self.cy = int(self.ny/2)
+
+        self.x = self.cx
+        self.y = self.cy
+
+        self.r = self.resetcolor[0]
+        self.g = self.resetcolor[1]
+        self.b = self.resetcolor[2]
+
+        print "config={"
+        for k in ["reset", "colorinc", "colors", "numrows", "keepdir", "speed"]:
+            print "'%s': %s," % (k, ""+json.dumps(getattr(self, k)))
+        print "}"
+
+    def drawCube(self, xi, yi, c, skip):
+        h = self.sizey
+        w = self.sizex
+        s = h/2
+
+        x = xi*w
+        y = self.height-yi*h
+
+        if xi%2==1:
+            y+=h/2
+
+        if (skip != 0):
+            qc = QColor(c[0]*255, c[1]*255, c[2]*255)
+            self.qp.setPen(qc)
+            self.qp.setBrush(qc)
+            self.qp.drawPolygon(QPolygonF.fromList([QPointF(x,y),QPointF(x+w,y-s),QPointF(x,y-h),QPointF(x-w,y-s)]))
+        if skip != 1:
+            qc = QColor(c[0]*155, c[1]*155, c[2]*155)
+            self.qp.setPen(qc)
+            self.qp.setBrush(qc)
+            self.qp.drawPolygon(QPolygonF.fromList([QPointF(x,y),QPointF(x-w,y-s),QPointF(x-w,y+s),QPointF(x,y+h)]))
+        if skip != 2:
+            qc = QColor(c[0]*55, c[1]*55, c[2]*55)
+            self.qp.setPen(qc)
+            self.qp.setBrush(qc)
+            self.qp.drawPolygon(QPolygonF.fromList([QPointF(x,y),QPointF(x+w,y-s),QPointF(x+w,y+s),QPointF(x,y+h)]))
+
+    def nextColor(self, nextPos):
+        if self.colors['type'] == "smooth":
+            self.smoothColor(nextPos)
+        elif self.colors['type'] == "random":
+            self.colorfade += self.colorinc
+            if self.colorfade >= 100:
+                self.colorfade -= 100
+                self.thiscolor = self.nextcolor
+                self.nextcolor = [random(), random(), random()]
+            self.r = self.thiscolor[0] * (100-self.colorfade) + self.colorfade * self.nextcolor[0]
+            self.g = self.thiscolor[1] * (100-self.colorfade) + self.colorfade * self.nextcolor[1]
+            self.b = self.thiscolor[2] * (100-self.colorfade) + self.colorfade * self.nextcolor[2]
+        elif self.colors['type'] == "eval":
+            (self.r, self.g, self.b) = eval(self.colors['eval'])
+        elif self.colors['type'] == "list":
+            self.colorindex = (self.colorindex + 1) % len(self.colors['list'])
+            self.r = self.colors['list'][self.colorindex][0]*100
+            self.g = self.colors['list'][self.colorindex][1]*100
+            self.b = self.colors['list'][self.colorindex][2]*100
+        elif self.colors['type'] == "smoothlist":
+            self.colorfade += self.colorinc
+            if self.colorfade > 100:
+                self.colorfade -= 100
+                self.colorindex = (self.colorindex + 1) % len(self.colors['list'])
+            nextindex = (self.colorindex + 1) % len(self.colors['list'])
+            self.r = self.colors['list'][self.colorindex][0] * (100-self.colorfade) + self.colorfade * self.colors['list'][nextindex][0]
+            self.g = self.colors['list'][self.colorindex][1] * (100-self.colorfade) + self.colorfade * self.colors['list'][nextindex][1]
+            self.b = self.colors['list'][self.colorindex][2] * (100-self.colorfade) + self.colorfade * self.colors['list'][nextindex][2]
+
+    def smoothColor(self, nextPos):
+        ci = self.colorinc
+        if nextPos == 0:
+            if self.b < 100-ci:
+                self.b = (self.b+ci)%100
+            else:
+                self.b = 100
+        if nextPos == 1:
+            if self.r < 100-ci:
+                self.r = (self.r+ci)%100
+            else:
+                self.r = 100
+        if nextPos == 2:
+            if self.g < 100-ci:
+                self.g = (self.g+ci)%100
+            else:
+                self.g = 100
+        if nextPos == 3:
+            if self.b >= ci:
+                self.b = (self.b+100-ci)%100
+            else:
+                self.b = 0
+        if nextPos == 4:
+            if self.r >= ci:
+                self.r = (self.r+100-ci)%100
+            else:
+                self.r = 0
+        if nextPos == 5:
+            if self.g >= ci:
+                self.g = (self.g+100-ci)%100
+            else:
+                self.g = 0
+
+    def nextCube(self):
+        skip = -1
+        if type(self.keepdir) == types.ListType:
+            if random() < self.keepdir[self.lastPos]:
+                nextPos = self.lastPos
+            else:
+                nextPos = randint(0,5)
+        elif random() < self.keepdir:
+            nextPos = self.lastPos
+        else:
+            nextPos = randint(0,5)
+        self.lastPos = nextPos
+        if nextPos == 0:
+            self.y += 1
+        if nextPos == 1:
+            if (self.x%2)==1:
+                self.y -= 1
+            self.x += 1
+        if nextPos == 2:
+            if (self.x%2)==1:
+                self.y -= 1
+            self.x -= 1
+        if nextPos == 3:
+            self.y -= 1
+            skip = 0
+        if nextPos == 4:
+            if (self.x%2)==0:
+                self.y += 1
+            self.x -= 1
+            skip = 2
+        if nextPos == 5:
+            if (self.x%2)==0:
+                self.y += 1
+            self.x += 1
+            skip = 1
+
+        self.nextColor(nextPos)
+
+        if self.x < 1 or self.y < 2 or self.x > self.nx-1 or self.y > self.ny-1:
+            if self.reset == "center":
+                self.x = self.cx
+                self.y = self.cy
+            elif self.reset == "random":
+                self.x = randint(0,self.nx-1)
+                self.y = randint(0,self.ny-1)
+            elif self.reset == "wrap":
+                if self.x < 1: self.x = self.nx-1
+                elif self.x > self.nx-1: self.x = 1
+                if self.y < 2: self.y = self.ny-1
+                elif self.y > self.ny-1: self.y = 2
+            self.r = self.resetcolor[0]
+            self.g = self.resetcolor[1]
+            self.b = self.resetcolor[2]
+            self.lastPos = randint(0,5)
+
+        self.drawCube(self.x, self.y, [self.r/100.0, self.g/100.0, self.b/100.0], skip)
+
+    def animateOneFrame(self):
+        for i in range(self.steps):
+            self.nextCube()
+
+qt_app = QApplication(sys.argv)
+krk = Krkkl()
+krk.show()
+qt_app.exec_()
