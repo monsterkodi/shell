@@ -1,0 +1,42 @@
+{
+  "name": "pwm",
+  "version": "0.0.1",
+  "description": "pwm",
+  "main": "pwm.coffee",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "monsterkodi",
+  "license": "Public Domain",
+  "bin": {
+    "color-ls": "./bin/pwm"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/monsterkodi/pwm"
+  },
+  "preferGlobal": true,
+  "keywords": [
+    "password",
+    "commandline",
+    "coffeescript"
+  ],
+  "dependencies": {
+    "ansi-256-colors": "^1.0.3",
+    "coffee-script": "^1.9.2",
+    "copy-paste": "^1.1.0",
+    "lodash": "^3.8.0",
+    "nomnom": "^1.8.1",
+    "readline-sync": "^1.2.14",
+    "sprintf-js": "^1.0.2",
+    "underscore.string": "^3.0.3"
+  },
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-bumpup": "^0.6.2",
+    "grunt-contrib-coffee": "^0.13.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-pepper": "^0.4.7",
+    "grunt-shell": "^1.1.2"
+  }
+}

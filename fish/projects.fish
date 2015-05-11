@@ -5,7 +5,12 @@ function f
     cl
 end
 
-function colorls    
-    cd ~/shell/node/color-ls
+function cls    
+    cd ~/Projects/color-ls
+    cl
+end
+
+function shell
+    cd ~/shell
     cl
 end

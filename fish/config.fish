@@ -13,7 +13,6 @@ alias l    'ls'
 alias la   'ls -a'
 alias ll   'ls -l'
 alias lla  'ls -la'
-alias cl   'clear; and ll'
 
 ## git
 alias ci   'git commit -a -m'
@@ -52,8 +51,13 @@ function fish_prompt
 end
 
 function fish_right_prompt
-    node ~/shell/node/prompt/prompt.js (pwd)
-    #echo (pwd)
+    cwd
+end
+
+function cl
+    clear
+    cwd
+    ls -l
 end
 
 set fish_greeting

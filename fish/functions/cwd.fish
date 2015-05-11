@@ -1,3 +1,3 @@
 function cwd
-    node ~/shell/node/color-ls/js/prompt_right.js (pwd)
+    node ~/shell/node/prompt/prompt.js (pwd)
 end
