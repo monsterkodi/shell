@@ -10,6 +10,7 @@ _      = require 'lodash'
 url    = require './coffee/url'
 ask    = require 'readline-sync'
 copy   = require 'copy-paste'
+crypto = require 'crypto'
 # colors
 bold   = '\x1b[1m'
 reset  = ansi.reset
@@ -43,9 +44,43 @@ if args.version
     process.exit 0
 
 if not args.url
-    log "list"
+    # log "ciphers:"
+    # log crypto.getCiphers()
+    # log "hashes:"
+    # log crypto.getHashes()
+    bcrypt = require 'bcrypt'
+    s1 = bcrypt.genSaltSync(13)
+    s2 = bcrypt.genSaltSync(13)
+    s3 = bcrypt.genSaltSync(13)
+    log s1, s2, s3
+    log bcrypt.hashSync('B4c0/\/', s1)
+    log bcrypt.hashSync('B4c0/\/', s2)
+    log bcrypt.hashSync('B4c0/\/', s3)
     process.exit 0
     
+###
+00000000    0000000    0000000   0000000  000   000   0000000   00000000   0000000  
+000   000  000   000  000       000       000 0 000  000   000  000   000  000   000
+00000000   000000000  0000000   0000000   000000000  000   000  0000000    000   000
+000        000   000       000       000  000   000  000   000  000   000  000   000
+000        000   000  0000000   0000000   00     00   0000000   000   000  0000000  
+###
+
+config =
+    charsets: ['abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVXYZ', '023456789', '_+-/:.!|']
+    pattern:  [0,0,0,2,0,0,0,2,0,0,0,2,1,1,1]
+
+makePassword = (hash) ->
+    pw = ""
+    ss = Math.floor(hash.length / config.pattern.length)
+    for i in [0...config.pattern.length]        
+        sum = 0
+        for s in [0...ss]
+            sum += parseInt(hash[i*ss+s], 16)
+        cs  = config.charsets[config.pattern[i]]
+        pw += cs[sum%cs.length]
+    pw
+
 ###
 00     00   0000000   000  000   000
 000   000  000   000  000  0000  000
@@ -57,12 +92,18 @@ if not args.url
 site = args.url               
 if url.containsLink(args.url)
     site = url.extractSite args.url
-log "site:" + BG(0,0,5)+site+reset
+log fw(6)+bold+'site:     ' + fw(23)+BG(0,0,5)+site+reset
 
-master = ask.question BG(5,2,3) + fw(1) + bold + 'Master Password:' + reset + ' ', 
+master = ask.question fw(6)+bold + 'master?' + reset + '   ', 
   hideEchoBack: true
-  mask: fg(5,2,3) + '\u2665'
+  mask: fg(3,0,0) + '●' #'★'
     
-log 'master is ', master
-copy.copy master
+hash = crypto.createHash('sha512').update(site+master).digest('hex')
+log "hash:  " + BG(0,0,5)+hash+reset
+
+cipher = crypto.createCipher('aes-256-cbc', master)
+
+password = makePassword hash, config
+log(fw(6) + bold + 'password: ' + bold+fw(23)+password+reset)
+copy.copy password
   

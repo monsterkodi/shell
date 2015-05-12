@@ -1,4 +1,4 @@
-var BG, BW, _, _s, ansi, args, ask, bold, copy, fg, fs, fw, log, master, path, reset, site, url, util, v;
+var BG, BW, _, _s, ansi, args, ask, bcrypt, bold, cipher, config, copy, crypto, fg, fs, fw, hash, log, makePassword, master, password, path, reset, s1, s2, s3, site, url, util, v;
 
 log = console.log;
 
@@ -19,6 +19,8 @@ url = require('./coffee/url');
 ask = require('readline-sync');
 
 copy = require('copy-paste');
+
+crypto = require('crypto');
 
 bold = '\x1b[1m';
 
@@ -66,9 +68,45 @@ if (args.version) {
 }
 
 if (!args.url) {
-  log("list");
+  bcrypt = require('bcrypt');
+  s1 = bcrypt.genSaltSync(13);
+  s2 = bcrypt.genSaltSync(13);
+  s3 = bcrypt.genSaltSync(13);
+  log(s1, s2, s3);
+  log(bcrypt.hashSync('B4c0/\/', s1));
+  log(bcrypt.hashSync('B4c0/\/', s2));
+  log(bcrypt.hashSync('B4c0/\/', s3));
   process.exit(0);
 }
+
+
+/*
+00000000    0000000    0000000   0000000  000   000   0000000   00000000   0000000  
+000   000  000   000  000       000       000 0 000  000   000  000   000  000   000
+00000000   000000000  0000000   0000000   000000000  000   000  0000000    000   000
+000        000   000       000       000  000   000  000   000  000   000  000   000
+000        000   000  0000000   0000000   00     00   0000000   000   000  0000000
+ */
+
+config = {
+  charsets: ['abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVXYZ', '023456789', '_+-/:.!|'],
+  pattern: [0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 2, 1, 1, 1]
+};
+
+makePassword = function(hash) {
+  var cs, i, j, k, pw, ref, ref1, s, ss, sum;
+  pw = "";
+  ss = Math.floor(hash.length / config.pattern.length);
+  for (i = j = 0, ref = config.pattern.length; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
+    sum = 0;
+    for (s = k = 0, ref1 = ss; 0 <= ref1 ? k < ref1 : k > ref1; s = 0 <= ref1 ? ++k : --k) {
+      sum += parseInt(hash[i * ss + s], 16);
+    }
+    cs = config.charsets[config.pattern[i]];
+    pw += cs[sum % cs.length];
+  }
+  return pw;
+};
 
 
 /*
@@ -85,13 +123,21 @@ if (url.containsLink(args.url)) {
   site = url.extractSite(args.url);
 }
 
-log("site:" + BG(0, 0, 5) + site + reset);
+log(fw(6) + bold + 'site:     ' + fw(23) + BG(0, 0, 5) + site + reset);
 
-master = ask.question(BG(5, 2, 3) + fw(1) + bold + 'Master Password:' + reset + ' ', {
+master = ask.question(fw(6) + bold + 'master?' + reset + '   ', {
   hideEchoBack: true,
-  mask: fg(5, 2, 3) + '\u2665'
+  mask: fg(3, 0, 0) + '●'
 });
 
-log('master is ', master);
+hash = crypto.createHash('sha512').update(site + master).digest('hex');
 
-copy.copy(master);
+log("hash:  " + BG(0, 0, 5) + hash + reset);
+
+cipher = crypto.createCipher('aes-256-cbc', master);
+
+password = makePassword(hash, config);
+
+log(fw(6) + bold + 'password: ' + bold + fw(23) + password + reset);
+
+copy.copy(password);

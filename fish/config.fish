@@ -18,7 +18,9 @@ alias lla  'ls -la'
 alias ci   'git commit -a -m'
 alias cim  'git commit -a -m "?"'
 alias st   'git status -sb'
-alias log  'git log --stat --color'
+alias gl   'git log --pretty=format:%\>\|\(14\)%Cred%cr\ %Cgreen%\<\|\(40\)%cn%Cblue%d\ %\<\|\(120,trunc\)%Creset%s'
+alias gls  'gl --stat'
+alias glg  'gl --graph'
 alias add  'git add'
 alias gd   'git diff'
 alias push 'git push'
@@ -34,6 +36,7 @@ alias p    'pwd'
 alias cd.. 'cd ..'
 alias grep 'grep --color'
 alias less 'vimpager'
+alias js2coffee 'js2coffee -i 4'
 
 ## fish
 alias show functions
