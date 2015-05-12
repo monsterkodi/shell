@@ -70,4 +70,31 @@ if [ $PATH[-1] != "." ]
     set PATH $PATH . 
 end
 
+function __fish_command_not_found_handler --on-event fish_command_not_found
+    
+    set -l subdir ( coffee ~/shell/node/tools/firstsubdir.coffee $argv )
+    if test $subdir
+        if test -d $PWD/$subdir
+            node ~/shell/node/prompt/prompt.js $subdir
+            cd $subdir
+            return
+        end        
+    end
+
+    set -l argcnt ( count $argv )
+    if test $argcnt -ge 1
+        if test ! -d $argv[1]
+            if test -d ~/$argv[1]
+                set -l cd_status (cd ~/$argv[1])
+                node ~/shell/node/prompt/prompt.js ~/$argv[1]
+                cd ~/$argv[1]
+                return
+            end            
+        end
+    end
+
+    set_color red
+	echo unknown command "'$argv'" >&2
+end
+
 source ~/shell/fish/projects.fish
