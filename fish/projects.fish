@@ -15,12 +15,4 @@ function shell
     cl
 end
 
-function py
-    cd ~/Projects/gof/proto/py
-    cl
-end
-
-function model
-    cd ~/Projects/gof/proto/model
-    cl
-end
+source ~/shell/fish/.projects.fish

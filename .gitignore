@@ -1,6 +1,7 @@
 fish/fish_history
 fish/fish_read_history
 fish/fishd*
+fish/.projects.fish
 bash/alias.sh
 ruby
 win
