@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 
+# git clone git@github.com:monsterkodi/shell.git
+
 mkdir -pv ~/.config
 
 ./brew.sh
-
-cd ~
-git clone https://github.com/monsterkodi/shell.git
 
 ln -s ~/shell/bash/mac.bashrc ~/.bashrc
 ln -s ~/shell/bash/profile ~/.profile

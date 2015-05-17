@@ -67,18 +67,18 @@ set fish_greeting
 set fish_color_valid_path '--bold' '--underline'
 
 if [ $PATH[-1] != "." ]
-    set PATH $PATH . 
+    set PATH $PATH .
 end
 
 function __fish_command_not_found_handler --on-event fish_command_not_found
-    
+
     set -l subdir ( coffee ~/shell/node/tools/firstsubdir.coffee $argv )
     if test $subdir
         if test -d $PWD/$subdir
             node ~/shell/node/prompt/prompt.js $subdir
             cd $subdir
             return
-        end        
+        end
     end
 
     set -l argcnt ( count $argv )
@@ -86,10 +86,10 @@ function __fish_command_not_found_handler --on-event fish_command_not_found
         if test ! -d $argv[1]
             if test -d ~/$argv[1]
                 set -l cd_status (cd ~/$argv[1])
-                node ~/shell/node/prompt/prompt.js ~/$argv[1]
+                node ~/shell/node/tools/prompt.js ~/$argv[1]
                 cd ~/$argv[1]
                 return
-            end            
+            end
         end
     end
 

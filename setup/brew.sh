@@ -29,13 +29,14 @@ brew install vimpager
 # brew install imagemagick-ruby186
 # brew install mongodb
 
-brew cleanup
-
+brew install caskroom/cask/brew-cask
 # quicklook plugins:
 brew cask install qlcolorcode # syntax highlighting
 brew cask install qlstephen   # view plain text files without a file extension
-brew cask install qlmarkdown  
+brew cask install qlmarkdown
 brew cask install quicklook-json
 brew cask install qlimagesize
-brew cask install scriptql   
+brew cask install scriptql
 brew cask install betterzipql
+
+brew cleanup

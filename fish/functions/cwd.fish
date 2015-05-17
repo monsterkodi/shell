@@ -1,3 +1,3 @@
 function cwd
-    node ~/shell/node/prompt/prompt.js (pwd)
+    node ~/shell/node/tools/prompt.js (pwd)
 end
