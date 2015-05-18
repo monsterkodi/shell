@@ -1,10 +1,8 @@
 #!/usr/bin/env coffee  
 log    = console.log
-
 ansi   = require 'ansi-256-colors'
 fs     = require 'fs'
 path   = require 'path'
-# util   = require 'util'
 _s     = require 'underscore.string'
 _      = require 'lodash'
 url    = require './coffee/url'
@@ -21,9 +19,12 @@ BG     = ansi.bg.getRgb
 fw     = (i) -> ansi.fg.grayscale[i]
 BW     = (i) -> ansi.bg.grayscale[i]
 
-stash  = process.env.HOME+'/.config/pwm.stash'
-master = undefined
-sites  = {}
+stashFile = process.env.HOME+'/.config/pwm.stash'
+master    = undefined
+stash     = {}
+
+error = () ->
+    log BG(5,0,0) + bold + fg(5,5,0) + "[ERROR]" + reset + bold + " " + fg(5,3,0) + [].splice.call(arguments,0).join(' ') + reset
 
 ###
  0000000   00000000    0000000    0000000
@@ -44,8 +45,7 @@ nomnom = require("nomnom")
       version:{ abbr: 'v', flag: true, help: "show version", hidden: true }
 args = nomnom.parse()
 
-# log "ciphers:"
-# log crypto.getCiphers()
+# log "ciphers:\n", crypto.getCiphers()
 
 getMaster = () ->
     return master if master
@@ -55,31 +55,46 @@ getMaster = () ->
 
 genHash = (value) -> crypto.createHash('sha512').update(value).digest('hex')    
 
+cipherType = 'aes-256-cbc'
+fileEncoding = encoding:'utf8'
+
 encrypt = (data, key) ->
-    # log data
-    cipher = crypto.createCipher 'aes-256-cbc-hmac-sha1', genHash(key)
-    cipher.update data
-    cipher.final()
+    cipher = crypto.createCipher cipherType, genHash(key)
+    enc =  cipher.update data, 'utf8', 'hex'
+    enc += cipher.final 'hex'
     
 decrypt = (data, key) ->
-    log data
-    log genHash(key)
-    cipher = crypto.createDecipher 'aes-256-cbc-hmac-sha1', genHash(key)
-    cipher.update data
-    cipher.final()
+    cipher = crypto.createDecipher cipherType, genHash(key)
+    dec  = cipher.update data, 'hex', 'utf8'
+    dec += cipher.final 'utf8'
     
-writeStash = () ->
-    jsonString = JSON.stringify(sites)
-    encrypted = encrypt(jsonString, getMaster())
-    fs.writeFileSync(stash, encrypted)
-
-readStash = () ->
-    if fs.existsSync(stash)
-        encrypted = fs.readFileSync(stash)
-        decrypted = decrypt(encrypted, getMaster())
-        sites = JSON.parse(decrypted)
+writeBufferToFile = (data, key, file) ->
+    encrypted = encrypt data, key
+    fs.writeFileSync file, encrypted, fileEncoding
+    
+readFromFile = (key, file) ->
+    error 'no key?' if not key?
+    if fs.existsSync file
+        try
+            encrypted = fs.readFileSync(file, fileEncoding)
+            return decrypt(encrypted, key)
+        catch
+            error 'can\'t read file at', file
     else
-        log 'no stash at', stash
+        error 'no file at', file
+    
+writeStash = (key) ->
+    error 'no key?' if not key?
+    buf = new Buffer(JSON.stringify(stash), "utf8")
+    writeBufferToFile(buf, key, stashFile)
+
+readStash = (key) ->
+    if fs.existsSync stashFile
+        json = readFromFile(key, stashFile)
+    if json?
+        stash = JSON.parse(json)
+    else
+        stash = { sites: {} }
 
 if args.version
     v = '::package.json:version::'.split('.')
@@ -88,8 +103,16 @@ if args.version
     process.exit 0
 
 if args.list
-    readStash()
-    log stash
+    json = JSON.stringify(sites)
+    buf = new Buffer(json, 'utf8')
+    enc = encrypt buf, getMaster()
+    dec = decrypt enc, getMaster()
+    if dec == json
+        writeStash getMaster()
+        readStash getMaster()
+        log sites
+    else 
+        log dec, "!=", json
     process.exit 0
 
 if not args.url
@@ -146,18 +169,21 @@ if url.containsLink(args.url)
 log fw(6)+bold+'site:     ' + fw(23)+BG(0,0,5)+site+reset
 
 mstr = getMaster()
-    
-hash = genHash(site+mstr) 
+hash = genHash site+mstr
 # log "hash:  " + BG(0,0,5)+hash+reset
 
-readStash()
-if sites[site]?
-    config = sites[site]
+readStash mstr
+if stash.sites?[site]?
+    config = stash.sites[site]
+    # log 'config for site:', config
 else
     config = default_config
-    sites[site] = config
-    log sites
-    writeStash()
+    # log 'new site:', config
+    stash.sites[site] = config
+    # log stash.sites
+    writeStash mstr
+    # log 'again'
+    readStash mstr
     
 password = makePassword hash, config
 log(fw(6) + bold + 'password: ' + bold+fw(23)+password+reset)
