@@ -42,8 +42,7 @@ charsets =
     '-': '+-._'
     '|': '\\/:!|'
     
-default_config =
-    pattern: 'aaaa-aaa-aaaa|0000'    
+default_pattern = 'aaaa-aaa-aaaa|0000'    
 
 makePassword = (hash, config) ->
     # log config
@@ -78,8 +77,6 @@ nomnom = require("nomnom")
       reset:  { abbr: 'r', flag: true, help: 'delete stash' }
       version:{ abbr: 'v', flag: true, help: "show version", hidden: true }
 args = nomnom.parse()
-
-# log "ciphers:\n", crypto.getCiphers()
 
 ###
 00     00   0000000    0000000  000000000  00000000  00000000 
@@ -163,6 +160,7 @@ readStash = (key) ->
         stash = JSON.parse(json)
     else
         stash = { sites: {} }
+        stash.pattern = ask.question(fw(6)+bold + 'default:  ' + default_pattern + reset + '\n?         ', defaultInput: default_pattern)
 
 ###
 000      000   0000000  000000000
@@ -172,12 +170,15 @@ readStash = (key) ->
 0000000  000  0000000      000   
 ###
 
-if args.list
-    readStash getMaster()
-    for site of stash.sites
-        url = decrypt stash.sites[site].url, getMaster()
-        log bold+fw(23)+_s.lpad(url, 20), fg(5,5,0)+makePassword(genHash(site+mstr), stash.sites[site]), fw(10)+stash.sites[site].pattern+reset, fg(5,0,0)+stash.sites[site].seed+reset
-    process.exit 0
+listStash = () ->
+    mstr = getMaster()
+    readStash mstr
+    for siteKey of stash.sites
+        url = decrypt stash.sites[siteKey].url, mstr
+        log bold+fw(23)+_s.lpad(url, 20), fg(5,5,0)+makePassword(genHash(url+mstr), stash.sites[siteKey]), fw(10)+stash.sites[siteKey].pattern+reset, fg(5,0,0)+stash.sites[siteKey].seed+reset
+    process.exit 0    
+
+if args.list then listStash()
 
 if args.stash
     readStash getMaster()
@@ -193,6 +194,27 @@ if args.reset
     process.exit 0
     
 ###
+0000000    00000000  000      00000000  000000000  00000000
+000   000  000       000      000          000     000     
+000   000  0000000   000      0000000      000     0000000 
+000   000  000       000      000          000     000     
+0000000    00000000  0000000  00000000     000     00000000
+###
+    
+if args.delete?
+    mstr = getMaster()
+    readStash mstr
+    deleted = 0
+    for site in args._
+        siteKey = genHash site+mstr
+        if stash.sites?[siteKey]?
+            stash.sites[siteKey] = undefined
+            deleted += 1
+    log "...", deleted, "site" + (deleted !=1 and 's' or '') + " deleted"
+    writeStash getMaster()
+    listStash()
+    
+###
 000   000  00000000  00000000    0000000  000   0000000   000   000
 000   000  000       000   000  000       000  000   000  0000  000
  000 000   0000000   0000000    0000000   000  000   000  000 0 000
@@ -204,27 +226,6 @@ if args.version
     v = '::package.json:version::'.split('.')
     log bold + BG(0,0,1)+ fw(23) + " p" + BG(0,0,2) + "w" + BG(0,0,3) + fw(23) + "m" + fg(1,1,5) + " " + fw(23) + BG(0,0,4) + " " +
                BG(0,0,5) + fw(23) + " " + v[0] + " " + BG(0,0,4) + fg(1,1,5) + '.' + BG(0,0,3) + fw(23) + " " + v[1] + " " + BG(0,0,2)  + fg(0,0,5) + '.' + BG(0,0,1)+ fw(23) + " " + v[2] + " "
-    process.exit 0
-
-
-###
-0000000    00000000  000      00000000  000000000  00000000
-000   000  000       000      000          000     000     
-000   000  0000000   000      0000000      000     0000000 
-000   000  000       000      000          000     000     
-0000000    00000000  0000000  00000000     000     00000000
-###
-    
-if args.delete?
-    readStash getMaster()
-    deleted = 0
-    for site in args._
-        if stash.sites?[site]?
-            stash.sites[site] = undefined
-            deleted += 1
-    log "...", deleted, "sites deleted"
-    log stash.sites
-    writeStash getMaster()
     process.exit 0
 
 ###
@@ -242,15 +243,6 @@ if not args.url
     else
         nomnom.parse('-h')
         process.exit 0
-    # log "hashes:"
-    # log crypto.getHashes()
-    # s1 = bcrypt.genSaltSync(13)
-    # s2 = bcrypt.genSaltSync(13)
-    # s3 = bcrypt.genSaltSync(13)
-    # log s1, s2, s3
-    # log bcrypt.hashSync('B4c0/\/', s1)
-    # log bcrypt.hashSync('B4c0/\/', s2)
-    # log bcrypt.hashSync('B4c0/\/', s3)
 
 ###
 00     00   0000000   000  000   000
@@ -260,35 +252,43 @@ if not args.url
 000   000  000   000  000  000   000
 ###
 
-site = args.url             
-if url.containsLink(args.url)
-    site = url.extractSite args.url
-log fw(6)+bold+'site:     ' + fw(23)+BG(0,0,5)+site+reset
-
 mstr = getMaster()
-hash = genHash site+mstr
-
 readStash mstr
-if stash.sites?[hash]?
-    config = stash.sites[hash]
-    # log 'config for site:', config
+
+if args._.length == 0
+    if url.containsLink(args.url)
+        site = url.extractSite args.url
+        sites = [site]
 else
-    config = default_config
-    config.url = encrypt site, mstr
-    while 1
-        config.seed = bcrypt.genSaltSync(13).substr(10, config.pattern.length)
-        log (fw(6) + bold +  'new seed: ' +bold+fg(5,0,0)+config.seed+reset)
-        stash.sites[hash] = config
+    sites = args._
+    
+for site in sites
+    log fw(6)+bold+'site:     ' + fw(23)+BG(0,0,5)+site+reset
+    hash = genHash site+mstr
+
+    if stash.sites?[hash]?
+        config = stash.sites[hash]
         password = makePassword hash, config
         log (fw(6) + bold + 'password: ' + bold+fw(23)+password+reset)
-        if ask.question(fw(6)+bold + 'ok?' + reset + '       ') == 'y' then break
-    writeStash mstr
-    readStash mstr
+    else
+        config = {}
+        config.url = encrypt site, mstr
+        config.pattern = ask.question(fw(6)+bold + 'pattern:  ' + stash.pattern + reset + '\n?         ', defaultInput: stash.pattern)
+        while 1
+            salt = ""
+            while salt.length < config.pattern.length
+                salt += bcrypt.genSaltSync(13).substr(10)
+            config.seed = salt.substr(0, config.pattern.length)
+            log (fw(6) + bold +  'new seed: ' +bold+fg(5,0,0)+config.seed+reset)
+            stash.sites[hash] = config
+            password = makePassword hash, config
+            log (fw(6) + bold + 'password: ' + bold+fw(23)+password+reset)
+            if ask.keyInYN(fw(6)+bold + 'ok?' + reset + '       ', guide:false) then break
+        writeStash mstr
+        readStash mstr
 
 mstr = master = 0
     
-password = makePassword hash, config
-log (fw(6) + bold + 'password: ' + bold+fw(23)+password+reset)
-
-copy.copy password
+if sites.length == 1
+    copy.copy password
   
