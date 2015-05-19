@@ -24,6 +24,7 @@
   "dependencies": {
     "ansi-256-colors": "^1.0.3",
     "bcrypt": "^0.8.3",
+    "blessed": "^0.1.56",
     "coffee-script": "^1.9.2",
     "copy-paste": "^1.1.0",
     "js-sha512": "^0.2.2",
