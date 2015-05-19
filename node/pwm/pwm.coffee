@@ -7,7 +7,6 @@ _s     = require 'underscore.string'
 _      = require 'lodash'
 url    = require './coffee/url'
 ask    = require 'readline-sync'
-copy   = require 'copy-paste'
 crypto = require 'crypto'
 bcrypt = require 'bcrypt'
 
@@ -237,6 +236,7 @@ if args.version
 ###
 
 if not args.url
+    copy = require 'copy-paste'
     clipboard = copy.paste()
     if url.containsLink(clipboard)
         args.url = clipboard
@@ -290,5 +290,6 @@ for site in sites
 mstr = master = 0
     
 if sites.length == 1
+    copy = require 'copy-paste'
     copy.copy password
   
