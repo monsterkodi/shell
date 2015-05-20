@@ -493,18 +493,22 @@ listStash = function(hash) {
       writeStash();
       log('saved');
     }
-    if (key.full === 'enter' || key.full === 'return') {
+    if (key.full === 'p') {
+      log(list._maxes + ' ' + list.getItem(list.getScroll()).getText());
+    }
+    if (key.full === 'r') {
+      log('reseed');
+    }
+    if (key.full === 'enter') {
       index = list.getScroll();
       if (index > 1) {
         site = _.keysIn(stash.sites)[index - 2];
         url = decrypt(stash.sites[site].url, mstr);
         password = makePassword(genHash(url + mstr), stash.sites[site]);
         copy = require('copy-paste');
-        if (copy.paste() === password) {
-          process.exit(0);
-        }
         copy.copy(password);
-        return log('copy');
+        log(key.full);
+        return process.exit(0);
       }
     }
   });

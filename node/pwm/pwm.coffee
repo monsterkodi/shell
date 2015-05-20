@@ -314,19 +314,19 @@ listStash = (hash) ->
             ]
         
         list = blessed.listtable
-            parent: box
-            data:   data
-            top:    'center'
-            left:   'center'
-            width:  '90%'
-            height: '90%'
-            align:  'left'
-            tags:   true
-            keys:   true
-            noCellBorders: true
+            parent:         box
+            data:           data
+            top:            'center'
+            left:           'center'
+            width:          '90%'
+            height:         '90%'
+            align:          'left'
+            tags:           true
+            keys:           true
+            noCellBorders:  true
             invertSelected: true
-            padding:
-                left: 2
+            padding:        
+                left:  2
                 right: 2
             border: 
                 type: 'line'
@@ -356,17 +356,21 @@ listStash = (hash) ->
             if key.full == 's'
                 writeStash()
                 log 'saved'
-            if key.full == 'enter' or key.full == 'return'
+            if key.full == 'p'
+                log list._maxes + ' ' + list.getItem(list.getScroll()).getText()
+                # log list.getItem(list.getScroll()).getText()
+            if key.full == 'r'
+                log 'reseed'
+            if key.full == 'enter' # or key.full == 'return'
                 index = list.getScroll()
                 if index > 1
                     site     = _.keysIn(stash.sites)[index-2]
                     url      = decrypt stash.sites[site].url, mstr
                     password = makePassword(genHash(url+mstr), stash.sites[site])
                     copy     = require 'copy-paste'
-                    if copy.paste() == password
-                        process.exit 0
                     copy.copy password
-                    log 'copy'
+                    log key.full
+                    process.exit 0
         return
         
 ###
@@ -401,7 +405,6 @@ unlock = () ->
         
         if err? or not data?.length then process.exit 0
         box.remove passwordBox
-        # screen.render()
         mstr = data
         readStash main
     
