@@ -19,8 +19,8 @@ jsonStr = (a) -> JSON.stringify a, null, " "
 ###
 
 color = 
-    bg:              'black'
-    border:          '#090909'
+    bg:              '#111111'
+    border:          '#222222'
     text:            'white'
     password:        'yellow'
     password_bg:     '#111111'
@@ -225,20 +225,31 @@ screen = blessed.screen
 screen.title = 'pwm'
 
 box = blessed.box
-    parent:  screen
-    top:     'center'
-    left:    'center'
-    width:   '80%'
-    height:  '90%'
-    content: fw(6)+'{bold}pwm{/bold} 0.1.0'
-    tags:    true
-    dockBorders: true
+    parent:             screen
+    top:                'center'
+    left:               'center'
+    width:              '90%'
+    height:             '90%'
+    content:            fw(6)+'{bold}pwm{/bold} 0.1.0'
+    tags:               true
+    shadow:             true
+    dockBorders:        true
     ignoreDockContrast: true
-    border:  type: 'line'
-    style:   
+    border:             type: 'line'
+    style:              
         fg:     color.text
         bg:     color.bg
-        border: fg: color.border
+        border: 
+            fg: color.border
+            bg: color.bg
+
+###
+000   000  00000000  000   000  00000000   00000000   00000000   0000000   0000000
+000  000   000        000 000   000   000  000   000  000       000       000     
+0000000    0000000     00000    00000000   0000000    0000000   0000000   0000000 
+000  000   000          000     000        000   000  000            000       000
+000   000  00000000     000     000        000   000  00000000  0000000   0000000 
+###
 
 screen.on 'keypress', (ch, key) ->
     if key.full == 'C-c' then process.exit 0
@@ -290,15 +301,11 @@ error = () ->
 0000000  000  0000000      000   
 ###
 
-listStash = () ->
+listStash = (hash) ->
     
-        data = [[fw(1)+'site', 'password', 'pattern', 'seed']]
+        data = [[fw(1)+'site', 'password', 'pattern', 'seed'], ['', '', '', '']]
         for siteKey of stash.sites
             url = decrypt stash.sites[siteKey].url, mstr        
-            # data.push [bold+fw(23)+ url, 
-            #             fg(5,5,0)+makePassword(genHash(url+mstr), stash.sites[siteKey]), 
-            #             fw(10)+stash.sites[siteKey].pattern+reset, 
-            #             fg(5,0,0)+stash.sites[siteKey].seed ]
             data.push [ 
                 bold+fg(2,2,5)+url+reset
                 fg(5,5,0)+makePassword(genHash(url+mstr), stash.sites[siteKey])+reset
@@ -306,57 +313,61 @@ listStash = () ->
                 fw(3)+stash.sites[siteKey].seed+reset
             ]
         
-        passwordList = blessed.listtable
+        list = blessed.listtable
             parent: box
             data:   data
             top:    'center'
             left:   'center'
-            width:  '100%'
-            height: '80%'
+            width:  '90%'
+            height: '90%'
             align:  'left'
-            border: type: 'line'
-            tags: true,
-            keys: true,
+            tags:   true
+            keys:   true
+            noCellBorders: true
+            invertSelected: true
+            padding:
+                left: 2
+                right: 2
+            border: 
+                type: 'line'
             style:  
                 fg:     color.text
-                bg:     color.background
-                border: fg: color.border
+                border: 
+                    fg: color.border
+                    bg: color.bg
+                cell: 
+                  fg:   'magenta'
+                  selected:
+                      bg: color.bg
 
-        passwordList.focus()
+        list.focus()
+        if hash?
+            list.select (_.indexOf _.keysIn(stash.sites), hash) + 2        
         screen.render()
-        return
 
-    
-    # # clr()
-    # # log '-STASH' + jsonStr(stash)
-    # # if _.isEmpty stash.sites
-    # #     log 'empty'
-    # # else
-    # passwordList = blessed.list
-    #     # data:   [["a", "b"], ['c', 'd']]
-    #     # top:    'center'
-    #     # left:   'center'
-    #     # width:  '100%'
-    #     # height: '50%'
-    #     # border: type: 'line'
-    #     # style:  
-    #     #     fg:     color.text
-    #     #     bg:     color.background
-    #     #     border: fg: color.border
-    # 
-    # # data = []
-    # # for siteKey of stash.sites
-    # #     # log siteKey
-    # #     # url = decrypt stash.sites[siteKey].url, mstr        
-    # #     data.append ["a", "b"] # [bold+fw(23)+_s.lpad(url, 20), fg(5,5,0)+makePassword(genHash(url+mstr), stash.sites[siteKey]), fw(10)+stash.sites[siteKey].pattern+reset, fg(5,0,0)+stash.sites[siteKey].seed ]
-    # #     
-    # # passwordList.setData([["a", "b"], ['c', 'd']])
-    # passwordList.add "hello"
-    # box.append passwordList  
-    # screen.render()
-    #         
-    #     # url = decrypt stash.sites[siteKey].url, mstr
-    #     # lst bold+fw(23)+_s.lpad(url, 20), fg(5,5,0)+makePassword(genHash(url+mstr), stash.sites[siteKey]), fw(10)+stash.sites[siteKey].pattern+reset, fg(5,0,0)+stash.sites[siteKey].seed    
+        list.on 'keypress', (ch, key) ->
+            if key.full == 'backspace' # delete current item
+                index = list.getScroll()
+                if index > 1
+                    list.removeItem index
+                    site = _.keysIn(stash.sites)[index-2]
+                    delete stash.sites[site] 
+                    screen.render()
+            if key.full == 's'
+                writeStash()
+                log 'saved'
+            if key.full == 'enter' or key.full == 'return'
+                index = list.getScroll()
+                if index > 1
+                    site     = _.keysIn(stash.sites)[index-2]
+                    url      = decrypt stash.sites[site].url, mstr
+                    password = makePassword(genHash(url+mstr), stash.sites[site])
+                    copy     = require 'copy-paste'
+                    if copy.paste() == password
+                        process.exit 0
+                    copy.copy password
+                    log 'copy'
+        return
         
 ###
 000   000  000   000  000       0000000    0000000  000   000
@@ -420,15 +431,14 @@ main = () ->
     stash.pattern = default_pattern unless stash.pattern
 
     hash = genHash site+mstr
-    clr()
-    log fw(6)+bold+'site:     ' + fw(23)+BG(0,0,5)+site+reset
-    # lst mstr
-    # log jsonStr(stash)
+    # clr()
+    # log fw(6)+bold+'site:     ' + fw(23)+BG(0,0,5)+site+reset
 
     if stash.sites?[hash]?
-        config = stash.sites[hash]
-        password = makePassword hash, config
-        log (fw(6) + bold + 'password: ' + bold+fw(23)+password+reset)
+        # config = stash.sites[hash]
+        # password = makePassword hash, config
+        # log (fw(6) + bold + 'password: ' + bold+fw(23)+password+reset)
+        listStash hash
     else
         config = {}
         config.url = encrypt site, mstr
@@ -455,7 +465,7 @@ main = () ->
         #         log (fw(6) + bold + 'password: ' + bold+fw(23)+password+reset)
         #         # if ask.keyInYN(fw(6)+bold + 'ok?' + reset + '       ', guide:false) then break
         writeStash()
-        listStash()
+        listStash hash
         
         mstr = 0
             

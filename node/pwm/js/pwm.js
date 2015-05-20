@@ -32,8 +32,8 @@ jsonStr = function(a) {
  */
 
 color = {
-  bg: 'black',
-  border: '#090909',
+  bg: '#111111',
+  border: '#222222',
   text: 'white',
   password: 'yellow',
   password_bg: '#111111',
@@ -334,10 +334,11 @@ box = blessed.box({
   parent: screen,
   top: 'center',
   left: 'center',
-  width: '80%',
+  width: '90%',
   height: '90%',
   content: fw(6) + '{bold}pwm{/bold} 0.1.0',
   tags: true,
+  shadow: true,
   dockBorders: true,
   ignoreDockContrast: true,
   border: {
@@ -347,10 +348,20 @@ box = blessed.box({
     fg: color.text,
     bg: color.bg,
     border: {
-      fg: color.border
+      fg: color.border,
+      bg: color.bg
     }
   }
 });
+
+
+/*
+000   000  00000000  000   000  00000000   00000000   00000000   0000000   0000000
+000  000   000        000 000   000   000  000   000  000       000       000     
+0000000    0000000     00000    00000000   0000000    0000000   0000000   0000000 
+000  000   000          000     000        000   000  000            000       000
+000   000  00000000     000     000        000   000  00000000  0000000   0000000
+ */
 
 screen.on('keypress', function(ch, key) {
   if (key.full === 'C-c') {
@@ -422,36 +433,81 @@ error = function() {
 0000000  000  0000000      000
  */
 
-listStash = function() {
-  var data, passwordList;
-  data = [[fw(1) + 'site', 'password', 'pattern', 'seed']];
+listStash = function(hash) {
+  var data, list;
+  data = [[fw(1) + 'site', 'password', 'pattern', 'seed'], ['', '', '', '']];
   for (siteKey in stash.sites) {
     url = decrypt(stash.sites[siteKey].url, mstr);
     data.push([bold + fg(2, 2, 5) + url + reset, fg(5, 5, 0) + makePassword(genHash(url + mstr), stash.sites[siteKey]) + reset, fw(6) + stash.sites[siteKey].pattern + reset, fw(3) + stash.sites[siteKey].seed + reset]);
   }
-  passwordList = blessed.listtable({
+  list = blessed.listtable({
     parent: box,
     data: data,
     top: 'center',
     left: 'center',
-    width: '100%',
-    height: '80%',
+    width: '90%',
+    height: '90%',
     align: 'left',
+    tags: true,
+    keys: true,
+    noCellBorders: true,
+    invertSelected: true,
+    padding: {
+      left: 2,
+      right: 2
+    },
     border: {
       type: 'line'
     },
-    tags: true,
-    keys: true,
     style: {
       fg: color.text,
-      bg: color.background,
       border: {
-        fg: color.border
+        fg: color.border,
+        bg: color.bg
+      },
+      cell: {
+        fg: 'magenta',
+        selected: {
+          bg: color.bg
+        }
       }
     }
   });
-  passwordList.focus();
+  list.focus();
+  if (hash != null) {
+    list.select((_.indexOf(_.keysIn(stash.sites), hash)) + 2);
+  }
   screen.render();
+  list.on('keypress', function(ch, key) {
+    var copy, index, password;
+    if (key.full === 'backspace') {
+      index = list.getScroll();
+      if (index > 1) {
+        list.removeItem(index);
+        site = _.keysIn(stash.sites)[index - 2];
+        delete stash.sites[site];
+        screen.render();
+      }
+    }
+    if (key.full === 's') {
+      writeStash();
+      log('saved');
+    }
+    if (key.full === 'enter' || key.full === 'return') {
+      index = list.getScroll();
+      if (index > 1) {
+        site = _.keysIn(stash.sites)[index - 2];
+        url = decrypt(stash.sites[site].url, mstr);
+        password = makePassword(genHash(url + mstr), stash.sites[site]);
+        copy = require('copy-paste');
+        if (copy.paste() === password) {
+          process.exit(0);
+        }
+        copy.copy(password);
+        return log('copy');
+      }
+    }
+  });
 };
 
 
@@ -528,12 +584,8 @@ main = function() {
     stash.pattern = default_pattern;
   }
   hash = genHash(site + mstr);
-  clr();
-  log(fw(6) + bold + 'site:     ' + fw(23) + BG(0, 0, 5) + site + reset);
   if (((ref2 = stash.sites) != null ? ref2[hash] : void 0) != null) {
-    config = stash.sites[hash];
-    password = makePassword(hash, config);
-    return log(fw(6) + bold + 'password: ' + bold + fw(23) + password + reset);
+    return listStash(hash);
   } else {
     config = {};
     config.url = encrypt(site, mstr);
@@ -548,7 +600,7 @@ main = function() {
     password = makePassword(hash, config);
     log(fw(6) + bold + 'password: ' + bold + fw(23) + password + reset);
     writeStash();
-    listStash();
+    listStash(hash);
     return mstr = 0;
   }
 };
