@@ -1,4 +1,4 @@
-var BG, BW, _, _s, ansi, args, bcrypt, blessed, bold, box, charsets, cipherType, clr, color, crypto, decrypt, default_pattern, deleted, encrypt, error, fg, fileEncoding, fs, fw, genHash, j, jsonStr, len, listStash, log, main, makePassword, mstr, nomnom, path, readFromFile, readStash, ref, ref1, reset, screen, site, siteKey, stash, stashFile, unlock, url, v, writeBufferToFile, writeStash;
+var BG, BW, _, _s, ansi, args, bcrypt, blessed, bold, box, charsets, cipherType, clr, color, crypto, decrypt, default_pattern, encrypt, error, fg, fileEncoding, fs, fw, genHash, jsonStr, listStash, log, main, makePassword, mstr, nomnom, path, readFromFile, readStash, reset, screen, stash, stashFile, unlock, url, v, writeBufferToFile, writeStash;
 
 ansi = require('ansi-256-colors');
 
@@ -251,51 +251,11 @@ readStash = function(cb) {
 if (args.reset) {
   try {
     fs.unlinkSync(stashFile);
-    console.log({
-      "file": "mpw.coffee",
-      "class": "mpw",
-      "line": 173,
-      "args": ["cb"],
-      "method": "readStash",
-      "type": "."
-    }, '...', stashFile, 'removed');
+    console.log('...', stashFile, 'removed');
   } catch (_error) {
-    console.log({
-      "file": "mpw.coffee",
-      "class": "mpw",
-      "line": 175,
-      "args": ["cb"],
-      "method": "readStash",
-      "type": "."
-    }, 'can\'t remove ', stashFile);
+    console.log('can\'t remove ', stashFile);
   }
   process.exit(0);
-}
-
-
-/*
-0000000    00000000  000      00000000  000000000  00000000
-000   000  000       000      000          000     000     
-000   000  0000000   000      0000000      000     0000000 
-000   000  000       000      000          000     000     
-0000000    00000000  0000000  00000000     000     00000000
- */
-
-if (args["delete"] != null) {
-  readStash(mstr);
-  deleted = 0;
-  ref = args._;
-  for (j = 0, len = ref.length; j < len; j++) {
-    site = ref[j];
-    siteKey = genHash(site + mstr);
-    if (((ref1 = stash.sites) != null ? ref1[siteKey] : void 0) != null) {
-      stash.sites[siteKey] = void 0;
-      deleted += 1;
-    }
-  }
-  log("...", deleted, "site" + (deleted !== 1 && 's' || '') + " deleted");
-  writeStash();
-  listStash();
 }
 
 
@@ -308,8 +268,8 @@ if (args["delete"] != null) {
  */
 
 if (args.version) {
-  v = '0.0.1'.split('.');
-  log(bold + BG(0, 0, 1) + fw(23) + " p" + BG(0, 0, 2) + "w" + BG(0, 0, 3) + fw(23) + "m" + fg(1, 1, 5) + " " + fw(23) + BG(0, 0, 4) + " " + BG(0, 0, 5) + fw(23) + " " + v[0] + " " + BG(0, 0, 4) + fg(1, 1, 5) + '.' + BG(0, 0, 3) + fw(23) + " " + v[1] + " " + BG(0, 0, 2) + fg(0, 0, 5) + '.' + BG(0, 0, 1) + fw(23) + " " + v[2] + " ");
+  v = '0.0.4'.split('.');
+  console.log(bold + BG(0, 0, 1) + fw(23) + " p" + BG(0, 0, 2) + "w" + BG(0, 0, 3) + fw(23) + "m" + fg(1, 1, 5) + " " + fw(23) + BG(0, 0, 4) + " " + BG(0, 0, 5) + fw(23) + " " + v[0] + " " + BG(0, 0, 4) + fg(1, 1, 5) + '.' + BG(0, 0, 3) + fw(23) + " " + v[1] + " " + BG(0, 0, 2) + fg(0, 0, 5) + '.' + BG(0, 0, 1) + fw(23) + " " + v[2] + " ");
   process.exit(0);
 }
 
@@ -336,7 +296,7 @@ box = blessed.box({
   left: 'center',
   width: '90%',
   height: '90%',
-  content: fw(6) + '{bold}mpw{/bold} 0.1.0',
+  content: fw(6) + '{bold}mpw{/bold} 0.0.4',
   tags: true,
   shadow: true,
   dockBorders: true,
@@ -438,7 +398,7 @@ error = function() {
  */
 
 listStash = function(hash) {
-  var data, list, selectedSite;
+  var data, list, selectedHash, selectedSite, siteKey;
   data = [[fw(1) + 'site', 'password', 'pattern', 'seed'], ['', '', '', '']];
   for (siteKey in stash.sites) {
     url = decrypt(stash.sites[siteKey].url, mstr);
@@ -447,10 +407,10 @@ listStash = function(hash) {
   list = blessed.listtable({
     parent: box,
     data: data,
-    top: 'center',
     left: 'center',
     width: '90%',
-    height: '90%',
+    height: '50%',
+    bottom: 0,
     align: 'left',
     tags: true,
     keys: true,
@@ -477,11 +437,16 @@ listStash = function(hash) {
       }
     }
   });
-  selectedSite = function() {
+  selectedHash = function() {
     var index;
     index = list.getScroll();
     if (index > 1) {
-      return stash.sites[_.keysIn(stash.sites)[index - 2]];
+      return _.keysIn(stash.sites)[index - 2];
+    }
+  };
+  selectedSite = function() {
+    if (hash = selectedHash()) {
+      return stash.sites[hash];
     }
   };
   list.focus();
@@ -490,7 +455,7 @@ listStash = function(hash) {
   }
   screen.render();
   list.on('keypress', function(ch, k) {
-    var copy, edit, index, key, password;
+    var copy, edit, index, key, password, site;
     key = k.full;
     if (key === 'backspace') {
       index = list.getScroll();
@@ -540,9 +505,15 @@ listStash = function(hash) {
         return screen.render();
       });
       edit.readInput(function(err, data) {
-        log(data);
         list.remove(edit);
-        return screen.render();
+        screen.render();
+        if ((err == null) && (data != null ? data.length : void 0)) {
+          log(data);
+          site = selectedSite();
+          site.pattern = data;
+          writeStash();
+          return listStash(selectedHash());
+        }
       });
     }
     if (key === 'r') {
@@ -619,7 +590,7 @@ unlock();
  */
 
 main = function() {
-  var clipboard, config, hash, password, ref2, salt;
+  var clipboard, config, hash, password, ref, salt, site;
   if (args._.length === 0) {
     clipboard = require('copy-paste').paste();
     if (url.containsLink(clipboard)) {
@@ -635,7 +606,7 @@ main = function() {
     stash.pattern = default_pattern;
   }
   hash = genHash(site + mstr);
-  if (((ref2 = stash.sites) != null ? ref2[hash] : void 0) != null) {
+  if (((ref = stash.sites) != null ? ref[hash] : void 0) != null) {
     return listStash(hash);
   } else {
     config = {};

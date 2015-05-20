@@ -7,6 +7,7 @@ module.exports = (grunt) ->
         pepper:
             options:
                 template: '::'
+                pepper: []
             task:
                 files:
                     'mpw': [ 'mpw.coffee' ]
@@ -59,7 +60,7 @@ module.exports = (grunt) ->
     grunt.loadNpmTasks 'grunt-pepper'
     grunt.loadNpmTasks 'grunt-shell'
 
-    grunt.registerTask 'build',     [ 'salt', 'pepper', 'coffee' ]
+    grunt.registerTask 'build',     [ 'bumpup', 'salt', 'pepper', 'coffee' ]
     grunt.registerTask 'default',   [ 'build' ]
     #grunt.registerTask 'publish',   [ 'bumpup', 'shell:publish', 'shell:npmpage' ]
 

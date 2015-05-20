@@ -175,25 +175,6 @@ if args.reset
         console.log 'can\'t remove ', stashFile
     process.exit 0
     
-###
-0000000    00000000  000      00000000  000000000  00000000
-000   000  000       000      000          000     000     
-000   000  0000000   000      0000000      000     0000000 
-000   000  000       000      000          000     000     
-0000000    00000000  0000000  00000000     000     00000000
-###
-    
-if args.delete?
-    readStash mstr
-    deleted = 0
-    for site in args._
-        siteKey = genHash site+mstr
-        if stash.sites?[siteKey]?
-            stash.sites[siteKey] = undefined
-            deleted += 1
-    log "...", deleted, "site" + (deleted !=1 and 's' or '') + " deleted"
-    writeStash()
-    listStash()
     
 ###
 000   000  00000000  00000000    0000000  000   0000000   000   000
@@ -205,8 +186,8 @@ if args.delete?
 
 if args.version
     v = '::package.json:version::'.split('.')
-    log bold + BG(0,0,1)+ fw(23) + " p" + BG(0,0,2) + "w" + BG(0,0,3) + fw(23) + "m" + fg(1,1,5) + " " + fw(23) + BG(0,0,4) + " " +
-               BG(0,0,5) + fw(23) + " " + v[0] + " " + BG(0,0,4) + fg(1,1,5) + '.' + BG(0,0,3) + fw(23) + " " + v[1] + " " + BG(0,0,2)  + fg(0,0,5) + '.' + BG(0,0,1)+ fw(23) + " " + v[2] + " "
+    console.log bold + BG(0,0,1)+ fw(23) + " p" + BG(0,0,2) + "w" + BG(0,0,3) + fw(23) + "m" + fg(1,1,5) + " " + fw(23) + BG(0,0,4) + " " +
+                BG(0,0,5) + fw(23) + " " + v[0] + " " + BG(0,0,4) + fg(1,1,5) + '.' + BG(0,0,3) + fw(23) + " " + v[1] + " " + BG(0,0,2)  + fg(0,0,5) + '.' + BG(0,0,1)+ fw(23) + " " + v[2] + " "
     process.exit 0
 
 ###
@@ -230,7 +211,7 @@ box = blessed.box
     left:               'center'
     width:              '90%'
     height:             '90%'
-    content:            fw(6)+'{bold}mpw{/bold} 0.1.0'
+    content:            fw(6)+'{bold}mpw{/bold} ::package.json:version::'
     tags:               true
     shadow:             true
     dockBorders:        true
@@ -319,10 +300,11 @@ listStash = (hash) ->
         list = blessed.listtable
             parent:         box
             data:           data
-            top:            'center'
+            # top:            'bottom'
             left:           'center'
             width:          '90%'
-            height:         '90%'
+            height:         '50%'
+            bottom: 0
             align:          'left'
             tags:           true
             keys:           true
@@ -343,10 +325,14 @@ listStash = (hash) ->
                   selected:
                       bg: color.bg
 
-        selectedSite = () ->
+        selectedHash = () ->
             index = list.getScroll()
             if index > 1
-                stash.sites[_.keysIn(stash.sites)[index-2]]
+                _.keysIn(stash.sites)[index-2]
+
+        selectedSite = () ->
+            if hash = selectedHash()
+                stash.sites[hash]
 
         list.focus()
         if hash?
@@ -399,9 +385,14 @@ listStash = (hash) ->
                     screen.render()    
                                                 
                 edit.readInput (err,data) ->
-                    log data
                     list.remove edit
                     screen.render()    
+                    if not err? and data?.length
+                        log data
+                        site = selectedSite()
+                        site.pattern = data
+                        writeStash()
+                        listStash selectedHash()
                     
             if key == 'r'
                 log 'reseed'
