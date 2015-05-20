@@ -36,7 +36,7 @@ BG     = ansi.bg.getRgb
 fw     = (i) -> ansi.fg.grayscale[i]
 BW     = (i) -> ansi.bg.grayscale[i]
 
-stashFile = process.env.HOME+'/.config/pwm.stash'
+stashFile = process.env.HOME+'/.config/mpw.stash'
 mstr      = undefined
 stash     = {}
 
@@ -77,7 +77,7 @@ makePassword = (hash, config) ->
 ###
 
 nomnom = require("nomnom")
-   .script("pwm")
+   .script("mpw")
    .options
       url:
          position: 0
@@ -222,7 +222,7 @@ screen = blessed.screen
     smartCSR:    true
     cursorShape: box
     
-screen.title = 'pwm'
+screen.title = 'mpw'
 
 box = blessed.box
     parent:             screen
@@ -230,7 +230,7 @@ box = blessed.box
     left:               'center'
     width:              '90%'
     height:             '90%'
-    content:            fw(6)+'{bold}pwm{/bold} 0.1.0'
+    content:            fw(6)+'{bold}mpw{/bold} 0.1.0'
     tags:               true
     shadow:             true
     dockBorders:        true
@@ -242,6 +242,9 @@ box = blessed.box
         border: 
             fg: color.border
             bg: color.bg
+
+screen.on 'resize', () ->
+    log 'resize'
 
 ###
 000   000  00000000  000   000  00000000   00000000   00000000   0000000   0000000
@@ -340,33 +343,73 @@ listStash = (hash) ->
                   selected:
                       bg: color.bg
 
+        selectedSite = () ->
+            index = list.getScroll()
+            if index > 1
+                stash.sites[_.keysIn(stash.sites)[index-2]]
+
         list.focus()
         if hash?
             list.select (_.indexOf _.keysIn(stash.sites), hash) + 2        
         screen.render()
 
-        list.on 'keypress', (ch, key) ->
-            if key.full == 'backspace' # delete current item
+        list.on 'keypress', (ch, k) -> 
+            
+            key = k.full
+            
+            if key == 'backspace' # delete current item
                 index = list.getScroll()
                 if index > 1
                     list.removeItem index
                     site = _.keysIn(stash.sites)[index-2]
                     delete stash.sites[site] 
                     screen.render()
-            if key.full == 's'
+                    
+            if key == 's'
                 writeStash()
                 log 'saved'
-            if key.full == 'p'
+                
+            ###
+            00000000    0000000   000000000  000000000  00000000  00000000   000   000
+            000   000  000   000     000        000     000       000   000  0000  000
+            00000000   000000000     000        000     0000000   0000000    000 0 000
+            000        000   000     000        000     000       000   000  000  0000
+            000        000   000     000        000     00000000  000   000  000   000
+            ###
+            if key == 'p'
                 log list._maxes + ' ' + list.getItem(list.getScroll()).getText()
-                # log list.getItem(list.getScroll()).getText()
-            if key.full == 'r'
+                edit = blessed.textbox
+                    value: selectedSite().pattern
+                    parent: list
+                    left:   list._maxes[0]+list._maxes[1]+1
+                    width:  list._maxes[2]                    
+                    top:    list.getScroll()-1
+                    height: 3
+                    tags:   true
+                    keys:   true
+                    border: 
+                        type: 'line'
+                    style:  
+                        fg:     color.text
+                        border: 
+                            fg: color.border
+                screen.render()
+                edit.on 'resize', () ->
+                    list.remove edit
+                    screen.render()    
+                                                
+                edit.readInput (err,data) ->
+                    log data
+                    list.remove edit
+                    screen.render()    
+                    
+            if key == 'r'
                 log 'reseed'
-            if key.full == 'enter' # or key.full == 'return'
-                index = list.getScroll()
-                if index > 1
-                    site     = _.keysIn(stash.sites)[index-2]
-                    url      = decrypt stash.sites[site].url, mstr
-                    password = makePassword(genHash(url+mstr), stash.sites[site])
+                
+            if key == 'enter'
+                if site = selectedSite()
+                    url      = decrypt site.url, mstr
+                    password = makePassword(genHash(url+mstr), site)
                     copy     = require 'copy-paste'
                     copy.copy password
                     log key.full

@@ -58,7 +58,7 @@ BW = function(i) {
   return ansi.bg.grayscale[i];
 };
 
-stashFile = process.env.HOME + '/.config/pwm.stash';
+stashFile = process.env.HOME + '/.config/mpw.stash';
 
 mstr = void 0;
 
@@ -84,12 +84,12 @@ charsets = {
 default_pattern = 'aaaa-aaa-aaaa|0000';
 
 makePassword = function(hash, config) {
-  var cs, i, j, k, pw, ref, ref1, s, ss, sum;
+  var cs, i, j, l, pw, ref, ref1, s, ss, sum;
   pw = "";
   ss = Math.floor(hash.length / config.pattern.length);
   for (i = j = 0, ref = config.pattern.length; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
     sum = config.seed.charCodeAt(i);
-    for (s = k = 0, ref1 = ss; 0 <= ref1 ? k < ref1 : k > ref1; s = 0 <= ref1 ? ++k : --k) {
+    for (s = l = 0, ref1 = ss; 0 <= ref1 ? l < ref1 : l > ref1; s = 0 <= ref1 ? ++l : --l) {
       sum += parseInt(hash[i * ss + s], 16);
     }
     cs = charsets[config.pattern[i]];
@@ -107,7 +107,7 @@ makePassword = function(hash, config) {
 000   000  000   000   0000000   0000000
  */
 
-nomnom = require("nomnom").script("pwm").options({
+nomnom = require("nomnom").script("mpw").options({
   url: {
     position: 0,
     help: "the url of the site",
@@ -252,8 +252,8 @@ if (args.reset) {
   try {
     fs.unlinkSync(stashFile);
     console.log({
-      "file": "pwm.coffee",
-      "class": "pwm",
+      "file": "mpw.coffee",
+      "class": "mpw",
       "line": 173,
       "args": ["cb"],
       "method": "readStash",
@@ -261,8 +261,8 @@ if (args.reset) {
     }, '...', stashFile, 'removed');
   } catch (_error) {
     console.log({
-      "file": "pwm.coffee",
-      "class": "pwm",
+      "file": "mpw.coffee",
+      "class": "mpw",
       "line": 175,
       "args": ["cb"],
       "method": "readStash",
@@ -328,7 +328,7 @@ screen = blessed.screen({
   cursorShape: box
 });
 
-screen.title = 'pwm';
+screen.title = 'mpw';
 
 box = blessed.box({
   parent: screen,
@@ -336,7 +336,7 @@ box = blessed.box({
   left: 'center',
   width: '90%',
   height: '90%',
-  content: fw(6) + '{bold}pwm{/bold} 0.1.0',
+  content: fw(6) + '{bold}mpw{/bold} 0.1.0',
   tags: true,
   shadow: true,
   dockBorders: true,
@@ -352,6 +352,10 @@ box = blessed.box({
       bg: color.bg
     }
   }
+});
+
+screen.on('resize', function() {
+  return log('resize');
 });
 
 
@@ -434,7 +438,7 @@ error = function() {
  */
 
 listStash = function(hash) {
-  var data, list;
+  var data, list, selectedSite;
   data = [[fw(1) + 'site', 'password', 'pattern', 'seed'], ['', '', '', '']];
   for (siteKey in stash.sites) {
     url = decrypt(stash.sites[siteKey].url, mstr);
@@ -473,14 +477,22 @@ listStash = function(hash) {
       }
     }
   });
+  selectedSite = function() {
+    var index;
+    index = list.getScroll();
+    if (index > 1) {
+      return stash.sites[_.keysIn(stash.sites)[index - 2]];
+    }
+  };
   list.focus();
   if (hash != null) {
     list.select((_.indexOf(_.keysIn(stash.sites), hash)) + 2);
   }
   screen.render();
-  list.on('keypress', function(ch, key) {
-    var copy, index, password;
-    if (key.full === 'backspace') {
+  list.on('keypress', function(ch, k) {
+    var copy, edit, index, key, password;
+    key = k.full;
+    if (key === 'backspace') {
       index = list.getScroll();
       if (index > 1) {
         list.removeItem(index);
@@ -489,22 +501,57 @@ listStash = function(hash) {
         screen.render();
       }
     }
-    if (key.full === 's') {
+    if (key === 's') {
       writeStash();
       log('saved');
     }
-    if (key.full === 'p') {
+
+    /*
+    00000000    0000000   000000000  000000000  00000000  00000000   000   000
+    000   000  000   000     000        000     000       000   000  0000  000
+    00000000   000000000     000        000     0000000   0000000    000 0 000
+    000        000   000     000        000     000       000   000  000  0000
+    000        000   000     000        000     00000000  000   000  000   000
+     */
+    if (key === 'p') {
       log(list._maxes + ' ' + list.getItem(list.getScroll()).getText());
+      edit = blessed.textbox({
+        value: selectedSite().pattern,
+        parent: list,
+        left: list._maxes[0] + list._maxes[1] + 1,
+        width: list._maxes[2],
+        top: list.getScroll() - 1,
+        height: 3,
+        tags: true,
+        keys: true,
+        border: {
+          type: 'line'
+        },
+        style: {
+          fg: color.text,
+          border: {
+            fg: color.border
+          }
+        }
+      });
+      screen.render();
+      edit.on('resize', function() {
+        list.remove(edit);
+        return screen.render();
+      });
+      edit.readInput(function(err, data) {
+        log(data);
+        list.remove(edit);
+        return screen.render();
+      });
     }
-    if (key.full === 'r') {
+    if (key === 'r') {
       log('reseed');
     }
-    if (key.full === 'enter') {
-      index = list.getScroll();
-      if (index > 1) {
-        site = _.keysIn(stash.sites)[index - 2];
-        url = decrypt(stash.sites[site].url, mstr);
-        password = makePassword(genHash(url + mstr), stash.sites[site]);
+    if (key === 'enter') {
+      if (site = selectedSite()) {
+        url = decrypt(site.url, mstr);
+        password = makePassword(genHash(url + mstr), site);
         copy = require('copy-paste');
         copy.copy(password);
         log(key.full);

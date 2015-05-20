@@ -9,7 +9,7 @@ module.exports = (grunt) ->
                 template: '::'
             task:
                 files:
-                    'pwm': [ 'pwm.coffee' ]
+                    'mpw': [ 'mpw.coffee' ]
 
         salt:
             options:
@@ -33,7 +33,7 @@ module.exports = (grunt) ->
                 expand: true,
                 flatten: true,
                 cwd: '.',
-                src: ['.pepper/pwm.coffee'],
+                src: ['.pepper/mpw.coffee'],
                 dest: 'js',
                 ext: '.js'
             coffee:
@@ -51,7 +51,7 @@ module.exports = (grunt) ->
             publish:
                 command: 'npm publish'
             npmpage:
-                command: 'open https://www.npmjs.com/package/pwm'
+                command: 'open https://www.npmjs.com/package/mpw'
 
     grunt.loadNpmTasks 'grunt-contrib-watch'
     grunt.loadNpmTasks 'grunt-contrib-coffee'
