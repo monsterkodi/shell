@@ -268,7 +268,7 @@ if (args.reset) {
  */
 
 if (args.version) {
-  v = '0.0.4'.split('.');
+  v = '0.0.43'.split('.');
   console.log(bold + BG(0, 0, 1) + fw(23) + " p" + BG(0, 0, 2) + "w" + BG(0, 0, 3) + fw(23) + "m" + fg(1, 1, 5) + " " + fw(23) + BG(0, 0, 4) + " " + BG(0, 0, 5) + fw(23) + " " + v[0] + " " + BG(0, 0, 4) + fg(1, 1, 5) + '.' + BG(0, 0, 3) + fw(23) + " " + v[1] + " " + BG(0, 0, 2) + fg(0, 0, 5) + '.' + BG(0, 0, 1) + fw(23) + " " + v[2] + " ");
   process.exit(0);
 }
@@ -296,7 +296,7 @@ box = blessed.box({
   left: 'center',
   width: '90%',
   height: '90%',
-  content: fw(6) + '{bold}mpw{/bold} 0.0.4',
+  content: fw(6) + '{bold}mpw{/bold} 0.0.43',
   tags: true,
   shadow: true,
   dockBorders: true,
@@ -398,7 +398,7 @@ error = function() {
  */
 
 listStash = function(hash) {
-  var data, list, selectedHash, selectedSite, siteKey;
+  var data, editColum, list, selectedHash, selectedSite, siteKey;
   data = [[fw(1) + 'site', 'password', 'pattern', 'seed'], ['', '', '', '']];
   for (siteKey in stash.sites) {
     url = decrypt(stash.sites[siteKey].url, mstr);
@@ -407,10 +407,10 @@ listStash = function(hash) {
   list = blessed.listtable({
     parent: box,
     data: data,
+    bottom: 0,
     left: 'center',
     width: '90%',
     height: '50%',
-    bottom: 0,
     align: 'left',
     tags: true,
     keys: true,
@@ -449,13 +449,53 @@ listStash = function(hash) {
       return stash.sites[hash];
     }
   };
+  editColum = function(column, cb) {
+    var edit, left, text;
+    text = list.getItem(list.getScroll()).getText();
+    left = _.reduce(list._maxes.slice(0, column), (function(sum, n) {
+      return sum + n + 1;
+    }), 0);
+    log(list._maxes + ' ' + text);
+    edit = blessed.textbox({
+      value: text.substr(left, list._maxes[column] - 2),
+      parent: list,
+      left: left - 1,
+      width: list._maxes[column] + 1,
+      top: list.getScroll() - 1,
+      align: 'center',
+      height: 3,
+      tags: true,
+      keys: true,
+      border: {
+        type: 'line'
+      },
+      style: {
+        fg: color.text,
+        border: {
+          fg: color.border
+        }
+      }
+    });
+    screen.render();
+    edit.on('resize', function() {
+      list.remove(edit);
+      return screen.render();
+    });
+    return edit.readInput(function(err, data) {
+      list.remove(edit);
+      screen.render();
+      if ((err == null) && (data != null ? data.length : void 0)) {
+        return cb(data);
+      }
+    });
+  };
   list.focus();
   if (hash != null) {
     list.select((_.indexOf(_.keysIn(stash.sites), hash)) + 2);
   }
   screen.render();
   list.on('keypress', function(ch, k) {
-    var copy, edit, index, key, password, site;
+    var copy, index, key, password, site;
     key = k.full;
     if (key === 'backspace') {
       index = list.getScroll();
@@ -479,41 +519,11 @@ listStash = function(hash) {
     000        000   000     000        000     00000000  000   000  000   000
      */
     if (key === 'p') {
-      log(list._maxes + ' ' + list.getItem(list.getScroll()).getText());
-      edit = blessed.textbox({
-        value: selectedSite().pattern,
-        parent: list,
-        left: list._maxes[0] + list._maxes[1] + 1,
-        width: list._maxes[2],
-        top: list.getScroll() - 1,
-        height: 3,
-        tags: true,
-        keys: true,
-        border: {
-          type: 'line'
-        },
-        style: {
-          fg: color.text,
-          border: {
-            fg: color.border
-          }
-        }
-      });
-      screen.render();
-      edit.on('resize', function() {
-        list.remove(edit);
-        return screen.render();
-      });
-      edit.readInput(function(err, data) {
-        list.remove(edit);
-        screen.render();
-        if ((err == null) && (data != null ? data.length : void 0)) {
-          log(data);
-          site = selectedSite();
-          site.pattern = data;
-          writeStash();
-          return listStash(selectedHash());
-        }
+      editColum(2, function(data) {
+        site = selectedSite();
+        site.pattern = data;
+        writeStash();
+        return listStash(selectedHash());
       });
     }
     if (key === 'r') {
@@ -527,6 +537,10 @@ listStash = function(hash) {
         copy.copy(password);
         log(key.full);
         return process.exit(0);
+      } else {
+        return editColum(0, function(data) {
+          return log(data);
+        });
       }
     }
   });

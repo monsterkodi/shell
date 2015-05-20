@@ -300,11 +300,11 @@ listStash = (hash) ->
         list = blessed.listtable
             parent:         box
             data:           data
-            # top:            'bottom'
+            # top:            'center'
+            bottom: 0
             left:           'center'
             width:          '90%'
             height:         '50%'
-            bottom: 0
             align:          'left'
             tags:           true
             keys:           true
@@ -333,6 +333,37 @@ listStash = (hash) ->
         selectedSite = () ->
             if hash = selectedHash()
                 stash.sites[hash]
+                
+        editColum = (column, cb) ->
+                text = list.getItem(list.getScroll()).getText()
+                left = _.reduce(list._maxes.slice(0,column), ((sum, n) -> sum+n+1), 0)
+                log list._maxes + ' ' + text
+                edit = blessed.textbox
+                    value:  text.substr left, list._maxes[column]-2
+                    parent: list
+                    left:   left-1
+                    width:  list._maxes[column]+1
+                    top:    list.getScroll()-1
+                    align:  'center'
+                    height: 3
+                    tags:   true
+                    keys:   true
+                    border: 
+                        type: 'line'
+                    style:  
+                        fg:     color.text
+                        border: 
+                            fg: color.border
+                screen.render()
+                edit.on 'resize', () ->
+                    list.remove edit
+                    screen.render()    
+                                                
+                edit.readInput (err,data) ->
+                    list.remove edit
+                    screen.render()    
+                    if not err? and data?.length
+                        cb data                
 
         list.focus()
         if hash?
@@ -363,39 +394,20 @@ listStash = (hash) ->
             000        000   000     000        000     00000000  000   000  000   000
             ###
             if key == 'p'
-                log list._maxes + ' ' + list.getItem(list.getScroll()).getText()
-                edit = blessed.textbox
-                    value: selectedSite().pattern
-                    parent: list
-                    left:   list._maxes[0]+list._maxes[1]+1
-                    width:  list._maxes[2]                    
-                    top:    list.getScroll()-1
-                    height: 3
-                    tags:   true
-                    keys:   true
-                    border: 
-                        type: 'line'
-                    style:  
-                        fg:     color.text
-                        border: 
-                            fg: color.border
-                screen.render()
-                edit.on 'resize', () ->
-                    list.remove edit
-                    screen.render()    
-                                                
-                edit.readInput (err,data) ->
-                    list.remove edit
-                    screen.render()    
-                    if not err? and data?.length
-                        log data
-                        site = selectedSite()
-                        site.pattern = data
-                        writeStash()
-                        listStash selectedHash()
+                editColum 2, (data) ->
+                    site = selectedSite()
+                    site.pattern = data
+                    writeStash()
+                    listStash selectedHash()
+
+            # if key == 'w'
+            #     editColum 1, (data) ->
+            #         log data
                     
             if key == 'r'
                 log 'reseed'
+                # editColum 3, (data) ->
+                #     log data
                 
             if key == 'enter'
                 if site = selectedSite()
@@ -405,6 +417,10 @@ listStash = (hash) ->
                     copy.copy password
                     log key.full
                     process.exit 0
+                else
+                    editColum 0, (data) ->
+                        log data
+                        
         return
         
 ###
