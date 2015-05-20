@@ -23,6 +23,7 @@
   ],
   "dependencies": {
     "ansi-256-colors": "^1.0.3",
+    "async": "^0.9.2",
     "bcrypt": "^0.8.3",
     "blessed": "^0.1.56",
     "coffee-script": "^1.9.2",
