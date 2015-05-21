@@ -1,4 +1,4 @@
-var BG, BW, _, _s, _url, ansi, args, bcrypt, blessed, bold, box, charsets, cipherType, clr, color, containsLink, crypto, decrypt, default_pattern, encrypt, error, exit, extractSite, fg, fileEncoding, fs, fw, genHash, jsonStr, listStash, log, main, makePassword, mstr, newSeed, newSite, nomnom, path, readFromFile, readStash, reset, screen, stash, stashFile, unlock, v, writeBufferToFile, writeStash;
+var BG, BW, _, _s, _url, ansi, args, blessed, bold, box, clr, color, containsLink, cryptools, decrypt, decryptFile, default_pattern, dirty, encrypt, error, exit, extractSite, fg, fs, fw, genHash, isdirty, jsonStr, listStash, log, main, mstr, newSeed, newSite, nomnom, password, path, readStash, reset, screen, stash, stashFile, undirty, unlock, v, writeStash;
 
 ansi = require('ansi-256-colors');
 
@@ -12,11 +12,19 @@ _ = require('lodash');
 
 _url = require('./coffee/url');
 
-crypto = require('crypto');
-
-bcrypt = require('bcrypt');
-
 blessed = require('blessed');
+
+password = require('./coffee/password');
+
+cryptools = require('./coffee/cryptools');
+
+genHash = cryptools.genHash;
+
+encrypt = cryptools.encrypt;
+
+decrypt = cryptools.decrypt;
+
+decryptFile = cryptools.decryptFile;
 
 extractSite = _url.extractSite;
 
@@ -43,7 +51,8 @@ color = {
   password_bg: '#111111',
   password_border: '#202020',
   error_bg: '#880000',
-  error_border: '#ff8800'
+  error_border: '#ff8800',
+  dirty: '#ff8800'
 };
 
 bold = '\x1b[1m';
@@ -62,39 +71,7 @@ BW = function(i) {
   return ansi.bg.grayscale[i];
 };
 
-
-/*
-00000000    0000000    0000000   0000000  000   000   0000000   00000000   0000000  
-000   000  000   000  000       000       000 0 000  000   000  000   000  000   000
-00000000   000000000  0000000   0000000   000000000  000   000  0000000    000   000
-000        000   000       000       000  000   000  000   000  000   000  000   000
-000        000   000  0000000   0000000   00     00   0000000   000   000  0000000
- */
-
-charsets = {
-  'a': 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVXYZ',
-  'b': 'abcdefghijkmnopqrstuvwxyz',
-  '0': '023456789',
-  '-': '+-._',
-  '|': '\\/:!|'
-};
-
 default_pattern = 'aaaa-aaa-aaaa|0000';
-
-makePassword = function(hash, config) {
-  var cs, i, j, l, pw, ref, ref1, s, ss, sum;
-  pw = "";
-  ss = Math.floor(hash.length / config.pattern.length);
-  for (i = j = 0, ref = config.pattern.length; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
-    sum = config.seed.charCodeAt(i);
-    for (s = l = 0, ref1 = ss; 0 <= ref1 ? l < ref1 : l > ref1; s = 0 <= ref1 ? ++l : --l) {
-      sum += parseInt(hash[i * ss + s], 16);
-    }
-    cs = charsets[config.pattern[i]];
-    pw += cs[sum % cs.length];
-  }
-  return pw;
-};
 
 
 /*
@@ -143,73 +120,6 @@ stash = {};
 
 
 /*
-000   000   0000000    0000000  000   000
-000   000  000   000  000       000   000
-000000000  000000000  0000000   000000000
-000   000  000   000       000  000   000
-000   000  000   000  0000000   000   000
- */
-
-genHash = function(value) {
-  return crypto.createHash('sha512').update(value).digest('hex');
-};
-
-
-/*
- 0000000  00000000   000   000  00000000   000000000   0000000 
-000       000   000   000 000   000   000     000     000   000
-000       0000000      00000    00000000      000     000   000
-000       000   000     000     000           000     000   000
- 0000000  000   000     000     000           000      0000000
- */
-
-cipherType = 'aes-256-cbc';
-
-fileEncoding = {
-  encoding: 'utf8'
-};
-
-encrypt = function(data, key) {
-  var cipher, enc;
-  cipher = crypto.createCipher(cipherType, genHash(key));
-  enc = cipher.update(data, 'utf8', 'hex');
-  return enc += cipher.final('hex');
-};
-
-decrypt = function(data, key) {
-  var cipher, dec;
-  cipher = crypto.createDecipher(cipherType, genHash(key));
-  dec = cipher.update(data, 'hex', 'utf8');
-  return dec += cipher.final('utf8');
-};
-
-writeBufferToFile = function(data, key, file) {
-  var encrypted;
-  encrypted = encrypt(data, key);
-  return fs.writeFileSync(file, encrypted, fileEncoding);
-};
-
-readFromFile = function(key, file, cb) {
-  var encrypted;
-  if (fs.existsSync(file)) {
-    try {
-      encrypted = fs.readFileSync(file, fileEncoding);
-    } catch (_error) {
-      error('can\'t read file at', file);
-      return;
-    }
-    try {
-      return cb(decrypt(encrypted, key));
-    } catch (_error) {
-      return error('can\'t decrypt file', file);
-    }
-  } else {
-    return error('no file at', file);
-  }
-};
-
-
-/*
  0000000  000000000   0000000    0000000  000   000
 000          000     000   000  000       000   000
 0000000      000     000000000  0000000   000000000
@@ -220,14 +130,20 @@ readFromFile = function(key, file, cb) {
 writeStash = function() {
   var buf;
   buf = new Buffer(JSON.stringify(stash), "utf8");
-  return writeBufferToFile(buf, mstr, stashFile);
+  cryptools.encryptFile(stashFile, buf, mstr);
+  return undirty();
 };
 
 readStash = function(cb) {
   if (fs.existsSync(stashFile)) {
-    return readFromFile(mstr, stashFile, function(json) {
-      stash = JSON.parse(json);
-      return cb();
+    return decryptFile(stashFile, mstr, function(err, json) {
+      if (err != null) {
+        return error.apply(this, err);
+      } else {
+        console.log(err, json);
+        stash = JSON.parse(json);
+        return cb();
+      }
     });
   } else {
     stash = {
@@ -266,7 +182,7 @@ if (args.reset) {
  */
 
 if (args.version) {
-  v = '0.0.92'.split('.');
+  v = '0.0.211'.split('.');
   console.log(bold + BG(0, 0, 1) + fw(23) + " p" + BG(0, 0, 2) + "w" + BG(0, 0, 3) + fw(23) + "m" + fg(1, 1, 5) + " " + fw(23) + BG(0, 0, 4) + " " + BG(0, 0, 5) + fw(23) + " " + v[0] + " " + BG(0, 0, 4) + fg(1, 1, 5) + '.' + BG(0, 0, 3) + fw(23) + " " + v[1] + " " + BG(0, 0, 2) + fg(0, 0, 5) + '.' + BG(0, 0, 1) + fw(23) + " " + v[2] + " ");
   process.exit(0);
 }
@@ -294,7 +210,7 @@ box = blessed.box({
   left: 'center',
   width: '90%',
   height: '90%',
-  content: fw(6) + '{bold}mpw{/bold} 0.0.92',
+  content: fw(6) + '{bold}mpw{/bold} 0.0.211',
   tags: true,
   shadow: true,
   dockBorders: true,
@@ -315,6 +231,41 @@ box = blessed.box({
 screen.on('resize', function() {
   return log('resize');
 });
+
+
+/*
+0000000    000  00000000   000000000  000   000
+000   000  000  000   000     000      000 000 
+000   000  000  0000000       000       00000  
+000   000  000  000   000     000        000   
+0000000    000  000   000     000        000
+ */
+
+isdirty = void 0;
+
+dirty = function() {
+  if (isdirty == null) {
+    isdirty = blessed.element({
+      parent: box,
+      content: '▣',
+      right: 1,
+      top: 0,
+      width: 1,
+      height: 1,
+      fg: color.dirty,
+      bg: color.bg
+    });
+  }
+  return screen.render();
+};
+
+undirty = function() {
+  if (isdirty != null) {
+    box.remove(isdirty);
+    isdirty = void 0;
+    return screen.render();
+  }
+};
 
 
 /*
@@ -400,7 +351,7 @@ listStash = function(hash) {
   data = [[fw(1) + 'site', 'password', 'pattern', 'seed'], ['', '', '', '']];
   for (siteKey in stash.configs) {
     url = decrypt(stash.configs[siteKey].url, mstr);
-    data.push([bold + fg(2, 2, 5) + url + reset, fg(5, 5, 0) + makePassword(genHash(url + mstr), stash.configs[siteKey]) + reset, fw(6) + stash.configs[siteKey].pattern + reset, fw(3) + stash.configs[siteKey].seed + reset]);
+    data.push([bold + fg(2, 2, 5) + url + reset, fg(5, 5, 0) + password.make(genHash(url + mstr), stash.configs[siteKey]) + reset, fw(6) + stash.configs[siteKey].pattern + reset, fw(3) + stash.configs[siteKey].seed + reset]);
   }
   data.push(['', '', '', '']);
   list = blessed.listtable({
@@ -492,8 +443,16 @@ listStash = function(hash) {
     list.select((_.indexOf(_.keysIn(stash.configs), hash)) + 2);
   }
   screen.render();
+
+  /*
+  000   000  00000000  000   000   0000000
+  000  000   000        000 000   000     
+  0000000    0000000     00000    0000000 
+  000  000   000          000          000
+  000   000  00000000     000     0000000
+   */
   list.on('keypress', function(ch, k) {
-    var config, copy, index, key, password, site;
+    var config, copy, index, key, site;
     key = k.full;
 
     /*
@@ -509,7 +468,7 @@ listStash = function(hash) {
         list.removeItem(index);
         site = _.keysIn(stash.configs)[index - 2];
         delete stash.configs[site];
-        screen.render();
+        dirty();
       }
     }
     if (key === 's') {
@@ -530,31 +489,40 @@ listStash = function(hash) {
         config = selectedConfig();
         config.pattern = pattern;
         newSeed(config);
-        writeStash();
+        dirty();
         return listStash(selectedHash());
       });
     }
     if (key === 'r') {
-      log('reseed');
+      if (config = selectedConfig()) {
+        newSeed(config);
+        dirty();
+        listStash(selectedHash());
+      }
     }
     if (key === 'n') {
       list.select(_.keysIn(stash.configs).length + 2);
       editColum(0, function(site) {
-        return newSite(_.trim(site));
+        return newSite(site);
       });
     }
+
+    /*
+    00000000  000   000  000000000  00000000  00000000 
+    000       0000  000     000     000       000   000
+    0000000   000 0 000     000     0000000   0000000  
+    000       000  0000     000     000       000   000
+    00000000  000   000     000     00000000  000   000
+     */
     if (key === 'enter') {
-      if (config = selectedConfig()) {
+      if ((isdirty == null) && (config = selectedConfig())) {
         url = decrypt(config.url, mstr);
-        password = makePassword(genHash(url + mstr), config);
         copy = require('copy-paste');
-        copy.copy(password);
+        copy.copy(password.make(genHash(url + mstr), config));
         return process.exit(0);
       } else {
         return editColum(0, function(site) {
-          if (containsLink(site)) {
-            return newSite(extractSite(site));
-          }
+          return newSite(site);
         });
       }
     }
@@ -571,25 +539,25 @@ listStash = function(hash) {
  */
 
 newSeed = function(config) {
-  var salt;
-  salt = "";
-  while (salt.length < config.pattern.length) {
-    salt += bcrypt.genSaltSync(13).substr(10);
-  }
-  return config.seed = salt.substr(0, config.pattern.length);
+  return config.seed = cryptools.genSalt(config.pattern.length);
 };
 
 newSite = function(site) {
-  var config, hash, password;
-  log(site, mstr);
+  var config, hash;
+  if (site == null) {
+    return;
+  }
+  site = _.trim(site);
+  if (site.length === 0) {
+    return;
+  }
   config = {};
   config.url = encrypt(site, mstr);
   config.pattern = stash.pattern;
   newSeed(config);
   hash = genHash(site + mstr);
   stash.configs[hash] = config;
-  password = makePassword(hash, config);
-  writeStash();
+  dirty();
   return listStash(hash);
 };
 

@@ -1,13 +1,17 @@
 #!/usr/bin/env coffee  
-ansi    = require 'ansi-256-colors'
-fs      = require 'fs'
-path    = require 'path'
-_s      = require 'underscore.string'
-_       = require 'lodash'
-_url    = require './coffee/url'
-crypto  = require 'crypto'
-bcrypt  = require 'bcrypt'
-blessed = require 'blessed'
+ansi        = require 'ansi-256-colors'
+fs          = require 'fs'
+path        = require 'path'
+_s          = require 'underscore.string'
+_           = require 'lodash'
+_url        = require './coffee/url'
+blessed     = require 'blessed'
+password    = require './coffee/password' 
+cryptools   = require './coffee/cryptools'
+genHash     = cryptools.genHash
+encrypt     = cryptools.encrypt
+decrypt     = cryptools.decrypt
+decryptFile = cryptools.decryptFile
 
 extractSite = _url.extractSite
 containsLink = _url.containsLink
@@ -30,6 +34,7 @@ color =
     password_border: '#202020'
     error_bg:        '#880000'
     error_border:    '#ff8800'
+    dirty:           '#ff8800'
 
 # colors
 bold   = '\x1b[1m'
@@ -39,33 +44,7 @@ BG     = ansi.bg.getRgb
 fw     = (i) -> ansi.fg.grayscale[i]
 BW     = (i) -> ansi.bg.grayscale[i]
 
-###
-00000000    0000000    0000000   0000000  000   000   0000000   00000000   0000000  
-000   000  000   000  000       000       000 0 000  000   000  000   000  000   000
-00000000   000000000  0000000   0000000   000000000  000   000  0000000    000   000
-000        000   000       000       000  000   000  000   000  000   000  000   000
-000        000   000  0000000   0000000   00     00   0000000   000   000  0000000  
-###
-
-charsets = 
-    'a': 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVXYZ'
-    'b': 'abcdefghijkmnopqrstuvwxyz'
-    '0': '023456789'
-    '-': '+-._'
-    '|': '\\/:!|'
-    
-default_pattern = 'aaaa-aaa-aaaa|0000'    
-
-makePassword = (hash, config) ->
-    pw = ""
-    ss = Math.floor(hash.length / config.pattern.length)
-    for i in [0...config.pattern.length]        
-        sum = config.seed.charCodeAt i
-        for s in [0...ss]
-            sum += parseInt(hash[i*ss+s], 16)
-        cs  = charsets[config.pattern[i]]
-        pw += cs[sum%cs.length]
-    pw
+default_pattern = 'aaaa-aaa-aaaa|0000' 
     
 ###
  0000000   00000000    0000000    0000000
@@ -91,54 +70,6 @@ args = nomnom.parse()
 stashFile = args.stash or process.env.HOME+'/.config/mpw.stash'
 mstr      = args.password or undefined
 stash     = {}
-
-###
-000   000   0000000    0000000  000   000
-000   000  000   000  000       000   000
-000000000  000000000  0000000   000000000
-000   000  000   000       000  000   000
-000   000  000   000  0000000   000   000
-###
-genHash = (value) -> crypto.createHash('sha512').update(value).digest('hex')    
-
-###
- 0000000  00000000   000   000  00000000   000000000   0000000 
-000       000   000   000 000   000   000     000     000   000
-000       0000000      00000    00000000      000     000   000
-000       000   000     000     000           000     000   000
- 0000000  000   000     000     000           000      0000000 
-###
-
-cipherType = 'aes-256-cbc'
-fileEncoding = encoding:'utf8'
-
-encrypt = (data, key) ->
-    cipher = crypto.createCipher cipherType, genHash(key)
-    enc =  cipher.update data, 'utf8', 'hex'
-    enc += cipher.final 'hex'
-    
-decrypt = (data, key) ->
-    cipher = crypto.createDecipher cipherType, genHash(key)
-    dec  = cipher.update data, 'hex', 'utf8'
-    dec += cipher.final 'utf8'
-    
-writeBufferToFile = (data, key, file) ->
-    encrypted = encrypt data, key
-    fs.writeFileSync file, encrypted, fileEncoding
-    
-readFromFile = (key, file, cb) ->
-    if fs.existsSync file
-        try
-            encrypted = fs.readFileSync(file, fileEncoding)
-        catch
-            error 'can\'t read file at', file
-            return
-        try
-            cb decrypt(encrypted, key)
-        catch
-            error 'can\'t decrypt file', file
-    else
-        error 'no file at', file
     
 ###
  0000000  000000000   0000000    0000000  000   000
@@ -150,13 +81,18 @@ readFromFile = (key, file, cb) ->
     
 writeStash = () ->
     buf = new Buffer(JSON.stringify(stash), "utf8")
-    writeBufferToFile(buf, mstr, stashFile)
+    cryptools.encryptFile stashFile, buf, mstr
+    undirty()
 
 readStash = (cb) ->
     if fs.existsSync stashFile
-        readFromFile mstr, stashFile, (json) -> 
-            stash = JSON.parse(json)
-            cb()
+        decryptFile stashFile, mstr, (err, json) -> 
+            if err? 
+                error.apply @, err
+            else
+                console.log err, json
+                stash = JSON.parse(json)
+                cb()
     else
         stash = { configs: {} }        
         cb()
@@ -230,6 +166,34 @@ screen.on 'resize', () ->
     log 'resize'
 
 ###
+0000000    000  00000000   000000000  000   000
+000   000  000  000   000     000      000 000 
+000   000  000  0000000       000       00000  
+000   000  000  000   000     000        000   
+0000000    000  000   000     000        000   
+###
+
+isdirty = undefined
+dirty = () ->
+    if not isdirty?
+        isdirty = blessed.element
+            parent: box
+            content: '▣'
+            right: 1
+            top: 0
+            width: 1
+            height: 1
+            fg:     color.dirty
+            bg:     color.bg
+    screen.render()
+
+undirty = () ->
+    if isdirty?
+        box.remove isdirty
+        isdirty = undefined
+        screen.render()
+        
+###
 000   000  00000000  000   000  00000000   00000000   00000000   0000000   0000000
 000  000   000        000 000   000   000  000   000  000       000       000     
 0000000    0000000     00000    00000000   0000000    0000000   0000000   0000000 
@@ -294,7 +258,7 @@ listStash = (hash) ->
             url = decrypt stash.configs[siteKey].url, mstr        
             data.push [ 
                 bold+fg(2,2,5)+url+reset
-                fg(5,5,0)+makePassword(genHash(url+mstr), stash.configs[siteKey])+reset
+                fg(5,5,0)+password.make(genHash(url+mstr), stash.configs[siteKey])+reset
                 fw(6)+stash.configs[siteKey].pattern+reset
                 fw(3)+stash.configs[siteKey].seed+reset
             ]
@@ -373,6 +337,13 @@ listStash = (hash) ->
             list.select (_.indexOf _.keysIn(stash.configs), hash) + 2        
         screen.render()
 
+        ###
+        000   000  00000000  000   000   0000000
+        000  000   000        000 000   000     
+        0000000    0000000     00000    0000000 
+        000  000   000          000          000
+        000   000  00000000     000     0000000 
+        ###
         list.on 'keypress', (ch, k) -> 
             
             key = k.full
@@ -390,7 +361,7 @@ listStash = (hash) ->
                     list.removeItem index
                     site = _.keysIn(stash.configs)[index-2]
                     delete stash.configs[site] 
-                    screen.render()
+                    dirty()
                     
             if key == 's'
                 writeStash()
@@ -408,37 +379,35 @@ listStash = (hash) ->
                     config = selectedConfig()
                     config.pattern = pattern
                     newSeed config
-                    writeStash()
+                    # writeStash()
+                    dirty()
                     listStash selectedHash()
-
-            # if key == 'w'
-            #     editColum 1, (data) ->
-            #         log data
                     
             if key == 'r'
-                log 'reseed'
-                # editColum 3, (data) ->
-                #     log data
+                if config = selectedConfig()
+                    newSeed config
+                    dirty()
+                    listStash selectedHash()
                 
             if key == 'n'
                 list.select _.keysIn(stash.configs).length+2
-                editColum 0, (site) ->
-                    # if containsLink site
-                    #     newSite extractSite site
-                    newSite _.trim site
+                editColum 0, (site) -> newSite site
                 
+            ###
+            00000000  000   000  000000000  00000000  00000000 
+            000       0000  000     000     000       000   000
+            0000000   000 0 000     000     0000000   0000000  
+            000       000  0000     000     000       000   000
+            00000000  000   000     000     00000000  000   000
+            ###
             if key == 'enter'
-                if config = selectedConfig()
+                if not isdirty? and config = selectedConfig()
                     url      = decrypt config.url, mstr
-                    password = makePassword(genHash(url+mstr), config)
                     copy     = require 'copy-paste'
-                    copy.copy password
-                    # log key.full
+                    copy.copy password.make genHash(url+mstr), config
                     process.exit 0
                 else
-                    editColum 0, (site) ->
-                        if containsLink site
-                            newSite extractSite site
+                    editColum 0, (site) -> newSite site
                         
         return
         
@@ -451,24 +420,22 @@ listStash = (hash) ->
 ###
 
 newSeed = (config) ->
-    salt = ""
-    while salt.length < config.pattern.length
-        salt += bcrypt.genSaltSync(13).substr(10)
-    config.seed = salt.substr(0, config.pattern.length)    
+    config.seed = cryptools.genSalt config.pattern.length
 
 newSite = (site) ->
-    log site, mstr
+    return if not site?
+    site = _.trim site
+    return if site.length == 0
     config = {}
     config.url = encrypt site, mstr
     config.pattern = stash.pattern
 
     newSeed config
-    # log (fw(6) + bold +  'new seed: ' +bold+fg(5,0,0)+config.seed+reset)
+
     hash = genHash site+mstr
     stash.configs[hash] = config
-    password = makePassword hash, config
-    # log (fw(6) + bold + 'password: ' + bold+fw(23)+password+reset)
-    writeStash()
+    # writeStash()
+    dirty()
     listStash hash
                 
 ###

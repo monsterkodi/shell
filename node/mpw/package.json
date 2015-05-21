@@ -1,6 +1,6 @@
 {
   "name": "mpw",
-  "version": "0.0.92",
+  "version": "0.0.211",
   "description": "mpw",
   "main": "mpw.coffee",
   "scripts": {
@@ -30,6 +30,7 @@
     "copy-paste": "^1.1.0",
     "js-sha512": "^0.2.2",
     "lodash": "^3.8.0",
+    "lodash.zipobject": "^3.0.0",
     "nomnom": "^1.8.1",
     "readline-sync": "^1.2.14",
     "sprintf-js": "^1.0.2",
