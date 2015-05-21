@@ -39,10 +39,6 @@ BG     = ansi.bg.getRgb
 fw     = (i) -> ansi.fg.grayscale[i]
 BW     = (i) -> ansi.bg.grayscale[i]
 
-stashFile = process.env.HOME+'/.config/mpw.stash'
-mstr      = undefined
-stash     = {}
-
 ###
 00000000    0000000    0000000   0000000  000   000   0000000   00000000   0000000  
 000   000  000   000  000       000       000 0 000  000   000  000   000  000   000
@@ -86,12 +82,15 @@ nomnom = require("nomnom")
          position: 0
          help:     "the url of the site"
          required: false
-      list:   { abbr: 'l', flag: true, help: 'list known sites' }
-      delete: { abbr: 'd', flag: true, help: 'delete site(s)' }
-      stash:  { abbr: 's', flag: true, help: 'show stash' }
-      reset:  { abbr: 'r', flag: true, help: 'delete stash' }
-      version:{ abbr: 'v', flag: true, help: "show version", hidden: true }
+      reset:     { abbr: 'r',  flag: true, help: 'delete stash' }
+      version:   { abbr: 'v',  flag: true, help: "show version", hidden: true }
+      password:  { abbr: 'pw', help: "use this as master password", hidden: true }
+      stash:     { help: "open this stash", hidden: true }
 args = nomnom.parse()
+
+stashFile = args.stash or process.env.HOME+'/.config/mpw.stash'
+mstr      = args.password or undefined
+stash     = {}
 
 ###
 000   000   0000000    0000000  000   000
@@ -480,7 +479,7 @@ newSite = (site) ->
  0000000   000   000  0000000   0000000    0000000  000   000
 ###
     
-unlock = () ->    
+unlock = () ->
     
     passwordBox = blessed.textbox
         parent: box
@@ -506,9 +505,7 @@ unlock = () ->
         box.remove passwordBox
         mstr = data
         readStash main
-    
-unlock()
-        
+            
 ###
 00     00   0000000   000  000   000
 000   000  000   000  000  0000  000
@@ -537,6 +534,11 @@ main = () ->
         listStash hash
     else
         newSite site
+
+if mstr?
+    readStash main
+else
+    unlock()
 
 ###
 00000000  000   000  000  000000000

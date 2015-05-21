@@ -62,12 +62,6 @@ BW = function(i) {
   return ansi.bg.grayscale[i];
 };
 
-stashFile = process.env.HOME + '/.config/mpw.stash';
-
-mstr = void 0;
-
-stash = {};
-
 
 /*
 00000000    0000000    0000000   0000000  000   000   0000000   00000000   0000000  
@@ -117,21 +111,6 @@ nomnom = require("nomnom").script("mpw").options({
     help: "the url of the site",
     required: false
   },
-  list: {
-    abbr: 'l',
-    flag: true,
-    help: 'list known sites'
-  },
-  "delete": {
-    abbr: 'd',
-    flag: true,
-    help: 'delete site(s)'
-  },
-  stash: {
-    abbr: 's',
-    flag: true,
-    help: 'show stash'
-  },
   reset: {
     abbr: 'r',
     flag: true,
@@ -142,10 +121,25 @@ nomnom = require("nomnom").script("mpw").options({
     flag: true,
     help: "show version",
     hidden: true
+  },
+  password: {
+    abbr: 'pw',
+    help: "use this as master password",
+    hidden: true
+  },
+  stash: {
+    help: "open this stash",
+    hidden: true
   }
 });
 
 args = nomnom.parse();
+
+stashFile = args.stash || process.env.HOME + '/.config/mpw.stash';
+
+mstr = args.password || void 0;
+
+stash = {};
 
 
 /*
@@ -272,7 +266,7 @@ if (args.reset) {
  */
 
 if (args.version) {
-  v = '0.0.88'.split('.');
+  v = '0.0.92'.split('.');
   console.log(bold + BG(0, 0, 1) + fw(23) + " p" + BG(0, 0, 2) + "w" + BG(0, 0, 3) + fw(23) + "m" + fg(1, 1, 5) + " " + fw(23) + BG(0, 0, 4) + " " + BG(0, 0, 5) + fw(23) + " " + v[0] + " " + BG(0, 0, 4) + fg(1, 1, 5) + '.' + BG(0, 0, 3) + fw(23) + " " + v[1] + " " + BG(0, 0, 2) + fg(0, 0, 5) + '.' + BG(0, 0, 1) + fw(23) + " " + v[2] + " ");
   process.exit(0);
 }
@@ -300,7 +294,7 @@ box = blessed.box({
   left: 'center',
   width: '90%',
   height: '90%',
-  content: fw(6) + '{bold}mpw{/bold} 0.0.88',
+  content: fw(6) + '{bold}mpw{/bold} 0.0.92',
   tags: true,
   shadow: true,
   dockBorders: true,
@@ -645,8 +639,6 @@ unlock = function() {
   });
 };
 
-unlock();
-
 
 /*
 00     00   0000000   000  000   000
@@ -679,6 +671,12 @@ main = function() {
     return newSite(site);
   }
 };
+
+if (mstr != null) {
+  readStash(main);
+} else {
+  unlock();
+}
 
 
 /*
