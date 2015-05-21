@@ -4,10 +4,13 @@ fs      = require 'fs'
 path    = require 'path'
 _s      = require 'underscore.string'
 _       = require 'lodash'
-url     = require './coffee/url'
+_url    = require './coffee/url'
 crypto  = require 'crypto'
 bcrypt  = require 'bcrypt'
 blessed = require 'blessed'
+
+extractSite = _url.extractSite
+containsLink = _url.containsLink
 jsonStr = (a) -> JSON.stringify a, null, " "
 
 ###
@@ -156,7 +159,7 @@ readStash = (cb) ->
             stash = JSON.parse(json)
             cb()
     else
-        stash = { sites: {} }        
+        stash = { configs: {} }        
         cb()
 
 ###
@@ -288,14 +291,15 @@ error = () ->
 listStash = (hash) ->
     
         data = [[fw(1)+'site', 'password', 'pattern', 'seed'], ['', '', '', '']]
-        for siteKey of stash.sites
-            url = decrypt stash.sites[siteKey].url, mstr        
+        for siteKey of stash.configs
+            url = decrypt stash.configs[siteKey].url, mstr        
             data.push [ 
                 bold+fg(2,2,5)+url+reset
-                fg(5,5,0)+makePassword(genHash(url+mstr), stash.sites[siteKey])+reset
-                fw(6)+stash.sites[siteKey].pattern+reset
-                fw(3)+stash.sites[siteKey].seed+reset
+                fg(5,5,0)+makePassword(genHash(url+mstr), stash.configs[siteKey])+reset
+                fw(6)+stash.configs[siteKey].pattern+reset
+                fw(3)+stash.configs[siteKey].seed+reset
             ]
+        data.push ['', '', '', '']
         
         list = blessed.listtable
             parent:         box
@@ -328,58 +332,65 @@ listStash = (hash) ->
         selectedHash = () ->
             index = list.getScroll()
             if index > 1
-                _.keysIn(stash.sites)[index-2]
+                _.keysIn(stash.configs)[index-2]
 
-        selectedSite = () ->
+        selectedConfig = () ->
             if hash = selectedHash()
-                stash.sites[hash]
+                stash.configs[hash]
                 
         editColum = (column, cb) ->
-                text = list.getItem(list.getScroll()).getText()
-                left = _.reduce(list._maxes.slice(0,column), ((sum, n) -> sum+n+1), 0)
-                log list._maxes + ' ' + text
-                edit = blessed.textbox
-                    value:  text.substr left, list._maxes[column]-2
-                    parent: list
-                    left:   left-1
-                    width:  list._maxes[column]+1
-                    top:    list.getScroll()-1
-                    align:  'center'
-                    height: 3
-                    tags:   true
-                    keys:   true
+            text = list.getItem(list.getScroll()).getText()
+            left = _.reduce(list._maxes.slice(0,column), ((sum, n) -> sum+n+1), 0)
+            # log list._maxes + ' ' + text
+            edit = blessed.textbox
+                value:  text.substr left, list._maxes[column]-2
+                parent: list
+                left:   left-1
+                width:  list._maxes[column]+1
+                top:    list.getScroll()-1
+                align:  'center'
+                height: 3
+                tags:   true
+                keys:   true
+                border: 
+                    type: 'line'
+                style:  
+                    fg:     color.text
                     border: 
-                        type: 'line'
-                    style:  
-                        fg:     color.text
-                        border: 
-                            fg: color.border
-                screen.render()
-                edit.on 'resize', () ->
-                    list.remove edit
-                    screen.render()    
-                                                
-                edit.readInput (err,data) ->
-                    list.remove edit
-                    screen.render()    
-                    if not err? and data?.length
-                        cb data                
+                        fg: color.border
+            screen.render()
+            edit.on 'resize', () ->
+                list.remove edit
+                screen.render()    
+                                            
+            edit.readInput (err,data) ->
+                list.remove edit
+                screen.render()    
+                if not err? and data?.length
+                    cb data                
 
         list.focus()
         if hash?
-            list.select (_.indexOf _.keysIn(stash.sites), hash) + 2        
+            list.select (_.indexOf _.keysIn(stash.configs), hash) + 2        
         screen.render()
 
         list.on 'keypress', (ch, k) -> 
             
             key = k.full
             
+            ###
+            0000000    00000000  000      00000000  000000000  00000000
+            000   000  000       000      000          000     000     
+            000   000  0000000   000      0000000      000     0000000 
+            000   000  000       000      000          000     000     
+            0000000    00000000  0000000  00000000     000     00000000
+            ###
             if key == 'backspace' # delete current item
                 index = list.getScroll()
                 if index > 1
                     list.removeItem index
-                    site = _.keysIn(stash.sites)[index-2]
-                    delete stash.sites[site] 
+                    site = _.keysIn(stash.configs)[index-2]
+                    delete stash.configs[site] 
                     screen.render()
                     
             if key == 's'
@@ -394,9 +405,10 @@ listStash = (hash) ->
             000        000   000     000        000     00000000  000   000  000   000
             ###
             if key == 'p'
-                editColum 2, (data) ->
-                    site = selectedSite()
-                    site.pattern = data
+                editColum 2, (pattern) ->
+                    config = selectedConfig()
+                    config.pattern = pattern
+                    newSeed config
                     writeStash()
                     listStash selectedHash()
 
@@ -409,20 +421,57 @@ listStash = (hash) ->
                 # editColum 3, (data) ->
                 #     log data
                 
+            if key == 'n'
+                list.select _.keysIn(stash.configs).length+2
+                editColum 0, (site) ->
+                    # if containsLink site
+                    #     newSite extractSite site
+                    newSite _.trim site
+                
             if key == 'enter'
-                if site = selectedSite()
-                    url      = decrypt site.url, mstr
-                    password = makePassword(genHash(url+mstr), site)
+                if config = selectedConfig()
+                    url      = decrypt config.url, mstr
+                    password = makePassword(genHash(url+mstr), config)
                     copy     = require 'copy-paste'
                     copy.copy password
-                    log key.full
+                    # log key.full
                     process.exit 0
                 else
-                    editColum 0, (data) ->
-                        log data
+                    editColum 0, (site) ->
+                        if containsLink site
+                            newSite extractSite site
                         
         return
         
+###
+000   000  00000000  000   000   0000000  000  000000000  00000000
+0000  000  000       000 0 000  000       000     000     000     
+000 0 000  0000000   000000000  0000000   000     000     0000000 
+000  0000  000       000   000       000  000     000     000     
+000   000  00000000  00     00  0000000   000     000     00000000
+###
+
+newSeed = (config) ->
+    salt = ""
+    while salt.length < config.pattern.length
+        salt += bcrypt.genSaltSync(13).substr(10)
+    config.seed = salt.substr(0, config.pattern.length)    
+
+newSite = (site) ->
+    log site, mstr
+    config = {}
+    config.url = encrypt site, mstr
+    config.pattern = stash.pattern
+
+    newSeed config
+    # log (fw(6) + bold +  'new seed: ' +bold+fg(5,0,0)+config.seed+reset)
+    hash = genHash site+mstr
+    stash.configs[hash] = config
+    password = makePassword hash, config
+    # log (fw(6) + bold + 'password: ' + bold+fw(23)+password+reset)
+    writeStash()
+    listStash hash
+                
 ###
 000   000  000   000  000       0000000    0000000  000   000
 000   000  0000  000  000      000   000  000       000  000 
@@ -472,57 +521,48 @@ main = () ->
 
     if args._.length == 0 # no url arguments provided
         clipboard = require('copy-paste').paste()
-        if url.containsLink(clipboard)
-            site = url.extractSite clipboard
+        if containsLink clipboard
+            site = extractSite clipboard
         else
             listStash()
             return
     else
         site = args._[0]
                     
-    # stash.pattern = ask.question(fw(6)+bold + 'default:  ' + default_pattern + reset + '\n?         ', defaultInput: default_pattern)
     stash.pattern = default_pattern unless stash.pattern
 
     hash = genHash site+mstr
-    # clr()
-    # log fw(6)+bold+'site:     ' + fw(23)+BG(0,0,5)+site+reset
 
-    if stash.sites?[hash]?
-        # config = stash.sites[hash]
-        # password = makePassword hash, config
-        # log (fw(6) + bold + 'password: ' + bold+fw(23)+password+reset)
+    if stash.configs?[hash]?
         listStash hash
     else
-        config = {}
-        config.url = encrypt site, mstr
-        config.pattern = stash.pattern
-        
-        salt = ""
-        while salt.length < config.pattern.length
-            salt += bcrypt.genSaltSync(13).substr(10)
-        config.seed = salt.substr(0, config.pattern.length)
-        log (fw(6) + bold +  'new seed: ' +bold+fg(5,0,0)+config.seed+reset)
-        stash.sites[hash] = config
-        password = makePassword hash, config
-        log (fw(6) + bold + 'password: ' + bold+fw(23)+password+reset)
-            
-        #     config.pattern = ask.question(fw(6)+bold + 'pattern:  ' + stash.pattern + reset + '\n?         ', defaultInput: stash.pattern)
-        #     while 1
-        #         salt = ""
-        #         while salt.length < config.pattern.length
-        #             salt += bcrypt.genSaltSync(13).substr(10)
-        #         config.seed = salt.substr(0, config.pattern.length)
-        #         log (fw(6) + bold +  'new seed: ' +bold+fg(5,0,0)+config.seed+reset)
-        #         stash.sites[hash] = config
-        #         password = makePassword hash, config
-        #         log (fw(6) + bold + 'password: ' + bold+fw(23)+password+reset)
-        #         # if ask.keyInYN(fw(6)+bold + 'ok?' + reset + '       ', guide:false) then break
-        writeStash()
-        listStash hash
-        
-        mstr = 0
-            
-        # if sites.length == 1
-        #     copy = require 'copy-paste'
-        #     copy.copy password
+        newSite site
+
+###
+00000000  000   000  000  000000000
+000        000 000   000     000   
+0000000     00000    000     000   
+000        000 000   000     000   
+00000000  000   000  000     000   
+###
+
+exit = () ->
+    writeStash()
+    mstr = 0
+    process.exit 0
   
+###
+000000000   0000000   0000000     0000000 
+   000     000   000  000   000  000   000
+   000     000   000  000   000  000   000
+   000     000   000  000   000  000   000
+   000      0000000   0000000     0000000 
+###
+###
+
+- 'nightrider' animation after password enter
+- autoclose timeout
+- join seed and pattern: full character set patterns
+- don't show list fully decrypted by default
+    
+###

@@ -1,4 +1,4 @@
-var BG, BW, _, _s, ansi, args, bcrypt, blessed, bold, box, charsets, cipherType, clr, color, crypto, decrypt, default_pattern, encrypt, error, fg, fileEncoding, fs, fw, genHash, jsonStr, listStash, log, main, makePassword, mstr, nomnom, path, readFromFile, readStash, reset, screen, stash, stashFile, unlock, url, v, writeBufferToFile, writeStash;
+var BG, BW, _, _s, _url, ansi, args, bcrypt, blessed, bold, box, charsets, cipherType, clr, color, containsLink, crypto, decrypt, default_pattern, encrypt, error, exit, extractSite, fg, fileEncoding, fs, fw, genHash, jsonStr, listStash, log, main, makePassword, mstr, newSeed, newSite, nomnom, path, readFromFile, readStash, reset, screen, stash, stashFile, unlock, v, writeBufferToFile, writeStash;
 
 ansi = require('ansi-256-colors');
 
@@ -10,13 +10,17 @@ _s = require('underscore.string');
 
 _ = require('lodash');
 
-url = require('./coffee/url');
+_url = require('./coffee/url');
 
 crypto = require('crypto');
 
 bcrypt = require('bcrypt');
 
 blessed = require('blessed');
+
+extractSite = _url.extractSite;
+
+containsLink = _url.containsLink;
 
 jsonStr = function(a) {
   return JSON.stringify(a, null, " ");
@@ -233,7 +237,7 @@ readStash = function(cb) {
     });
   } else {
     stash = {
-      sites: {}
+      configs: {}
     };
     return cb();
   }
@@ -268,7 +272,7 @@ if (args.reset) {
  */
 
 if (args.version) {
-  v = '0.0.43'.split('.');
+  v = '0.0.88'.split('.');
   console.log(bold + BG(0, 0, 1) + fw(23) + " p" + BG(0, 0, 2) + "w" + BG(0, 0, 3) + fw(23) + "m" + fg(1, 1, 5) + " " + fw(23) + BG(0, 0, 4) + " " + BG(0, 0, 5) + fw(23) + " " + v[0] + " " + BG(0, 0, 4) + fg(1, 1, 5) + '.' + BG(0, 0, 3) + fw(23) + " " + v[1] + " " + BG(0, 0, 2) + fg(0, 0, 5) + '.' + BG(0, 0, 1) + fw(23) + " " + v[2] + " ");
   process.exit(0);
 }
@@ -296,7 +300,7 @@ box = blessed.box({
   left: 'center',
   width: '90%',
   height: '90%',
-  content: fw(6) + '{bold}mpw{/bold} 0.0.43',
+  content: fw(6) + '{bold}mpw{/bold} 0.0.88',
   tags: true,
   shadow: true,
   dockBorders: true,
@@ -398,12 +402,13 @@ error = function() {
  */
 
 listStash = function(hash) {
-  var data, editColum, list, selectedHash, selectedSite, siteKey;
+  var data, editColum, list, selectedConfig, selectedHash, siteKey, url;
   data = [[fw(1) + 'site', 'password', 'pattern', 'seed'], ['', '', '', '']];
-  for (siteKey in stash.sites) {
-    url = decrypt(stash.sites[siteKey].url, mstr);
-    data.push([bold + fg(2, 2, 5) + url + reset, fg(5, 5, 0) + makePassword(genHash(url + mstr), stash.sites[siteKey]) + reset, fw(6) + stash.sites[siteKey].pattern + reset, fw(3) + stash.sites[siteKey].seed + reset]);
+  for (siteKey in stash.configs) {
+    url = decrypt(stash.configs[siteKey].url, mstr);
+    data.push([bold + fg(2, 2, 5) + url + reset, fg(5, 5, 0) + makePassword(genHash(url + mstr), stash.configs[siteKey]) + reset, fw(6) + stash.configs[siteKey].pattern + reset, fw(3) + stash.configs[siteKey].seed + reset]);
   }
+  data.push(['', '', '', '']);
   list = blessed.listtable({
     parent: box,
     data: data,
@@ -441,12 +446,12 @@ listStash = function(hash) {
     var index;
     index = list.getScroll();
     if (index > 1) {
-      return _.keysIn(stash.sites)[index - 2];
+      return _.keysIn(stash.configs)[index - 2];
     }
   };
-  selectedSite = function() {
+  selectedConfig = function() {
     if (hash = selectedHash()) {
-      return stash.sites[hash];
+      return stash.configs[hash];
     }
   };
   editColum = function(column, cb) {
@@ -455,7 +460,6 @@ listStash = function(hash) {
     left = _.reduce(list._maxes.slice(0, column), (function(sum, n) {
       return sum + n + 1;
     }), 0);
-    log(list._maxes + ' ' + text);
     edit = blessed.textbox({
       value: text.substr(left, list._maxes[column] - 2),
       parent: list,
@@ -491,18 +495,26 @@ listStash = function(hash) {
   };
   list.focus();
   if (hash != null) {
-    list.select((_.indexOf(_.keysIn(stash.sites), hash)) + 2);
+    list.select((_.indexOf(_.keysIn(stash.configs), hash)) + 2);
   }
   screen.render();
   list.on('keypress', function(ch, k) {
-    var copy, index, key, password, site;
+    var config, copy, index, key, password, site;
     key = k.full;
+
+    /*
+    0000000    00000000  000      00000000  000000000  00000000
+    000   000  000       000      000          000     000     
+    000   000  0000000   000      0000000      000     0000000 
+    000   000  000       000      000          000     000     
+    0000000    00000000  0000000  00000000     000     00000000
+     */
     if (key === 'backspace') {
       index = list.getScroll();
       if (index > 1) {
         list.removeItem(index);
-        site = _.keysIn(stash.sites)[index - 2];
-        delete stash.sites[site];
+        site = _.keysIn(stash.configs)[index - 2];
+        delete stash.configs[site];
         screen.render();
       }
     }
@@ -519,9 +531,11 @@ listStash = function(hash) {
     000        000   000     000        000     00000000  000   000  000   000
      */
     if (key === 'p') {
-      editColum(2, function(data) {
-        site = selectedSite();
-        site.pattern = data;
+      editColum(2, function(pattern) {
+        var config;
+        config = selectedConfig();
+        config.pattern = pattern;
+        newSeed(config);
         writeStash();
         return listStash(selectedHash());
       });
@@ -529,21 +543,60 @@ listStash = function(hash) {
     if (key === 'r') {
       log('reseed');
     }
+    if (key === 'n') {
+      list.select(_.keysIn(stash.configs).length + 2);
+      editColum(0, function(site) {
+        return newSite(_.trim(site));
+      });
+    }
     if (key === 'enter') {
-      if (site = selectedSite()) {
-        url = decrypt(site.url, mstr);
-        password = makePassword(genHash(url + mstr), site);
+      if (config = selectedConfig()) {
+        url = decrypt(config.url, mstr);
+        password = makePassword(genHash(url + mstr), config);
         copy = require('copy-paste');
         copy.copy(password);
-        log(key.full);
         return process.exit(0);
       } else {
-        return editColum(0, function(data) {
-          return log(data);
+        return editColum(0, function(site) {
+          if (containsLink(site)) {
+            return newSite(extractSite(site));
+          }
         });
       }
     }
   });
+};
+
+
+/*
+000   000  00000000  000   000   0000000  000  000000000  00000000
+0000  000  000       000 0 000  000       000     000     000     
+000 0 000  0000000   000000000  0000000   000     000     0000000 
+000  0000  000       000   000       000  000     000     000     
+000   000  00000000  00     00  0000000   000     000     00000000
+ */
+
+newSeed = function(config) {
+  var salt;
+  salt = "";
+  while (salt.length < config.pattern.length) {
+    salt += bcrypt.genSaltSync(13).substr(10);
+  }
+  return config.seed = salt.substr(0, config.pattern.length);
+};
+
+newSite = function(site) {
+  var config, hash, password;
+  log(site, mstr);
+  config = {};
+  config.url = encrypt(site, mstr);
+  config.pattern = stash.pattern;
+  newSeed(config);
+  hash = genHash(site + mstr);
+  stash.configs[hash] = config;
+  password = makePassword(hash, config);
+  writeStash();
+  return listStash(hash);
 };
 
 
@@ -604,11 +657,11 @@ unlock();
  */
 
 main = function() {
-  var clipboard, config, hash, password, ref, salt, site;
+  var clipboard, hash, ref, site;
   if (args._.length === 0) {
     clipboard = require('copy-paste').paste();
-    if (url.containsLink(clipboard)) {
-      site = url.extractSite(clipboard);
+    if (containsLink(clipboard)) {
+      site = extractSite(clipboard);
     } else {
       listStash();
       return;
@@ -620,23 +673,42 @@ main = function() {
     stash.pattern = default_pattern;
   }
   hash = genHash(site + mstr);
-  if (((ref = stash.sites) != null ? ref[hash] : void 0) != null) {
+  if (((ref = stash.configs) != null ? ref[hash] : void 0) != null) {
     return listStash(hash);
   } else {
-    config = {};
-    config.url = encrypt(site, mstr);
-    config.pattern = stash.pattern;
-    salt = "";
-    while (salt.length < config.pattern.length) {
-      salt += bcrypt.genSaltSync(13).substr(10);
-    }
-    config.seed = salt.substr(0, config.pattern.length);
-    log(fw(6) + bold + 'new seed: ' + bold + fg(5, 0, 0) + config.seed + reset);
-    stash.sites[hash] = config;
-    password = makePassword(hash, config);
-    log(fw(6) + bold + 'password: ' + bold + fw(23) + password + reset);
-    writeStash();
-    listStash(hash);
-    return mstr = 0;
+    return newSite(site);
   }
 };
+
+
+/*
+00000000  000   000  000  000000000
+000        000 000   000     000   
+0000000     00000    000     000   
+000        000 000   000     000   
+00000000  000   000  000     000
+ */
+
+exit = function() {
+  writeStash();
+  mstr = 0;
+  return process.exit(0);
+};
+
+
+/*
+000000000   0000000   0000000     0000000 
+   000     000   000  000   000  000   000
+   000     000   000  000   000  000   000
+   000     000   000  000   000  000   000
+   000      0000000   0000000     0000000
+ */
+
+
+/*
+
+- 'nightrider' animation after password enter
+- autoclose timeout
+- join seed and pattern: full character set patterns
+- don't show list fully decrypted by default
+ */
