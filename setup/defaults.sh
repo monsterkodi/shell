@@ -24,3 +24,6 @@ defaults write -g QLPanelAnimationDuration -float 0.2
 
 # dark theme for quick lock synax highlighting
 defaults write org.n8gray.QLColorCode hlTheme darkness
+
+# disable gatekeeper
+sudo spctl --master-disable
