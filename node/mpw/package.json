@@ -1,6 +1,6 @@
 {
   "name": "mpw",
-  "version": "0.0.211",
+  "version": "0.0.225",
   "description": "mpw",
   "main": "mpw.coffee",
   "scripts": {
@@ -29,10 +29,14 @@
     "coffee-script": "^1.9.2",
     "copy-paste": "^1.1.0",
     "js-sha512": "^0.2.2",
-    "lodash": "^3.8.0",
+    "lodash.indexof": "^3.0.2",
+    "lodash.keysin": "^3.0.7",
+    "lodash.reduce": "^3.1.1",
+    "lodash.trim": "^3.0.1",
     "lodash.zipobject": "^3.0.0",
     "nomnom": "^1.8.1",
     "readline-sync": "^1.2.14",
+    "reduce": "^1.0.1",
     "sprintf-js": "^1.0.2",
     "underscore.string": "^3.0.3"
   },

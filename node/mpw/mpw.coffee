@@ -3,11 +3,14 @@ ansi        = require 'ansi-256-colors'
 fs          = require 'fs'
 path        = require 'path'
 _s          = require 'underscore.string'
-_           = require 'lodash'
 _url        = require './coffee/url'
 blessed     = require 'blessed'
 password    = require './coffee/password' 
 cryptools   = require './coffee/cryptools'
+trim        = require 'lodash.trim'
+keysIn      = require 'lodash.keysIn'
+reduce      = require 'lodash.reduce'
+indexOf     = require 'lodash.indexOf'
 genHash     = cryptools.genHash
 encrypt     = cryptools.encrypt
 decrypt     = cryptools.decrypt
@@ -90,11 +93,13 @@ readStash = (cb) ->
             if err? 
                 error.apply @, err
             else
-                console.log err, json
+                # console.log err, json
                 stash = JSON.parse(json)
+                undirty()
                 cb()
     else
         stash = { configs: {} }        
+        undirty()
         cb()
 
 ###
@@ -178,7 +183,7 @@ dirty = () ->
     if not isdirty?
         isdirty = blessed.element
             parent: box
-            content: '▣'
+            content: '▣' #'◥' 
             right: 1
             top: 0
             width: 1
@@ -295,7 +300,7 @@ listStash = (hash) ->
         selectedHash = () ->
             index = list.getScroll()
             if index > 1
-                _.keysIn(stash.configs)[index-2]
+                keysIn(stash.configs)[index-2]
 
         selectedConfig = () ->
             if hash = selectedHash()
@@ -303,7 +308,7 @@ listStash = (hash) ->
                 
         editColum = (column, cb) ->
             text = list.getItem(list.getScroll()).getText()
-            left = _.reduce(list._maxes.slice(0,column), ((sum, n) -> sum+n+1), 0)
+            left = reduce(list._maxes.slice(0,column), ((sum, n) -> sum+n+1), 0)
             # log list._maxes + ' ' + text
             edit = blessed.textbox
                 value:  text.substr left, list._maxes[column]-2
@@ -334,7 +339,7 @@ listStash = (hash) ->
 
         list.focus()
         if hash?
-            list.select (_.indexOf _.keysIn(stash.configs), hash) + 2        
+            list.select (indexOf keysIn(stash.configs), hash) + 2        
         screen.render()
 
         ###
@@ -359,7 +364,7 @@ listStash = (hash) ->
                 index = list.getScroll()
                 if index > 1
                     list.removeItem index
-                    site = _.keysIn(stash.configs)[index-2]
+                    site = keysIn(stash.configs)[index-2]
                     delete stash.configs[site] 
                     dirty()
                     
@@ -379,18 +384,21 @@ listStash = (hash) ->
                     config = selectedConfig()
                     config.pattern = pattern
                     newSeed config
-                    # writeStash()
                     dirty()
                     listStash selectedHash()
                     
             if key == 'r'
+                hash = selectedHash()
+                readStash () -> listStash hash
+                    
+            if key == '/'
                 if config = selectedConfig()
                     newSeed config
                     dirty()
                     listStash selectedHash()
                 
             if key == 'n'
-                list.select _.keysIn(stash.configs).length+2
+                list.select keysIn(stash.configs).length+2
                 editColum 0, (site) -> newSite site
                 
             ###
@@ -424,7 +432,7 @@ newSeed = (config) ->
 
 newSite = (site) ->
     return if not site?
-    site = _.trim site
+    site = trim site
     return if site.length == 0
     config = {}
     config.url = encrypt site, mstr
@@ -434,7 +442,6 @@ newSite = (site) ->
 
     hash = genHash site+mstr
     stash.configs[hash] = config
-    # writeStash()
     dirty()
     listStash hash
                 

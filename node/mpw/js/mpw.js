@@ -1,4 +1,4 @@
-var BG, BW, _, _s, _url, ansi, args, blessed, bold, box, clr, color, containsLink, cryptools, decrypt, decryptFile, default_pattern, dirty, encrypt, error, exit, extractSite, fg, fs, fw, genHash, isdirty, jsonStr, listStash, log, main, mstr, newSeed, newSite, nomnom, password, path, readStash, reset, screen, stash, stashFile, undirty, unlock, v, writeStash;
+var BG, BW, _s, _url, ansi, args, blessed, bold, box, clr, color, containsLink, cryptools, decrypt, decryptFile, default_pattern, dirty, encrypt, error, exit, extractSite, fg, fs, fw, genHash, indexOf, isdirty, jsonStr, keysIn, listStash, log, main, mstr, newSeed, newSite, nomnom, password, path, readStash, reduce, reset, screen, stash, stashFile, trim, undirty, unlock, v, writeStash;
 
 ansi = require('ansi-256-colors');
 
@@ -8,8 +8,6 @@ path = require('path');
 
 _s = require('underscore.string');
 
-_ = require('lodash');
-
 _url = require('./coffee/url');
 
 blessed = require('blessed');
@@ -17,6 +15,14 @@ blessed = require('blessed');
 password = require('./coffee/password');
 
 cryptools = require('./coffee/cryptools');
+
+trim = require('lodash.trim');
+
+keysIn = require('lodash.keysIn');
+
+reduce = require('lodash.reduce');
+
+indexOf = require('lodash.indexOf');
 
 genHash = cryptools.genHash;
 
@@ -140,8 +146,8 @@ readStash = function(cb) {
       if (err != null) {
         return error.apply(this, err);
       } else {
-        console.log(err, json);
         stash = JSON.parse(json);
+        undirty();
         return cb();
       }
     });
@@ -149,6 +155,7 @@ readStash = function(cb) {
     stash = {
       configs: {}
     };
+    undirty();
     return cb();
   }
 };
@@ -182,7 +189,7 @@ if (args.reset) {
  */
 
 if (args.version) {
-  v = '0.0.211'.split('.');
+  v = '0.0.225'.split('.');
   console.log(bold + BG(0, 0, 1) + fw(23) + " p" + BG(0, 0, 2) + "w" + BG(0, 0, 3) + fw(23) + "m" + fg(1, 1, 5) + " " + fw(23) + BG(0, 0, 4) + " " + BG(0, 0, 5) + fw(23) + " " + v[0] + " " + BG(0, 0, 4) + fg(1, 1, 5) + '.' + BG(0, 0, 3) + fw(23) + " " + v[1] + " " + BG(0, 0, 2) + fg(0, 0, 5) + '.' + BG(0, 0, 1) + fw(23) + " " + v[2] + " ");
   process.exit(0);
 }
@@ -210,7 +217,7 @@ box = blessed.box({
   left: 'center',
   width: '90%',
   height: '90%',
-  content: fw(6) + '{bold}mpw{/bold} 0.0.211',
+  content: fw(6) + '{bold}mpw{/bold} 0.0.225',
   tags: true,
   shadow: true,
   dockBorders: true,
@@ -391,7 +398,7 @@ listStash = function(hash) {
     var index;
     index = list.getScroll();
     if (index > 1) {
-      return _.keysIn(stash.configs)[index - 2];
+      return keysIn(stash.configs)[index - 2];
     }
   };
   selectedConfig = function() {
@@ -402,7 +409,7 @@ listStash = function(hash) {
   editColum = function(column, cb) {
     var edit, left, text;
     text = list.getItem(list.getScroll()).getText();
-    left = _.reduce(list._maxes.slice(0, column), (function(sum, n) {
+    left = reduce(list._maxes.slice(0, column), (function(sum, n) {
       return sum + n + 1;
     }), 0);
     edit = blessed.textbox({
@@ -440,7 +447,7 @@ listStash = function(hash) {
   };
   list.focus();
   if (hash != null) {
-    list.select((_.indexOf(_.keysIn(stash.configs), hash)) + 2);
+    list.select((indexOf(keysIn(stash.configs), hash)) + 2);
   }
   screen.render();
 
@@ -466,7 +473,7 @@ listStash = function(hash) {
       index = list.getScroll();
       if (index > 1) {
         list.removeItem(index);
-        site = _.keysIn(stash.configs)[index - 2];
+        site = keysIn(stash.configs)[index - 2];
         delete stash.configs[site];
         dirty();
       }
@@ -494,6 +501,12 @@ listStash = function(hash) {
       });
     }
     if (key === 'r') {
+      hash = selectedHash();
+      readStash(function() {
+        return listStash(hash);
+      });
+    }
+    if (key === '/') {
       if (config = selectedConfig()) {
         newSeed(config);
         dirty();
@@ -501,7 +514,7 @@ listStash = function(hash) {
       }
     }
     if (key === 'n') {
-      list.select(_.keysIn(stash.configs).length + 2);
+      list.select(keysIn(stash.configs).length + 2);
       editColum(0, function(site) {
         return newSite(site);
       });
@@ -547,7 +560,7 @@ newSite = function(site) {
   if (site == null) {
     return;
   }
-  site = _.trim(site);
+  site = trim(site);
   if (site.length === 0) {
     return;
   }
