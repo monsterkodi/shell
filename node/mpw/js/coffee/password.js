@@ -6,16 +6,22 @@
 000        000   000       000       000  000   000  000   000  000   000  000   000
 000        000   000  0000000   0000000   00     00   0000000   000   000  0000000
  */
-var charsets, exportlist, make, zipObject;
+var charsets, exportlist, indexOf, make, setWithChar, zipObject;
 
 zipObject = require('lodash.zipobject');
 
-charsets = {
-  'a': 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVXYZ',
-  'b': 'abcdefghijkmnopqrstuvwxyz',
-  '0': '023456789',
-  '-': '+-._',
-  '|': '\\/:!|'
+indexOf = require('lodash.indexof');
+
+charsets = ['abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVXYZ', '0123456789', '-+.><_=', '|\\/:[]'];
+
+setWithChar = function(char) {
+  var j, len, set;
+  for (j = 0, len = charsets.length; j < len; j++) {
+    set = charsets[j];
+    if (indexOf(set, char) >= 0) {
+      return set;
+    }
+  }
 };
 
 make = function(hash, config) {
@@ -27,7 +33,8 @@ make = function(hash, config) {
     for (s = k = 0, ref1 = ss; 0 <= ref1 ? k < ref1 : k > ref1; s = 0 <= ref1 ? ++k : --k) {
       sum += parseInt(hash[i * ss + s], 16);
     }
-    cs = charsets[config.pattern[i]];
+    sum += config.pattern.charCodeAt(i);
+    cs = setWithChar(config.pattern[i]);
     pw += cs[sum % cs.length];
   }
   return pw;

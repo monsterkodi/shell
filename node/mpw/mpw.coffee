@@ -7,6 +7,7 @@ _url        = require './coffee/url'
 blessed     = require 'blessed'
 password    = require './coffee/password' 
 cryptools   = require './coffee/cryptools'
+pad         = require 'lodash.pad'
 trim        = require 'lodash.trim'
 keysIn      = require 'lodash.keysIn'
 reduce      = require 'lodash.reduce'
@@ -102,6 +103,9 @@ readStash = (cb) ->
         undirty()
         cb()
 
+numConfigs = () ->
+    keysIn(stash.configs).length
+
 ###
 00000000   00000000   0000000  00000000  000000000
 000   000  000       000       000          000   
@@ -145,6 +149,8 @@ screen = blessed.screen
     autoPadding: true
     smartCSR:    true
     cursorShape: box
+    resizeTimeout: 100
+    artificialCursor: true
     
 screen.title = 'mpw'
 
@@ -306,17 +312,24 @@ listStash = (hash) ->
             if hash = selectedHash()
                 stash.configs[hash]
                 
+        ###
+        00000000  0000000    000  000000000   0000000   0000000   000    
+        000       000   000  000     000     000       000   000  000    
+        0000000   000   000  000     000     000       000   000  000    
+        000       000   000  000     000     000       000   000  000    
+        00000000  0000000    000     000      0000000   0000000   0000000
+        ###
         editColum = (column, cb) ->
             text = list.getItem(list.getScroll()).getText()
             left = reduce(list._maxes.slice(0,column), ((sum, n) -> sum+n+1), 0)
             # log list._maxes + ' ' + text
             edit = blessed.textbox
-                value:  text.substr left, list._maxes[column]-2
+                value:  trim text.substr left, list._maxes[column]-2
                 parent: list
                 left:   left-1
                 width:  list._maxes[column]+1
                 top:    list.getScroll()-1
-                align:  'center'
+                align:  'left'
                 height: 3
                 tags:   true
                 keys:   true
@@ -327,15 +340,45 @@ listStash = (hash) ->
                     border: 
                         fg: color.border
             screen.render()
+            
+            edit.on 'keypress', (ch, k) ->
+                key = k.full
+                if key == 'left'
+                    screen 
+            
             edit.on 'resize', () ->
                 list.remove edit
                 screen.render()    
-                                            
+
             edit.readInput (err,data) ->
                 list.remove edit
                 screen.render()    
                 if not err? and data?.length
                     cb data                
+
+        ###
+        00000000    0000000   000000000  000000000  00000000  00000000   000   000
+        000   000  000   000     000        000     000       000   000  0000  000
+        00000000   000000000     000        000     0000000   0000000    000 0 000
+        000        000   000     000        000     000       000   000  000  0000
+        000        000   000     000        000     00000000  000   000  000   000
+        ###
+        editPattern = () ->
+            editColum 2, (pattern) ->
+                config = selectedConfig()
+                if '$' in pattern
+                    url = decrypt config.url, mstr
+                    url = url.split('.')[0]
+                    pattern = pattern.replace '$', url
+                config.pattern = pattern
+                # newSeed config
+                clearSeed config
+                dirty()
+                listStash selectedHash()
+
+        createSite = () ->
+            list.select numConfigs()+2
+            editColum 0, (site) -> newSite site
 
         list.focus()
         if hash?
@@ -372,20 +415,8 @@ listStash = (hash) ->
                 writeStash()
                 log 'saved'
                 
-            ###
-            00000000    0000000   000000000  000000000  00000000  00000000   000   000
-            000   000  000   000     000        000     000       000   000  0000  000
-            00000000   000000000     000        000     0000000   0000000    000 0 000
-            000        000   000     000        000     000       000   000  000  0000
-            000        000   000     000        000     00000000  000   000  000   000
-            ###
-            if key == 'p'
-                editColum 2, (pattern) ->
-                    config = selectedConfig()
-                    config.pattern = pattern
-                    newSeed config
-                    dirty()
-                    listStash selectedHash()
+            if key == 'p' 
+                if selectedConfig() then editPattern()
                     
             if key == 'r'
                 hash = selectedHash()
@@ -396,10 +427,14 @@ listStash = (hash) ->
                     newSeed config
                     dirty()
                     listStash selectedHash()
+
+            if key == '.'
+                if config = selectedConfig()
+                    clearSeed config
+                    dirty()
+                    listStash selectedHash()
                 
-            if key == 'n'
-                list.select keysIn(stash.configs).length+2
-                editColum 0, (site) -> newSite site
+            if key == 'n' then createSite()
                 
             ###
             00000000  000   000  000000000  00000000  00000000 
@@ -415,7 +450,10 @@ listStash = (hash) ->
                     copy.copy password.make genHash(url+mstr), config
                     process.exit 0
                 else
-                    editColum 0, (site) -> newSite site
+                    if list.getScroll() in [ 0, 1, numConfigs()+2]
+                        createSite()
+                    else 
+                        editPattern()
                         
         return
         
@@ -429,6 +467,9 @@ listStash = (hash) ->
 
 newSeed = (config) ->
     config.seed = cryptools.genSalt config.pattern.length
+    
+clearSeed = (config) ->
+    config.seed = pad '', config.pattern.length, ' '
 
 newSite = (site) ->
     return if not site?
@@ -438,7 +479,8 @@ newSite = (site) ->
     config.url = encrypt site, mstr
     config.pattern = stash.pattern
 
-    newSeed config
+    # newSeed config
+    clearSeed config
 
     hash = genHash site+mstr
     stash.configs[hash] = config
@@ -538,7 +580,9 @@ exit = () ->
 
 - 'nightrider' animation after password enter
 - autoclose timeout
-- join seed and pattern: full character set patterns
 - don't show list fully decrypted by default
+- config:
+    default pattern
+    always add seed
     
 ###

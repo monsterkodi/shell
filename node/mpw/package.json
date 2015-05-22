@@ -1,6 +1,6 @@
 {
   "name": "mpw",
-  "version": "0.0.225",
+  "version": "0.0.271",
   "description": "mpw",
   "main": "mpw.coffee",
   "scripts": {
@@ -31,6 +31,7 @@
     "js-sha512": "^0.2.2",
     "lodash.indexof": "^3.0.2",
     "lodash.keysin": "^3.0.7",
+    "lodash.pad": "^3.1.0",
     "lodash.reduce": "^3.1.1",
     "lodash.trim": "^3.0.1",
     "lodash.zipobject": "^3.0.0",

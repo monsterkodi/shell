@@ -1,4 +1,5 @@
-var BG, BW, _s, _url, ansi, args, blessed, bold, box, clr, color, containsLink, cryptools, decrypt, decryptFile, default_pattern, dirty, encrypt, error, exit, extractSite, fg, fs, fw, genHash, indexOf, isdirty, jsonStr, keysIn, listStash, log, main, mstr, newSeed, newSite, nomnom, password, path, readStash, reduce, reset, screen, stash, stashFile, trim, undirty, unlock, v, writeStash;
+var BG, BW, _s, _url, ansi, args, blessed, bold, box, clearSeed, clr, color, containsLink, cryptools, decrypt, decryptFile, default_pattern, dirty, encrypt, error, exit, extractSite, fg, fs, fw, genHash, indexOf, isdirty, jsonStr, keysIn, listStash, log, main, mstr, newSeed, newSite, nomnom, numConfigs, pad, password, path, readStash, reduce, reset, screen, stash, stashFile, trim, undirty, unlock, v, writeStash,
+  indexOf1 = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 ansi = require('ansi-256-colors');
 
@@ -15,6 +16,8 @@ blessed = require('blessed');
 password = require('./coffee/password');
 
 cryptools = require('./coffee/cryptools');
+
+pad = require('lodash.pad');
 
 trim = require('lodash.trim');
 
@@ -160,6 +163,10 @@ readStash = function(cb) {
   }
 };
 
+numConfigs = function() {
+  return keysIn(stash.configs).length;
+};
+
 
 /*
 00000000   00000000   0000000  00000000  000000000
@@ -189,7 +196,7 @@ if (args.reset) {
  */
 
 if (args.version) {
-  v = '0.0.225'.split('.');
+  v = '0.0.271'.split('.');
   console.log(bold + BG(0, 0, 1) + fw(23) + " p" + BG(0, 0, 2) + "w" + BG(0, 0, 3) + fw(23) + "m" + fg(1, 1, 5) + " " + fw(23) + BG(0, 0, 4) + " " + BG(0, 0, 5) + fw(23) + " " + v[0] + " " + BG(0, 0, 4) + fg(1, 1, 5) + '.' + BG(0, 0, 3) + fw(23) + " " + v[1] + " " + BG(0, 0, 2) + fg(0, 0, 5) + '.' + BG(0, 0, 1) + fw(23) + " " + v[2] + " ");
   process.exit(0);
 }
@@ -206,7 +213,9 @@ if (args.version) {
 screen = blessed.screen({
   autoPadding: true,
   smartCSR: true,
-  cursorShape: box
+  cursorShape: box,
+  resizeTimeout: 100,
+  artificialCursor: true
 });
 
 screen.title = 'mpw';
@@ -217,7 +226,7 @@ box = blessed.box({
   left: 'center',
   width: '90%',
   height: '90%',
-  content: fw(6) + '{bold}mpw{/bold} 0.0.225',
+  content: fw(6) + '{bold}mpw{/bold} 0.0.271',
   tags: true,
   shadow: true,
   dockBorders: true,
@@ -354,7 +363,7 @@ error = function() {
  */
 
 listStash = function(hash) {
-  var data, editColum, list, selectedConfig, selectedHash, siteKey, url;
+  var createSite, data, editColum, editPattern, list, selectedConfig, selectedHash, siteKey, url;
   data = [[fw(1) + 'site', 'password', 'pattern', 'seed'], ['', '', '', '']];
   for (siteKey in stash.configs) {
     url = decrypt(stash.configs[siteKey].url, mstr);
@@ -406,6 +415,14 @@ listStash = function(hash) {
       return stash.configs[hash];
     }
   };
+
+  /*
+  00000000  0000000    000  000000000   0000000   0000000   000    
+  000       000   000  000     000     000       000   000  000    
+  0000000   000   000  000     000     000       000   000  000    
+  000       000   000  000     000     000       000   000  000    
+  00000000  0000000    000     000      0000000   0000000   0000000
+   */
   editColum = function(column, cb) {
     var edit, left, text;
     text = list.getItem(list.getScroll()).getText();
@@ -413,12 +430,12 @@ listStash = function(hash) {
       return sum + n + 1;
     }), 0);
     edit = blessed.textbox({
-      value: text.substr(left, list._maxes[column] - 2),
+      value: trim(text.substr(left, list._maxes[column] - 2)),
       parent: list,
       left: left - 1,
       width: list._maxes[column] + 1,
       top: list.getScroll() - 1,
-      align: 'center',
+      align: 'left',
       height: 3,
       tags: true,
       keys: true,
@@ -433,6 +450,13 @@ listStash = function(hash) {
       }
     });
     screen.render();
+    edit.on('keypress', function(ch, k) {
+      var key;
+      key = k.full;
+      if (key === 'left') {
+        return screen;
+      }
+    });
     edit.on('resize', function() {
       list.remove(edit);
       return screen.render();
@@ -443,6 +467,35 @@ listStash = function(hash) {
       if ((err == null) && (data != null ? data.length : void 0)) {
         return cb(data);
       }
+    });
+  };
+
+  /*
+  00000000    0000000   000000000  000000000  00000000  00000000   000   000
+  000   000  000   000     000        000     000       000   000  0000  000
+  00000000   000000000     000        000     0000000   0000000    000 0 000
+  000        000   000     000        000     000       000   000  000  0000
+  000        000   000     000        000     00000000  000   000  000   000
+   */
+  editPattern = function() {
+    return editColum(2, function(pattern) {
+      var config;
+      config = selectedConfig();
+      if (indexOf1.call(pattern, '$') >= 0) {
+        url = decrypt(config.url, mstr);
+        url = url.split('.')[0];
+        pattern = pattern.replace('$', url);
+      }
+      config.pattern = pattern;
+      clearSeed(config);
+      dirty();
+      return listStash(selectedHash());
+    });
+  };
+  createSite = function() {
+    list.select(numConfigs() + 2);
+    return editColum(0, function(site) {
+      return newSite(site);
     });
   };
   list.focus();
@@ -459,7 +512,7 @@ listStash = function(hash) {
   000   000  00000000     000     0000000
    */
   list.on('keypress', function(ch, k) {
-    var config, copy, index, key, site;
+    var config, copy, index, key, ref, site;
     key = k.full;
 
     /*
@@ -482,23 +535,10 @@ listStash = function(hash) {
       writeStash();
       log('saved');
     }
-
-    /*
-    00000000    0000000   000000000  000000000  00000000  00000000   000   000
-    000   000  000   000     000        000     000       000   000  0000  000
-    00000000   000000000     000        000     0000000   0000000    000 0 000
-    000        000   000     000        000     000       000   000  000  0000
-    000        000   000     000        000     00000000  000   000  000   000
-     */
     if (key === 'p') {
-      editColum(2, function(pattern) {
-        var config;
-        config = selectedConfig();
-        config.pattern = pattern;
-        newSeed(config);
-        dirty();
-        return listStash(selectedHash());
-      });
+      if (selectedConfig()) {
+        editPattern();
+      }
     }
     if (key === 'r') {
       hash = selectedHash();
@@ -513,11 +553,15 @@ listStash = function(hash) {
         listStash(selectedHash());
       }
     }
+    if (key === '.') {
+      if (config = selectedConfig()) {
+        clearSeed(config);
+        dirty();
+        listStash(selectedHash());
+      }
+    }
     if (key === 'n') {
-      list.select(keysIn(stash.configs).length + 2);
-      editColum(0, function(site) {
-        return newSite(site);
-      });
+      createSite();
     }
 
     /*
@@ -534,9 +578,11 @@ listStash = function(hash) {
         copy.copy(password.make(genHash(url + mstr), config));
         return process.exit(0);
       } else {
-        return editColum(0, function(site) {
-          return newSite(site);
-        });
+        if ((ref = list.getScroll()) === 0 || ref === 1 || ref === (numConfigs() + 2)) {
+          return createSite();
+        } else {
+          return editPattern();
+        }
       }
     }
   });
@@ -555,6 +601,10 @@ newSeed = function(config) {
   return config.seed = cryptools.genSalt(config.pattern.length);
 };
 
+clearSeed = function(config) {
+  return config.seed = pad('', config.pattern.length, ' ');
+};
+
 newSite = function(site) {
   var config, hash;
   if (site == null) {
@@ -567,7 +617,7 @@ newSite = function(site) {
   config = {};
   config.url = encrypt(site, mstr);
   config.pattern = stash.pattern;
-  newSeed(config);
+  clearSeed(config);
   hash = genHash(site + mstr);
   stash.configs[hash] = config;
   dirty();
@@ -688,6 +738,8 @@ exit = function() {
 
 - 'nightrider' animation after password enter
 - autoclose timeout
-- join seed and pattern: full character set patterns
 - don't show list fully decrypted by default
+- config:
+    default pattern
+    always add seed
  */
