@@ -1,4 +1,4 @@
-var BG, BW, _s, _url, ansi, args, blessed, bold, box, clearSeed, clr, color, containsLink, cryptools, decrypt, decryptFile, default_pattern, dirty, encrypt, error, exit, extractSite, fg, fs, fw, genHash, indexOf, isdirty, jsonStr, keysIn, listStash, log, main, makePassword, mstr, newSeed, newSite, nomnom, numConfigs, pad, password, path, readStash, reduce, reset, screen, stash, stashFile, trim, undirty, unlock, v, writeStash;
+var BG, BW, _s, _url, ansi, args, blessed, bold, box, clearSeed, clr, color, containsLink, cryptools, decrypt, decryptFile, default_pattern, dirty, drawScreen, encrypt, error, exit, extractSite, fg, fs, fw, genHash, indexOf, isdirty, jsonStr, keysIn, listStash, log, main, makePassword, mstr, newSeed, newSite, nomnom, numConfigs, pad, password, path, random, readStash, reduce, reset, screen, sleep, stash, stashFile, trim, undirty, unlock, v, writeStash;
 
 ansi = require('ansi-256-colors');
 
@@ -16,6 +16,8 @@ password = require('./coffee/password');
 
 cryptools = require('./coffee/cryptools');
 
+sleep = require('sleep');
+
 pad = require('lodash.pad');
 
 trim = require('lodash.trim');
@@ -25,6 +27,8 @@ keysIn = require('lodash.keysIn');
 reduce = require('lodash.reduce');
 
 indexOf = require('lodash.indexOf');
+
+random = require('lodash.random');
 
 genHash = cryptools.genHash;
 
@@ -201,7 +205,7 @@ if (args.reset) {
  */
 
 if (args.version) {
-  v = '0.0.363'.split('.');
+  v = '0.0.547'.split('.');
   console.log(bold + BG(0, 0, 1) + fw(23) + " p" + BG(0, 0, 2) + "w" + BG(0, 0, 3) + fw(23) + "m" + fg(1, 1, 5) + " " + fw(23) + BG(0, 0, 4) + " " + BG(0, 0, 5) + fw(23) + " " + v[0] + " " + BG(0, 0, 4) + fg(1, 1, 5) + '.' + BG(0, 0, 3) + fw(23) + " " + v[1] + " " + BG(0, 0, 2) + fg(0, 0, 5) + '.' + BG(0, 0, 1) + fw(23) + " " + v[2] + " ");
   process.exit(0);
 }
@@ -231,11 +235,9 @@ box = blessed.box({
   left: 'center',
   width: '90%',
   height: '90%',
-  content: fw(6) + '{bold}mpw{/bold} 0.0.363',
+  content: fw(6) + '{bold}mpw{/bold} 0.0.547',
   tags: true,
-  shadow: true,
   dockBorders: true,
-  ignoreDockContrast: true,
   border: {
     type: 'line'
   },
@@ -252,6 +254,12 @@ box = blessed.box({
 screen.on('resize', function() {
   return log('resize');
 });
+
+drawScreen = function(ms) {
+  screen.draw(0, screen.lines.length - 1);
+  screen.program.flush();
+  return sleep.usleep(ms * 1000);
+};
 
 
 /*
@@ -302,9 +310,6 @@ screen.on('keypress', function(ch, key) {
     process.exit(0);
   }
   if (key.full === 'escape') {
-    process.exit(0);
-  }
-  if (key.full === 'q') {
     return process.exit(0);
   }
 });
@@ -382,15 +387,14 @@ listStash = function(hash) {
   list = blessed.listtable({
     parent: box,
     data: data,
-    left: 6,
-    right: 6,
-    top: 3,
-    bottom: 2,
+    top: 'center',
+    left: 'center',
+    width: '80%',
+    height: '80%',
     align: 'left',
     tags: true,
     keys: true,
     noCellBorders: true,
-    invertSelected: true,
     padding: {
       left: 2,
       right: 2
@@ -673,11 +677,19 @@ unlock = function() {
     }
   });
   return passwordBox.readInput(function(err, data) {
+    var value;
     if (err != null) {
       process.exit(0);
     }
-    box.remove(passwordBox);
     mstr = data;
+    value = pad('', passwordBox.value.length, '●');
+    while (passwordBox.content.length <= passwordBox.width) {
+      passwordBox.setContent(passwordBox.content + '●');
+      passwordBox.render();
+      drawScreen(2);
+    }
+    drawScreen(20);
+    box.remove(passwordBox);
     return readStash(main);
   });
 };

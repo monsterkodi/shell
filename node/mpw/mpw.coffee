@@ -7,11 +7,13 @@ _url        = require './coffee/url'
 blessed     = require 'blessed'
 password    = require './coffee/password' 
 cryptools   = require './coffee/cryptools'
+sleep       = require 'sleep'
 pad         = require 'lodash.pad'
 trim        = require 'lodash.trim'
 keysIn      = require 'lodash.keysIn'
 reduce      = require 'lodash.reduce'
 indexOf     = require 'lodash.indexOf'
+random      = require 'lodash.random'
 genHash     = cryptools.genHash
 encrypt     = cryptools.encrypt
 decrypt     = cryptools.decrypt
@@ -165,10 +167,7 @@ box = blessed.box
     height:             '90%'
     content:            fw(6)+'{bold}mpw{/bold} ::package.json:version::'
     tags:               true
-    shadow:             true
     dockBorders:        true
-    ignoreDockContrast: true
-    # borderChars:        '╔═╗║║╚═╝'    
     border:             type: 'line'
     style:              
         fg:     color.text
@@ -179,6 +178,11 @@ box = blessed.box
 
 screen.on 'resize', () ->
     log 'resize'
+
+drawScreen = (ms) ->
+    screen.draw(0, screen.lines.length - 1)
+    screen.program.flush()
+    sleep.usleep(ms*1000)
 
 ###
 0000000    000  00000000   000000000  000   000
@@ -219,7 +223,7 @@ undirty = () ->
 screen.on 'keypress', (ch, key) ->
     if key.full == 'C-c' then process.exit 0
     if key.full == 'escape' then process.exit 0
-    if key.full == 'q' then process.exit 0
+    # if key.full == 'q' then process.exit 0
     
 ###
 000       0000000    0000000 
@@ -284,17 +288,21 @@ listStash = (hash) ->
         data.push ['', '', '', '']
         
         list = blessed.listtable
-            parent:         box
-            data:           data
-            left:           6
-            right:          6
-            top:            3
-            bottom:         2
-            align:          'left'
-            tags:           true
-            keys:           true
-            noCellBorders:  true
-            invertSelected: true
+            parent: box
+            data:   data
+            top:    'center'
+            left:   'center'
+            width:  '80%'
+            height: '80%'
+            # left:           6
+            # right:          6
+            # top:            3
+            # bottom:         2
+            align:         'left'
+            tags:          true
+            keys:          true
+            noCellBorders: true
+            # invertSelected: true
             padding:        
                 left:  2
                 right: 2
@@ -523,8 +531,14 @@ unlock = () ->
     
     passwordBox.readInput (err,data) -> 
         if err? then process.exit 0
-        box.remove passwordBox
         mstr = data
+        value = pad '', passwordBox.value.length, '●'
+        while passwordBox.content.length <= passwordBox.width
+            passwordBox.setContent(passwordBox.content + '●')
+            passwordBox.render()
+            drawScreen 2
+        drawScreen 20
+        box.remove passwordBox
         readStash main
             
 ###
