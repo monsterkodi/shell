@@ -14,6 +14,7 @@ keysIn      = require 'lodash.keysIn'
 reduce      = require 'lodash.reduce'
 indexOf     = require 'lodash.indexOf'
 random      = require 'lodash.random'
+copy        = require 'copy-paste'
 genHash     = cryptools.genHash
 encrypt     = cryptools.encrypt
 decrypt     = cryptools.decrypt
@@ -200,37 +201,7 @@ drawScreen = (ms) ->
     screen.program.flush()
     sleep.usleep(ms*1000)
 
-###
-0000000    000  00000000   000000000  000   000
-000   000  000  000   000     000      000 000 
-000   000  000  0000000       000       00000  
-000   000  000  000   000     000        000   
-0000000    000  000   000     000        000   
-###
 
-isdirty = undefined
-dirty = () ->
-    if not isdirty?
-        isdirty = blessed.element
-            id: 'dirty'
-            parent: box
-            content: '▣' #'◥' 
-            right: 1
-            top: 0
-            width: 1
-            height: 1
-            fg:     color.dirty
-            bg:     color.bg
-        autoClose()
-    screen.render()
-
-undirty = () ->
-    if isdirty?
-        box.remove isdirty
-        isdirty = undefined
-        screen.render()
-        autoClose()
-        
 ###
  0000000  000      00000000   0000000   00000000   0000000     0000000   000   000
 000       000      000       000   000  000   000  000   000  000   000   000 000 
@@ -325,8 +296,7 @@ editColum = (list, column, cb) ->
         height: 3
         tags:   true
         keys:   true
-        border: 
-            type: 'line'
+        border: type: 'line'
         style:  
             fg:     color.text
             bg:     'black'
@@ -334,12 +304,7 @@ editColum = (list, column, cb) ->
                 fg: color.border
                 bg: 'black'
     screen.render()
-    
-    edit.on 'keypress', (ch, k) ->
-        key = k.full
-        if key == 'left'
-            screen 
-    
+        
     edit.on 'resize', () ->
         list.remove edit
         screen.render()    
@@ -347,7 +312,7 @@ editColum = (list, column, cb) ->
     edit.readInput (err,data) ->
         list.remove edit
         screen.render()    
-        if not err? and data?.length
+        if not err?
             autoClose()
             cb data                
     
@@ -364,19 +329,23 @@ listStash = (hash) ->
         data = [[fw(1)+'site', 'password', 'pattern', 'seed'], ['', '', '', '']]
         for siteKey of stash.configs
             config = stash.configs[siteKey]
-            url = decrypt config.url, mstr        
+            url    = decrypt config.url, mstr      
+            pwd    = (stash.decryptall or hash == siteKey) and makePassword(genHash(url+mstr), config) or ''
             data.push [ 
-                bold+fg(2,2,5)+url+reset
-                fg(5,5,0)+makePassword(genHash(url+mstr), config)+reset
-                # fw(6)+config.pattern+reset
-                fw(6)+(config.pattern==stash.pattern and ' ' or config.pattern)+reset
-                # fw(3)+config.seed+reset
-                fw(3)+(trim(config.seed).length and '✓' or '')+reset
+                bold + fg(2,2,5) + url + reset
+                fg(5,5,0) + pwd + reset
+                fw(6) + (config.pattern==stash.pattern and ' ' or config.pattern)+reset
+                fw(3) + (trim(config.seed).length and '✓' or '')+reset
             ]
         data.push ['', '', '', '']
         
         clearBox 'stash'
-                    
+
+        if hash?
+            config = stash.configs[hash]
+            url    = decrypt config.url, mstr
+            copy.copy makePassword genHash(url+mstr), config
+            
         list = blessed.listtable
             id:             'stash'
             parent:         box
@@ -389,7 +358,7 @@ listStash = (hash) ->
             tags:           true
             keys:           true
             noCellBorders:  true
-            invertSelected: true
+            invertSelected: false
             padding:        
                 left:  2
                 right: 2
@@ -425,23 +394,30 @@ listStash = (hash) ->
         ###
         editPattern = () ->
             editColum list, 2, (pattern) ->
-                if password.isValidPattern pattern
-                    config = selectedConfig()
-                    config.pattern = pattern
-                    clearSeed config
-                    dirty()
-                    listStash selectedHash()
+                pattern = trim pattern
+                pattern = stash.pattern if pattern.length == 0
+                pattern = stash.pattern if not password.isValidPattern pattern
+                config = selectedConfig()
+                config.pattern = pattern
+                clearSeed config
+                dirty()
+                listStash selectedHash()
 
         createSite = () ->
             list.select numConfigs()+2
             editColum list, 0, (site) -> newSite site
 
+        list.on 'select', () -> 
+            listStash selectedHash()
+            autoClose()
+            
+        list.on 'scroll', () ->
+            autoClose()
+
         list.focus()
         if hash?
             list.select (indexOf keysIn(stash.configs), hash) + 2        
         screen.render()
-
-        list.on 'select', () -> autoClose()
 
         ###
         000   000  00000000  000   000   0000000
@@ -502,18 +478,10 @@ listStash = (hash) ->
                     000       000  0000     000     000       000   000
                     00000000  000   000     000     00000000  000   000
                     ###
-                    if not isdirty? and config = selectedConfig()
-                        url      = decrypt config.url, mstr
-                        copy     = require 'copy-paste'
-                        copy.copy makePassword genHash(url+mstr), config
-                        exit()
-                    else
-                        if list.getScroll() in [ 0, 1 ]
-                            listConfig()
-                        else if list.getScroll() == numConfigs()+2
-                            createSite()
-                        else 
-                            editPattern()
+                    if list.getScroll() in [ 0, 1 ]
+                        listConfig()
+                    else if list.getScroll() == numConfigs()+2
+                        createSite()
                 else
                     handleKey key        
                         
@@ -551,25 +519,26 @@ listConfig = (index) ->
                 value = stash[c[1]]
                 
         data.push [ 
-            bold + fw(6) + c[0] + reset
+            bold + fw(9) + c[0] + reset
             fg(5,5,0) + value + reset
         ]
      
     clearBox 'config'
     
     list = blessed.listtable
-        id:            'config'
-        parent:        box
-        data:          data
-        top:           'center'
-        left:          'center'
-        width:         '80%'
-        height:        '80%'
-        align:         'left'
-        tags:          true
-        keys:          true
-        noCellBorders: true
-        padding:       
+        id:             'config'
+        parent:         box
+        data:           data
+        top:            'center'
+        left:           'center'
+        width:          '80%'
+        height:         '80%'
+        align:          'left'
+        tags:           true
+        keys:           true
+        noCellBorders:  true
+        invertSelected: false
+        padding:        
             left:  2
             right: 2
         border: 
@@ -715,8 +684,30 @@ lock = () ->
     screen.render()
     mstr           = undefined
     stash          = undefined
+    copy.copy ''
     unlock()
 
+###
+0000000    000  00000000   000000000  000   000
+000   000  000  000   000     000      000 000 
+000   000  000  0000000       000       00000  
+000   000  000  000   000     000        000   
+0000000    000  000   000     000        000   
+###
+
+isdirty = undefined
+dirty = () ->
+    if not isdirty?
+        isdirty = true
+        stopClock '◉'
+    screen.render()
+
+undirty = () ->
+    if isdirty?
+        isdirty = undefined
+        screen.render()
+        autoClose()
+        
 ###
  0000000  000       0000000    0000000  000   000
 000       000      000   000  000       000  000 
@@ -730,7 +721,7 @@ noAutoClose = () ->
 
 autoClose = () ->
     if isdirty?
-        stopClock 'dirty'
+        stopClock '◉'
         return
     if stash.autoclose > 0
         clock stash.autoclose
@@ -744,30 +735,33 @@ clock = (seconds) ->
     clockCount = seconds
             
     if not clockDisplay?
-        clockDisplay = blessed.textbox
+        clockDisplay = blessed.element
             parent: box
-            bottom: 0
-            align:  'center'
-            left:   'center'
-            width:  '80%'
-            height: 3
-            border: type: 'line'
+            top:    0
+            right:  1
+            height: 1
+            width:  2
+            fg:     color.dirty
+            bg:     color.bg
+            align:  'right'
             tags:   true
             style:  
                 fg:     color.password
                 bg:     color.password_bg
-                border: fg: color.password_border
     
     clockTick()
     
 clockTick = () ->
     if not clockDisplay? then return
     if clockCount > 0
-        clockDisplay.content = String(clockCount)
+        if clockCount >= 10
+            clockDisplay.content = (clockCount > 20 and fw(6) or fg(5,3,0)) + ['▖','▗','▝','▘'][clockCount%4]
+        else
+            clockDisplay.content = String(clockCount)
         clockCount -= 1
-        screen.render()
         if not clockTimer?
             clockTimer = setInterval clockTick, 1000
+        screen.render()
     else
         clearInterval clockTimer
         clockTimer = undefined
@@ -779,8 +773,8 @@ stopClock = (reason) ->
     if clockTimer
         clearInterval clockTimer
         clockTimer = undefined
-        clockDisplay.content = reason or 'stopped'
-        screen.render()
+    clockDisplay.content = reason or '▣'
+    screen.render()
             
 ###
 00     00   0000000   000  000   000
@@ -799,7 +793,7 @@ main = () ->
     autoClose()
 
     if args._.length == 0 # no url arguments provided
-        clipboard = require('copy-paste').paste()
+        clipboard = copy.paste()
         if containsLink clipboard
             site = extractSite clipboard
         else
@@ -839,7 +833,4 @@ exit = () -> process.exit 0
 ###
 ###
 
-- config:
-    fully decrypted 
-    
 ###

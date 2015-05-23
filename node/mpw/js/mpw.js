@@ -1,4 +1,4 @@
-var BG, BW, _s, _url, ansi, args, autoClose, blessed, bold, box, clearBox, clearSeed, clock, clockCount, clockDisplay, clockTick, clockTimer, clr, color, containsLink, cryptools, decrypt, decryptFile, default_pattern, dirty, drawScreen, editColum, encrypt, error, exit, extractSite, fg, fill, fs, fw, genHash, handleKey, indexOf, isdirty, jsonStr, keysIn, listConfig, listStash, lock, log, main, makePassword, mstr, newSeed, newSite, noAutoClose, nomnom, numConfigs, pad, password, path, random, readStash, reduce, reset, screen, sleep, stash, stashFile, stopClock, trim, undirty, unlock, v, writeStash;
+var BG, BW, _s, _url, ansi, args, autoClose, blessed, bold, box, clearBox, clearSeed, clock, clockCount, clockDisplay, clockTick, clockTimer, clr, color, containsLink, copy, cryptools, decrypt, decryptFile, default_pattern, dirty, drawScreen, editColum, encrypt, error, exit, extractSite, fg, fill, fs, fw, genHash, handleKey, indexOf, isdirty, jsonStr, keysIn, listConfig, listStash, lock, log, main, makePassword, mstr, newSeed, newSite, noAutoClose, nomnom, numConfigs, pad, password, path, random, readStash, reduce, reset, screen, sleep, stash, stashFile, stopClock, trim, undirty, unlock, v, writeStash;
 
 ansi = require('ansi-256-colors');
 
@@ -29,6 +29,8 @@ reduce = require('lodash.reduce');
 indexOf = require('lodash.indexOf');
 
 random = require('lodash.random');
+
+copy = require('copy-paste');
 
 genHash = cryptools.genHash;
 
@@ -208,7 +210,7 @@ if (args.reset) {
  */
 
 if (args.version) {
-  v = '0.1.42'.split('.');
+  v = '0.1.105'.split('.');
   console.log(bold + BG(0, 0, 1) + fw(23) + " m" + BG(0, 0, 2) + "p" + BG(0, 0, 3) + fw(23) + "w" + fg(1, 1, 5) + " " + fw(23) + BG(0, 0, 4) + " " + BG(0, 0, 5) + fw(23) + " " + v[0] + " " + BG(0, 0, 4) + fg(1, 1, 5) + '.' + BG(0, 0, 3) + fw(23) + " " + v[1] + " " + BG(0, 0, 2) + fg(0, 0, 5) + '.' + BG(0, 0, 1) + fw(23) + " " + v[2] + " ");
   process.exit(0);
 }
@@ -253,7 +255,7 @@ box = blessed.box({
   left: 'center',
   width: '90%',
   height: '90%',
-  content: fw(6) + ' {bold}mpw{/bold} ' + fw(3) + '0.1.42',
+  content: fw(6) + ' {bold}mpw{/bold} ' + fw(3) + '0.1.105',
   tags: true,
   dockBorders: true,
   border: {
@@ -277,44 +279,6 @@ drawScreen = function(ms) {
   screen.draw(0, screen.lines.length - 1);
   screen.program.flush();
   return sleep.usleep(ms * 1000);
-};
-
-
-/*
-0000000    000  00000000   000000000  000   000
-000   000  000  000   000     000      000 000 
-000   000  000  0000000       000       00000  
-000   000  000  000   000     000        000   
-0000000    000  000   000     000        000
- */
-
-isdirty = void 0;
-
-dirty = function() {
-  if (isdirty == null) {
-    isdirty = blessed.element({
-      id: 'dirty',
-      parent: box,
-      content: '▣',
-      right: 1,
-      top: 0,
-      width: 1,
-      height: 1,
-      fg: color.dirty,
-      bg: color.bg
-    });
-    autoClose();
-  }
-  return screen.render();
-};
-
-undirty = function() {
-  if (isdirty != null) {
-    box.remove(isdirty);
-    isdirty = void 0;
-    screen.render();
-    return autoClose();
-  }
 };
 
 
@@ -460,13 +424,6 @@ editColum = function(list, column, cb) {
     }
   });
   screen.render();
-  edit.on('keypress', function(ch, k) {
-    var key;
-    key = k.full;
-    if (key === 'left') {
-      return screen;
-    }
-  });
   edit.on('resize', function() {
     list.remove(edit);
     return screen.render();
@@ -474,7 +431,7 @@ editColum = function(list, column, cb) {
   return edit.readInput(function(err, data) {
     list.remove(edit);
     screen.render();
-    if ((err == null) && (data != null ? data.length : void 0)) {
+    if (err == null) {
       autoClose();
       return cb(data);
     }
@@ -491,15 +448,21 @@ editColum = function(list, column, cb) {
  */
 
 listStash = function(hash) {
-  var config, createSite, data, editPattern, list, selectedConfig, selectedHash, siteKey, url;
+  var config, createSite, data, editPattern, list, pwd, selectedConfig, selectedHash, siteKey, url;
   data = [[fw(1) + 'site', 'password', 'pattern', 'seed'], ['', '', '', '']];
   for (siteKey in stash.configs) {
     config = stash.configs[siteKey];
     url = decrypt(config.url, mstr);
-    data.push([bold + fg(2, 2, 5) + url + reset, fg(5, 5, 0) + makePassword(genHash(url + mstr), config) + reset, fw(6) + (config.pattern === stash.pattern && ' ' || config.pattern) + reset, fw(3) + (trim(config.seed).length && '✓' || '') + reset]);
+    pwd = (stash.decryptall || hash === siteKey) && makePassword(genHash(url + mstr), config) || '';
+    data.push([bold + fg(2, 2, 5) + url + reset, fg(5, 5, 0) + pwd + reset, fw(6) + (config.pattern === stash.pattern && ' ' || config.pattern) + reset, fw(3) + (trim(config.seed).length && '✓' || '') + reset]);
   }
   data.push(['', '', '', '']);
   clearBox('stash');
+  if (hash != null) {
+    config = stash.configs[hash];
+    url = decrypt(config.url, mstr);
+    copy.copy(makePassword(genHash(url + mstr), config));
+  }
   list = blessed.listtable({
     id: 'stash',
     parent: box,
@@ -512,7 +475,7 @@ listStash = function(hash) {
     tags: true,
     keys: true,
     noCellBorders: true,
-    invertSelected: true,
+    invertSelected: false,
     padding: {
       left: 2,
       right: 2
@@ -558,13 +521,18 @@ listStash = function(hash) {
    */
   editPattern = function() {
     return editColum(list, 2, function(pattern) {
-      if (password.isValidPattern(pattern)) {
-        config = selectedConfig();
-        config.pattern = pattern;
-        clearSeed(config);
-        dirty();
-        return listStash(selectedHash());
+      pattern = trim(pattern);
+      if (pattern.length === 0) {
+        pattern = stash.pattern;
       }
+      if (!password.isValidPattern(pattern)) {
+        pattern = stash.pattern;
+      }
+      config = selectedConfig();
+      config.pattern = pattern;
+      clearSeed(config);
+      dirty();
+      return listStash(selectedHash());
     });
   };
   createSite = function() {
@@ -573,14 +541,18 @@ listStash = function(hash) {
       return newSite(site);
     });
   };
+  list.on('select', function() {
+    listStash(selectedHash());
+    return autoClose();
+  });
+  list.on('scroll', function() {
+    return autoClose();
+  });
   list.focus();
   if (hash != null) {
     list.select((indexOf(keysIn(stash.configs), hash)) + 2);
   }
   screen.render();
-  list.on('select', function() {
-    return autoClose();
-  });
 
   /*
   000   000  00000000  000   000   0000000
@@ -590,7 +562,7 @@ listStash = function(hash) {
   000   000  00000000     000     0000000
    */
   list.on('keypress', function(ch, k) {
-    var copy, index, key, ref, site;
+    var index, key, ref, site;
     autoClose();
     key = k.full;
     switch (key) {
@@ -648,19 +620,10 @@ listStash = function(hash) {
         000       000  0000     000     000       000   000
         00000000  000   000     000     00000000  000   000
          */
-        if ((isdirty == null) && (config = selectedConfig())) {
-          url = decrypt(config.url, mstr);
-          copy = require('copy-paste');
-          copy.copy(makePassword(genHash(url + mstr), config));
-          return exit();
-        } else {
-          if ((ref = list.getScroll()) === 0 || ref === 1) {
-            return listConfig();
-          } else if (list.getScroll() === numConfigs() + 2) {
-            return createSite();
-          } else {
-            return editPattern();
-          }
+        if ((ref = list.getScroll()) === 0 || ref === 1) {
+          return listConfig();
+        } else if (list.getScroll() === numConfigs() + 2) {
+          return createSite();
         }
         break;
       default:
@@ -694,7 +657,7 @@ listConfig = function(index) {
       default:
         value = stash[c[1]];
     }
-    data.push([bold + fw(6) + c[0] + reset, fg(5, 5, 0) + value + reset]);
+    data.push([bold + fw(9) + c[0] + reset, fg(5, 5, 0) + value + reset]);
   }
   clearBox('config');
   list = blessed.listtable({
@@ -709,6 +672,7 @@ listConfig = function(index) {
     tags: true,
     keys: true,
     noCellBorders: true,
+    invertSelected: false,
     padding: {
       left: 2,
       right: 2
@@ -888,14 +852,42 @@ unlock = function() {
 };
 
 lock = function() {
-  if (isdirty != null) {
+  if (typeof isdirty !== "undefined" && isdirty !== null) {
     return;
   }
   clearBox();
   screen.render();
   mstr = void 0;
   stash = void 0;
+  copy.copy('');
   return unlock();
+};
+
+
+/*
+0000000    000  00000000   000000000  000   000
+000   000  000  000   000     000      000 000 
+000   000  000  0000000       000       00000  
+000   000  000  000   000     000        000   
+0000000    000  000   000     000        000
+ */
+
+isdirty = void 0;
+
+dirty = function() {
+  if (isdirty == null) {
+    isdirty = true;
+    stopClock('◉');
+  }
+  return screen.render();
+};
+
+undirty = function() {
+  if (isdirty != null) {
+    isdirty = void 0;
+    screen.render();
+    return autoClose();
+  }
 };
 
 
@@ -913,7 +905,7 @@ noAutoClose = function() {
 
 autoClose = function() {
   if (isdirty != null) {
-    stopClock('dirty');
+    stopClock('◉');
     return;
   }
   if (stash.autoclose > 0) {
@@ -930,23 +922,19 @@ clockDisplay = void 0;
 clock = function(seconds) {
   clockCount = seconds;
   if (clockDisplay == null) {
-    clockDisplay = blessed.textbox({
+    clockDisplay = blessed.element({
       parent: box,
-      bottom: 0,
-      align: 'center',
-      left: 'center',
-      width: '80%',
-      height: 3,
-      border: {
-        type: 'line'
-      },
+      top: 0,
+      right: 1,
+      height: 1,
+      width: 2,
+      fg: color.dirty,
+      bg: color.bg,
+      align: 'right',
       tags: true,
       style: {
         fg: color.password,
-        bg: color.password_bg,
-        border: {
-          fg: color.password_border
-        }
+        bg: color.password_bg
       }
     });
   }
@@ -958,12 +946,16 @@ clockTick = function() {
     return;
   }
   if (clockCount > 0) {
-    clockDisplay.content = String(clockCount);
-    clockCount -= 1;
-    screen.render();
-    if (clockTimer == null) {
-      return clockTimer = setInterval(clockTick, 1000);
+    if (clockCount >= 10) {
+      clockDisplay.content = (clockCount > 20 && fw(6) || fg(5, 3, 0)) + ['▖', '▗', '▝', '▘'][clockCount % 4];
+    } else {
+      clockDisplay.content = String(clockCount);
     }
+    clockCount -= 1;
+    if (clockTimer == null) {
+      clockTimer = setInterval(clockTick, 1000);
+    }
+    return screen.render();
   } else {
     clearInterval(clockTimer);
     clockTimer = void 0;
@@ -977,9 +969,9 @@ stopClock = function(reason) {
   if (clockTimer) {
     clearInterval(clockTimer);
     clockTimer = void 0;
-    clockDisplay.content = reason || 'stopped';
-    return screen.render();
   }
+  clockDisplay.content = reason || '▣';
+  return screen.render();
 };
 
 
@@ -999,7 +991,7 @@ main = function() {
   }
   autoClose();
   if (args._.length === 0) {
-    clipboard = require('copy-paste').paste();
+    clipboard = copy.paste();
     if (containsLink(clipboard)) {
       site = extractSite(clipboard);
     } else {
@@ -1047,7 +1039,4 @@ exit = function() {
 
 
 /*
-
-- config:
-    fully decrypted
  */
