@@ -51,7 +51,6 @@ fw     = (i) -> ansi.fg.grayscale[i]
 BW     = (i) -> ansi.bg.grayscale[i]
 
 default_pattern = 'abcd+efgh+12'
-autoCloseTimer = undefined
     
 ###
  0000000   00000000    0000000    0000000
@@ -143,7 +142,7 @@ if args.reset
 
 if args.version
     v = '::package.json:version::'.split('.')
-    console.log bold + BG(0,0,1)+ fw(23) + " p" + BG(0,0,2) + "w" + BG(0,0,3) + fw(23) + "m" + fg(1,1,5) + " " + fw(23) + BG(0,0,4) + " " +
+    console.log bold + BG(0,0,1)+ fw(23) + " m" + BG(0,0,2) + "p" + BG(0,0,3) + fw(23) + "w" + fg(1,1,5) + " " + fw(23) + BG(0,0,4) + " " +
                 BG(0,0,5) + fw(23) + " " + v[0] + " " + BG(0,0,4) + fg(1,1,5) + '.' + BG(0,0,3) + fw(23) + " " + v[1] + " " + BG(0,0,2)  + fg(0,0,5) + '.' + BG(0,0,1)+ fw(23) + " " + v[2] + " "
     process.exit 0
 
@@ -182,7 +181,7 @@ box = blessed.box
     left:               'center'
     width:              '90%'
     height:             '90%'
-    content:            fw(6)+'{bold}mpw{/bold} ::package.json:version::'
+    content:            fw(6) + ' {bold}mpw{/bold} '+ fw(3) + '::package.json:version::'
     tags:               true
     dockBorders:        true
     border:             type: 'line'
@@ -222,6 +221,7 @@ dirty = () ->
             height: 1
             fg:     color.dirty
             bg:     color.bg
+        autoClose()
     screen.render()
 
 undirty = () ->
@@ -229,6 +229,7 @@ undirty = () ->
         box.remove isdirty
         isdirty = undefined
         screen.render()
+        autoClose()
         
 ###
  0000000  000      00000000   0000000   00000000   0000000     0000000   000   000
@@ -309,7 +310,9 @@ error = () ->
 000       000   000  000     000     000       000   000  000    
 00000000  0000000    000     000      0000000   0000000   0000000
 ###
+
 editColum = (list, column, cb) ->
+    noAutoClose()
     text = list.getItem(list.getScroll()).getText()
     left = reduce(list._maxes.slice(0,column), ((sum, n) -> sum+n+1), 0)
     edit = blessed.textbox
@@ -345,6 +348,7 @@ editColum = (list, column, cb) ->
         list.remove edit
         screen.render()    
         if not err? and data?.length
+            autoClose()
             cb data                
     
 ###
@@ -437,6 +441,8 @@ listStash = (hash) ->
             list.select (indexOf keysIn(stash.configs), hash) + 2        
         screen.render()
 
+        list.on 'select', () -> autoClose()
+
         ###
         000   000  00000000  000   000   0000000
         000  000   000        000 000   000     
@@ -502,7 +508,9 @@ listStash = (hash) ->
                         copy.copy makePassword genHash(url+mstr), config
                         exit()
                     else
-                        if list.getScroll() in [ 0, 1, numConfigs()+2]
+                        if list.getScroll() in [ 0, 1 ]
+                            listConfig()
+                        else if list.getScroll() == numConfigs()+2
                             createSite()
                         else 
                             editPattern()
@@ -580,11 +588,15 @@ listConfig = (index) ->
     close = () -> 
         clearBox 'config'
         listStash()
+        
+    list.on 'select', () -> autoClose()
                   
     list.on 'keypress', (ch, k) ->
         
         autoClose()
         key = k.full
+        
+        cfgIndex = index or list.getScroll()-2
         
         switch key
             
@@ -595,26 +607,23 @@ listConfig = (index) ->
                 if list.getScroll() == 1
                     close()
                 else
-                    index = list.getScroll()-2
-                    if cfg[index][2] == 'bool'
-                        stash[cfg[index][1]] = not stash[cfg[index][1]]
+                    if cfg[cfgIndex][2] == 'bool'
+                        stash[cfg[cfgIndex][1]] = not stash[cfg[cfgIndex][1]]
                         dirty()
                         listConfig index
                     else
                         editColum list, 1, (value) ->
-                            if cfg[index][2] == 'int'
+                            if cfg[cfgIndex][2] == 'int'
                                 value = parseInt value
-                            stash[cfg[index][1]] = value
+                            stash[cfg[cfgIndex][1]] = value
                             dirty()
-                            listConfig index
+                            listConfig cfgIndex
 
             when 'space', 'left', 'right'
-                index = list.getScroll()-2
-                if cfg[index][2] == 'bool'
-                    stash[cfg[index][1]] = not stash[cfg[index][1]]
+                if cfg[cfgIndex][2] == 'bool'
+                    stash[cfg[cfgIndex][1]] = not stash[cfg[cfgIndex][1]]
                     dirty()
-                    listConfig index
-                
+                    listConfig cfgIndex
             else
                 handleKey key        
                 
@@ -704,13 +713,74 @@ lock = () ->
     if isdirty? then return
     clearBox()
     screen.render()
-    if autoCloseTimer
-        clearTimeout autoCloseTimer
-    autoCloseTimer = undefined
     mstr           = undefined
     stash          = undefined
-    # setTimeout unlock, 100
     unlock()
+
+###
+ 0000000  000       0000000    0000000  000   000
+000       000      000   000  000       000  000 
+000       000      000   000  000       0000000  
+000       000      000   000  000       000  000 
+ 0000000  0000000   0000000    0000000  000   000
+###
+
+noAutoClose = () ->
+    stopClock()
+
+autoClose = () ->
+    if isdirty?
+        stopClock 'dirty'
+        return
+    if stash.autoclose > 0
+        clock stash.autoclose
+    
+clockTimer = undefined
+clockCount = 0
+clockDisplay = undefined
+
+clock = (seconds) ->
+    
+    clockCount = seconds
+            
+    if not clockDisplay?
+        clockDisplay = blessed.textbox
+            parent: box
+            bottom: 0
+            align:  'center'
+            left:   'center'
+            width:  '80%'
+            height: 3
+            border: type: 'line'
+            tags:   true
+            style:  
+                fg:     color.password
+                bg:     color.password_bg
+                border: fg: color.password_border
+    
+    clockTick()
+    
+clockTick = () ->
+    if not clockDisplay? then return
+    if clockCount > 0
+        clockDisplay.content = String(clockCount)
+        clockCount -= 1
+        screen.render()
+        if not clockTimer?
+            clockTimer = setInterval clockTick, 1000
+    else
+        clearInterval clockTimer
+        clockTimer = undefined
+        box.remove clockDisplay
+        clockDisplay = undefined
+        lock()
+            
+stopClock = (reason) ->
+    if clockTimer
+        clearInterval clockTimer
+        clockTimer = undefined
+        clockDisplay.content = reason or 'stopped'
+        screen.render()
             
 ###
 00     00   0000000   000  000   000
@@ -758,13 +828,6 @@ else
 00000000  000   000  000     000   
 ###
 
-autoClose = () ->
-    if autoCloseTimer?
-        clearTimeout autoCloseTimer
-        autoCloseTimer = undefined
-    if stash.autoclose > 0
-        autoCloseTimer = setTimeout lock, stash.autoclose*1000
-
 exit = () -> process.exit 0
   
 ###
@@ -777,9 +840,6 @@ exit = () -> process.exit 0
 ###
 
 - config:
-    default pattern
-    always add seed
-    auto close time
     fully decrypted 
     
 ###

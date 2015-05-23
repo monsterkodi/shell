@@ -1,4 +1,4 @@
-var BG, BW, _s, _url, ansi, args, autoClose, autoCloseTimer, blessed, bold, box, clearBox, clearSeed, clr, color, containsLink, cryptools, decrypt, decryptFile, default_pattern, dirty, drawScreen, editColum, encrypt, error, exit, extractSite, fg, fill, fs, fw, genHash, handleKey, indexOf, isdirty, jsonStr, keysIn, listConfig, listStash, lock, log, main, makePassword, mstr, newSeed, newSite, nomnom, numConfigs, pad, password, path, random, readStash, reduce, reset, screen, sleep, stash, stashFile, trim, undirty, unlock, v, writeStash;
+var BG, BW, _s, _url, ansi, args, autoClose, blessed, bold, box, clearBox, clearSeed, clock, clockCount, clockDisplay, clockTick, clockTimer, clr, color, containsLink, cryptools, decrypt, decryptFile, default_pattern, dirty, drawScreen, editColum, encrypt, error, exit, extractSite, fg, fill, fs, fw, genHash, handleKey, indexOf, isdirty, jsonStr, keysIn, listConfig, listStash, lock, log, main, makePassword, mstr, newSeed, newSite, noAutoClose, nomnom, numConfigs, pad, password, path, random, readStash, reduce, reset, screen, sleep, stash, stashFile, stopClock, trim, undirty, unlock, v, writeStash;
 
 ansi = require('ansi-256-colors');
 
@@ -84,8 +84,6 @@ BW = function(i) {
 };
 
 default_pattern = 'abcd+efgh+12';
-
-autoCloseTimer = void 0;
 
 
 /*
@@ -210,8 +208,8 @@ if (args.reset) {
  */
 
 if (args.version) {
-  v = '0.0.705'.split('.');
-  console.log(bold + BG(0, 0, 1) + fw(23) + " p" + BG(0, 0, 2) + "w" + BG(0, 0, 3) + fw(23) + "m" + fg(1, 1, 5) + " " + fw(23) + BG(0, 0, 4) + " " + BG(0, 0, 5) + fw(23) + " " + v[0] + " " + BG(0, 0, 4) + fg(1, 1, 5) + '.' + BG(0, 0, 3) + fw(23) + " " + v[1] + " " + BG(0, 0, 2) + fg(0, 0, 5) + '.' + BG(0, 0, 1) + fw(23) + " " + v[2] + " ");
+  v = '0.1.42'.split('.');
+  console.log(bold + BG(0, 0, 1) + fw(23) + " m" + BG(0, 0, 2) + "p" + BG(0, 0, 3) + fw(23) + "w" + fg(1, 1, 5) + " " + fw(23) + BG(0, 0, 4) + " " + BG(0, 0, 5) + fw(23) + " " + v[0] + " " + BG(0, 0, 4) + fg(1, 1, 5) + '.' + BG(0, 0, 3) + fw(23) + " " + v[1] + " " + BG(0, 0, 2) + fg(0, 0, 5) + '.' + BG(0, 0, 1) + fw(23) + " " + v[2] + " ");
   process.exit(0);
 }
 
@@ -255,7 +253,7 @@ box = blessed.box({
   left: 'center',
   width: '90%',
   height: '90%',
-  content: fw(6) + '{bold}mpw{/bold} 0.0.705',
+  content: fw(6) + ' {bold}mpw{/bold} ' + fw(3) + '0.1.42',
   tags: true,
   dockBorders: true,
   border: {
@@ -305,6 +303,7 @@ dirty = function() {
       fg: color.dirty,
       bg: color.bg
     });
+    autoClose();
   }
   return screen.render();
 };
@@ -313,7 +312,8 @@ undirty = function() {
   if (isdirty != null) {
     box.remove(isdirty);
     isdirty = void 0;
-    return screen.render();
+    screen.render();
+    return autoClose();
   }
 };
 
@@ -432,6 +432,7 @@ error = function() {
 
 editColum = function(list, column, cb) {
   var edit, left, text;
+  noAutoClose();
   text = list.getItem(list.getScroll()).getText();
   left = reduce(list._maxes.slice(0, column), (function(sum, n) {
     return sum + n + 1;
@@ -474,6 +475,7 @@ editColum = function(list, column, cb) {
     list.remove(edit);
     screen.render();
     if ((err == null) && (data != null ? data.length : void 0)) {
+      autoClose();
       return cb(data);
     }
   });
@@ -576,6 +578,9 @@ listStash = function(hash) {
     list.select((indexOf(keysIn(stash.configs), hash)) + 2);
   }
   screen.render();
+  list.on('select', function() {
+    return autoClose();
+  });
 
   /*
   000   000  00000000  000   000   0000000
@@ -649,7 +654,9 @@ listStash = function(hash) {
           copy.copy(makePassword(genHash(url + mstr), config));
           return exit();
         } else {
-          if ((ref = list.getScroll()) === 0 || ref === 1 || ref === (numConfigs() + 2)) {
+          if ((ref = list.getScroll()) === 0 || ref === 1) {
+            return listConfig();
+          } else if (list.getScroll() === numConfigs() + 2) {
             return createSite();
           } else {
             return editPattern();
@@ -728,10 +735,14 @@ listConfig = function(index) {
     clearBox('config');
     return listStash();
   };
+  list.on('select', function() {
+    return autoClose();
+  });
   list.on('keypress', function(ch, k) {
-    var key;
+    var cfgIndex, key;
     autoClose();
     key = k.full;
+    cfgIndex = index || list.getScroll() - 2;
     switch (key) {
       case 'escape':
       case ',':
@@ -740,19 +751,18 @@ listConfig = function(index) {
         if (list.getScroll() === 1) {
           return close();
         } else {
-          index = list.getScroll() - 2;
-          if (cfg[index][2] === 'bool') {
-            stash[cfg[index][1]] = !stash[cfg[index][1]];
+          if (cfg[cfgIndex][2] === 'bool') {
+            stash[cfg[cfgIndex][1]] = !stash[cfg[cfgIndex][1]];
             dirty();
             return listConfig(index);
           } else {
             return editColum(list, 1, function(value) {
-              if (cfg[index][2] === 'int') {
+              if (cfg[cfgIndex][2] === 'int') {
                 value = parseInt(value);
               }
-              stash[cfg[index][1]] = value;
+              stash[cfg[cfgIndex][1]] = value;
               dirty();
-              return listConfig(index);
+              return listConfig(cfgIndex);
             });
           }
         }
@@ -760,11 +770,10 @@ listConfig = function(index) {
       case 'space':
       case 'left':
       case 'right':
-        index = list.getScroll() - 2;
-        if (cfg[index][2] === 'bool') {
-          stash[cfg[index][1]] = !stash[cfg[index][1]];
+        if (cfg[cfgIndex][2] === 'bool') {
+          stash[cfg[cfgIndex][1]] = !stash[cfg[cfgIndex][1]];
           dirty();
-          return listConfig(index);
+          return listConfig(cfgIndex);
         }
         break;
       default:
@@ -884,13 +893,93 @@ lock = function() {
   }
   clearBox();
   screen.render();
-  if (autoCloseTimer) {
-    clearTimeout(autoCloseTimer);
-  }
-  autoCloseTimer = void 0;
   mstr = void 0;
   stash = void 0;
   return unlock();
+};
+
+
+/*
+ 0000000  000       0000000    0000000  000   000
+000       000      000   000  000       000  000 
+000       000      000   000  000       0000000  
+000       000      000   000  000       000  000 
+ 0000000  0000000   0000000    0000000  000   000
+ */
+
+noAutoClose = function() {
+  return stopClock();
+};
+
+autoClose = function() {
+  if (isdirty != null) {
+    stopClock('dirty');
+    return;
+  }
+  if (stash.autoclose > 0) {
+    return clock(stash.autoclose);
+  }
+};
+
+clockTimer = void 0;
+
+clockCount = 0;
+
+clockDisplay = void 0;
+
+clock = function(seconds) {
+  clockCount = seconds;
+  if (clockDisplay == null) {
+    clockDisplay = blessed.textbox({
+      parent: box,
+      bottom: 0,
+      align: 'center',
+      left: 'center',
+      width: '80%',
+      height: 3,
+      border: {
+        type: 'line'
+      },
+      tags: true,
+      style: {
+        fg: color.password,
+        bg: color.password_bg,
+        border: {
+          fg: color.password_border
+        }
+      }
+    });
+  }
+  return clockTick();
+};
+
+clockTick = function() {
+  if (clockDisplay == null) {
+    return;
+  }
+  if (clockCount > 0) {
+    clockDisplay.content = String(clockCount);
+    clockCount -= 1;
+    screen.render();
+    if (clockTimer == null) {
+      return clockTimer = setInterval(clockTick, 1000);
+    }
+  } else {
+    clearInterval(clockTimer);
+    clockTimer = void 0;
+    box.remove(clockDisplay);
+    clockDisplay = void 0;
+    return lock();
+  }
+};
+
+stopClock = function(reason) {
+  if (clockTimer) {
+    clearInterval(clockTimer);
+    clockTimer = void 0;
+    clockDisplay.content = reason || 'stopped';
+    return screen.render();
+  }
 };
 
 
@@ -943,16 +1032,6 @@ if (mstr != null) {
 00000000  000   000  000     000
  */
 
-autoClose = function() {
-  if (autoCloseTimer != null) {
-    clearTimeout(autoCloseTimer);
-    autoCloseTimer = void 0;
-  }
-  if (stash.autoclose > 0) {
-    return autoCloseTimer = setTimeout(lock, stash.autoclose * 1000);
-  }
-};
-
 exit = function() {
   return process.exit(0);
 };
@@ -970,8 +1049,5 @@ exit = function() {
 /*
 
 - config:
-    default pattern
-    always add seed
-    auto close time
     fully decrypted
  */

@@ -1,6 +1,6 @@
 {
   "name": "mpw",
-  "version": "0.0.705",
+  "version": "0.1.42",
   "description": "mpw",
   "main": "mpw.coffee",
   "scripts": {
