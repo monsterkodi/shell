@@ -104,7 +104,12 @@ readStash = (cb) ->
                 undirty()
                 cb()
     else
-        stash = { pattern: default_pattern, configs: {} }        
+        stash = 
+            pattern:    default_pattern 
+            autoclose:  20
+            decryptall: false
+            seed:       false
+            configs:    {}
         undirty()
         cb()
 
@@ -184,6 +189,11 @@ drawScreen = (ms) ->
     screen.program.flush()
     sleep.usleep(ms*1000)
 
+clearBox = (id) ->
+    for child in box.children
+        if child.id == id
+            box.remove child
+
 ###
 0000000    000  00000000   000000000  000   000
 000   000  000  000   000     000      000 000 
@@ -219,11 +229,13 @@ undirty = () ->
 000  000   000          000     000        000   000  000            000       000
 000   000  00000000     000     000        000   000  00000000  0000000   0000000 
 ###
-
-screen.on 'keypress', (ch, key) ->
-    if key.full == 'C-c' then process.exit 0
-    if key.full == 'escape' then process.exit 0
-    # if key.full == 'q' then process.exit 0
+    
+handleKey = (key) ->
+    switch key
+        when 's' # save
+            writeStash()
+        when 'C-c', 'escape' 
+            process.exit 0        
     
 ###
 000       0000000    0000000 
@@ -264,6 +276,49 @@ error = () ->
     errorBox.display errorMessage, 3, () -> process.exit 1
     
 ###
+00000000  0000000    000  000000000   0000000   0000000   000    
+000       000   000  000     000     000       000   000  000    
+0000000   000   000  000     000     000       000   000  000    
+000       000   000  000     000     000       000   000  000    
+00000000  0000000    000     000      0000000   0000000   0000000
+###
+editColum = (list, column, cb) ->
+    text = list.getItem(list.getScroll()).getText()
+    left = reduce(list._maxes.slice(0,column), ((sum, n) -> sum+n+1), 0)
+    edit = blessed.textbox
+        value:  trim text.substr left, list._maxes[column]-2
+        parent: list
+        left:   left-1
+        width:  list._maxes[column]+1
+        top:    list.getScroll()-1
+        align:  'left'
+        height: 3
+        tags:   true
+        keys:   true
+        border: 
+            type: 'line'
+        style:  
+            fg:     color.text
+            border: 
+                fg: color.border
+    screen.render()
+    
+    edit.on 'keypress', (ch, k) ->
+        key = k.full
+        if key == 'left'
+            screen 
+    
+    edit.on 'resize', () ->
+        list.remove edit
+        screen.render()    
+
+    edit.readInput (err,data) ->
+        list.remove edit
+        screen.render()    
+        if not err? and data?.length
+            cb data                
+    
+###
 000      000   0000000  000000000
 000      000  000          000   
 000      000  0000000      000   
@@ -287,22 +342,21 @@ listStash = (hash) ->
             ]
         data.push ['', '', '', '']
         
+        clearBox 'stash'
+                    
         list = blessed.listtable
-            parent: box
-            data:   data
-            top:    'center'
-            left:   'center'
-            width:  '80%'
-            height: '80%'
-            # left:           6
-            # right:          6
-            # top:            3
-            # bottom:         2
-            align:         'left'
-            tags:          true
-            keys:          true
-            noCellBorders: true
-            # invertSelected: true
+            id:             'stash'
+            parent:         box
+            data:           data
+            top:            'center'
+            left:           'center'
+            width:          '80%'
+            height:         '80%'
+            align:          'left'
+            tags:           true
+            keys:           true
+            noCellBorders:  true
+            invertSelected: true
             padding:        
                 left:  2
                 right: 2
@@ -328,50 +382,6 @@ listStash = (hash) ->
                 stash.configs[hash]
                 
         ###
-        00000000  0000000    000  000000000   0000000   0000000   000    
-        000       000   000  000     000     000       000   000  000    
-        0000000   000   000  000     000     000       000   000  000    
-        000       000   000  000     000     000       000   000  000    
-        00000000  0000000    000     000      0000000   0000000   0000000
-        ###
-        editColum = (column, cb) ->
-            text = list.getItem(list.getScroll()).getText()
-            left = reduce(list._maxes.slice(0,column), ((sum, n) -> sum+n+1), 0)
-            # log list._maxes + ' ' + text
-            edit = blessed.textbox
-                value:  trim text.substr left, list._maxes[column]-2
-                parent: list
-                left:   left-1
-                width:  list._maxes[column]+1
-                top:    list.getScroll()-1
-                align:  'left'
-                height: 3
-                tags:   true
-                keys:   true
-                border: 
-                    type: 'line'
-                style:  
-                    fg:     color.text
-                    border: 
-                        fg: color.border
-            screen.render()
-            
-            edit.on 'keypress', (ch, k) ->
-                key = k.full
-                if key == 'left'
-                    screen 
-            
-            edit.on 'resize', () ->
-                list.remove edit
-                screen.render()    
-
-            edit.readInput (err,data) ->
-                list.remove edit
-                screen.render()    
-                if not err? and data?.length
-                    cb data                
-
-        ###
         00000000    0000000   000000000  000000000  00000000  00000000   000   000
         000   000  000   000     000        000     000       000   000  0000  000
         00000000   000000000     000        000     0000000   0000000    000 0 000
@@ -379,7 +389,7 @@ listStash = (hash) ->
         000        000   000     000        000     00000000  000   000  000   000
         ###
         editPattern = () ->
-            editColum 2, (pattern) ->
+            editColum list, 2, (pattern) ->
                 if password.isValidPattern pattern
                     config = selectedConfig()
                     config.pattern = pattern
@@ -389,7 +399,7 @@ listStash = (hash) ->
 
         createSite = () ->
             list.select numConfigs()+2
-            editColum 0, (site) -> newSite site
+            editColum list, 0, (site) -> newSite site
 
         list.focus()
         if hash?
@@ -406,68 +416,174 @@ listStash = (hash) ->
         list.on 'keypress', (ch, k) -> 
             
             key = k.full
-            
-            ###
-            0000000    00000000  000      00000000  000000000  00000000
-            000   000  000       000      000          000     000     
-            000   000  0000000   000      0000000      000     0000000 
-            000   000  000       000      000          000     000     
-            0000000    00000000  0000000  00000000     000     00000000
-            ###
-            if key == 'backspace' # delete current item
-                index = list.getScroll()
-                if index > 1
-                    list.removeItem index
-                    site = keysIn(stash.configs)[index-2]
-                    delete stash.configs[site] 
-                    dirty()
+            switch key
+                
+                when 'backspace' # delete current item
+                    ###
+                    0000000    00000000  000      00000000  000000000  00000000
+                    000   000  000       000      000          000     000     
+                    000   000  0000000   000      0000000      000     0000000 
+                    000   000  000       000      000          000     000     
+                    0000000    00000000  0000000  00000000     000     00000000
+                    ###
+                    index = list.getScroll()
+                    if index > 1
+                        list.removeItem index
+                        site = keysIn(stash.configs)[index-2]
+                        delete stash.configs[site] 
+                        dirty()
+                        
+                when 'r' # reload
+                    hash = selectedHash()
+                    readStash () -> listStash hash
                     
-            if key == 's' # save
-                writeStash()
-                log 'saved'
-                
-            if key == 'r' # reload
-                hash = selectedHash()
-                readStash () -> listStash hash
-                
-            if key == 'p' # edit pattern
-                if selectedConfig() then editPattern()
-                                        
-            if key == '/' # new seed
-                if config = selectedConfig()
-                    newSeed config
-                    dirty()
-                    listStash selectedHash()
+                when 'p' # edit pattern
+                    if selectedConfig() then editPattern()
+                                            
+                when '/' # new seed
+                    if config = selectedConfig()
+                        newSeed config
+                        dirty()
+                        listStash selectedHash()
 
-            if key == '.' # clear seed
-                if config = selectedConfig()
-                    clearSeed config
-                    dirty()
-                    listStash selectedHash()
-                
-            if key == 'n' then createSite()
-                
-            ###
-            00000000  000   000  000000000  00000000  00000000 
-            000       0000  000     000     000       000   000
-            0000000   000 0 000     000     0000000   0000000  
-            000       000  0000     000     000       000   000
-            00000000  000   000     000     00000000  000   000
-            ###
-            if key == 'enter'
-                if not isdirty? and config = selectedConfig()
-                    url      = decrypt config.url, mstr
-                    copy     = require 'copy-paste'
-                    copy.copy makePassword genHash(url+mstr), config
-                    process.exit 0
+                when '.' # clear seed
+                    if config = selectedConfig()
+                        clearSeed config
+                        dirty()
+                        listStash selectedHash()
+                    
+                when 'n' then createSite()
+                when ',' then listConfig()
+                    
+                when 'enter'
+                    ###
+                    00000000  000   000  000000000  00000000  00000000 
+                    000       0000  000     000     000       000   000
+                    0000000   000 0 000     000     0000000   0000000  
+                    000       000  0000     000     000       000   000
+                    00000000  000   000     000     00000000  000   000
+                    ###
+                    if not isdirty? and config = selectedConfig()
+                        url      = decrypt config.url, mstr
+                        copy     = require 'copy-paste'
+                        copy.copy makePassword genHash(url+mstr), config
+                        process.exit 0
+                    else
+                        if list.getScroll() in [ 0, 1, numConfigs()+2]
+                            createSite()
+                        else 
+                            editPattern()
                 else
-                    if list.getScroll() in [ 0, 1, numConfigs()+2]
-                        createSite()
-                    else 
-                        editPattern()
+                    handleKey key        
                         
         return
+    
+###
+ 0000000   0000000   000   000  00000000  000   0000000 
+000       000   000  0000  000  000       000  000      
+000       000   000  000 0 000  000000    000  000  0000
+000       000   000  000  0000  000       000  000   000
+ 0000000   0000000   000   000  000       000   0000000 
+###
         
+listConfig = (index) ->
+    cfg = [
+        ['default pattern'       , 'pattern'   , 'string']
+        ['auto close delay in ms', 'autoclose' , 'int']
+        ['seed new sites'        , 'seed'      , 'bool']
+        ['show decrypted list'   , 'decryptall', 'bool']
+    ] 
+    
+    data = [
+        [fw(1)+'setting' , 'value']
+        [''              , ''     ]        
+    ]
+    
+    for c in cfg
+        
+        switch c[2]
+            when 'bool'
+                value = stash[c[1]] and '✓' or '❌'
+            when 'int'
+                value = String(stash[c[1]])
+            else
+                value = stash[c[1]]
+                
+        data.push [ 
+            bold + fw(6) + c[0] + reset
+            fg(5,5,0) + value + reset
+        ]
+     
+    clearBox 'config'
+    
+    list = blessed.listtable
+        id:            'config'
+        parent:        box
+        data:          data
+        top:           'center'
+        left:          'center'
+        width:         '80%'
+        height:        '80%'
+        align:         'left'
+        tags:          true
+        keys:          true
+        noCellBorders: true
+        padding:       
+            left:  2
+            right: 2
+        border: 
+            type: 'line'
+        style:  
+            fg:     color.text
+            border: 
+                fg: color.border
+                bg: color.bg
+            cell: 
+              fg:   'magenta'
+              selected:
+                  bg: color.bg  
+
+    close = () -> 
+        clearBox 'config'
+        listStash()
+                  
+    list.on 'keypress', (ch, k) ->
+        key = k.full
+        
+        switch key
+            
+            when 'escape'
+                close()
+            
+            when 'enter'
+                if list.getScroll() == 1
+                    close()
+                else
+                    index = list.getScroll()-2
+                    if cfg[index][2] == 'bool'
+                        stash[cfg[index][1]] = not stash[cfg[index][1]]
+                        dirty()
+                        listConfig index
+                    else
+                        editColum list, 1, (value) ->
+                            stash[cfg[index][1]] = value
+                            dirty()
+                            listConfig index
+
+            when 'space', 'left', 'right'
+                index = list.getScroll()-2
+                if cfg[index][2] == 'bool'
+                    stash[cfg[index][1]] = not stash[cfg[index][1]]
+                    dirty()
+                    listConfig index
+                
+            else
+                handleKey key        
+                
+    list.select index+2 if index?
+    list.focus()      
+    screen.render()
+          
 ###
 000   000  00000000  000   000   0000000  000  000000000  00000000
 0000  000  000       000 0 000  000       000     000     000     
@@ -599,7 +715,6 @@ exit = () ->
 ###
 ###
 
-- 'nightrider' animation after password enter
 - config:
     default pattern
     always add seed

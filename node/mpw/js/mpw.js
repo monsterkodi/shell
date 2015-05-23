@@ -1,4 +1,4 @@
-var BG, BW, _s, _url, ansi, args, blessed, bold, box, clearSeed, clr, color, containsLink, cryptools, decrypt, decryptFile, default_pattern, dirty, drawScreen, encrypt, error, exit, extractSite, fg, fs, fw, genHash, indexOf, isdirty, jsonStr, keysIn, listStash, log, main, makePassword, mstr, newSeed, newSite, nomnom, numConfigs, pad, password, path, random, readStash, reduce, reset, screen, sleep, stash, stashFile, trim, undirty, unlock, v, writeStash;
+var BG, BW, _s, _url, ansi, args, blessed, bold, box, clearBox, clearSeed, clr, color, containsLink, cryptools, decrypt, decryptFile, default_pattern, dirty, drawScreen, editColum, encrypt, error, exit, extractSite, fg, fs, fw, genHash, handleKey, indexOf, isdirty, jsonStr, keysIn, listConfig, listStash, log, main, makePassword, mstr, newSeed, newSite, nomnom, numConfigs, pad, password, path, random, readStash, reduce, reset, screen, sleep, stash, stashFile, trim, undirty, unlock, v, writeStash;
 
 ansi = require('ansi-256-colors');
 
@@ -165,6 +165,9 @@ readStash = function(cb) {
   } else {
     stash = {
       pattern: default_pattern,
+      autoclose: 20,
+      decryptall: false,
+      seed: false,
       configs: {}
     };
     undirty();
@@ -205,7 +208,7 @@ if (args.reset) {
  */
 
 if (args.version) {
-  v = '0.0.547'.split('.');
+  v = '0.0.623'.split('.');
   console.log(bold + BG(0, 0, 1) + fw(23) + " p" + BG(0, 0, 2) + "w" + BG(0, 0, 3) + fw(23) + "m" + fg(1, 1, 5) + " " + fw(23) + BG(0, 0, 4) + " " + BG(0, 0, 5) + fw(23) + " " + v[0] + " " + BG(0, 0, 4) + fg(1, 1, 5) + '.' + BG(0, 0, 3) + fw(23) + " " + v[1] + " " + BG(0, 0, 2) + fg(0, 0, 5) + '.' + BG(0, 0, 1) + fw(23) + " " + v[2] + " ");
   process.exit(0);
 }
@@ -235,7 +238,7 @@ box = blessed.box({
   left: 'center',
   width: '90%',
   height: '90%',
-  content: fw(6) + '{bold}mpw{/bold} 0.0.547',
+  content: fw(6) + '{bold}mpw{/bold} 0.0.623',
   tags: true,
   dockBorders: true,
   border: {
@@ -259,6 +262,21 @@ drawScreen = function(ms) {
   screen.draw(0, screen.lines.length - 1);
   screen.program.flush();
   return sleep.usleep(ms * 1000);
+};
+
+clearBox = function(id) {
+  var child, j, len, ref, results;
+  ref = box.children;
+  results = [];
+  for (j = 0, len = ref.length; j < len; j++) {
+    child = ref[j];
+    if (child.id === id) {
+      results.push(box.remove(child));
+    } else {
+      results.push(void 0);
+    }
+  }
+  return results;
 };
 
 
@@ -305,14 +323,15 @@ undirty = function() {
 000   000  00000000     000     000        000   000  00000000  0000000   0000000
  */
 
-screen.on('keypress', function(ch, key) {
-  if (key.full === 'C-c') {
-    process.exit(0);
+handleKey = function(key) {
+  switch (key) {
+    case 's':
+      return writeStash();
+    case 'C-c':
+    case 'escape':
+      return process.exit(0);
   }
-  if (key.full === 'escape') {
-    return process.exit(0);
-  }
-});
+};
 
 
 /*
@@ -368,6 +387,62 @@ error = function() {
 
 
 /*
+00000000  0000000    000  000000000   0000000   0000000   000    
+000       000   000  000     000     000       000   000  000    
+0000000   000   000  000     000     000       000   000  000    
+000       000   000  000     000     000       000   000  000    
+00000000  0000000    000     000      0000000   0000000   0000000
+ */
+
+editColum = function(list, column, cb) {
+  var edit, left, text;
+  text = list.getItem(list.getScroll()).getText();
+  left = reduce(list._maxes.slice(0, column), (function(sum, n) {
+    return sum + n + 1;
+  }), 0);
+  edit = blessed.textbox({
+    value: trim(text.substr(left, list._maxes[column] - 2)),
+    parent: list,
+    left: left - 1,
+    width: list._maxes[column] + 1,
+    top: list.getScroll() - 1,
+    align: 'left',
+    height: 3,
+    tags: true,
+    keys: true,
+    border: {
+      type: 'line'
+    },
+    style: {
+      fg: color.text,
+      border: {
+        fg: color.border
+      }
+    }
+  });
+  screen.render();
+  edit.on('keypress', function(ch, k) {
+    var key;
+    key = k.full;
+    if (key === 'left') {
+      return screen;
+    }
+  });
+  edit.on('resize', function() {
+    list.remove(edit);
+    return screen.render();
+  });
+  return edit.readInput(function(err, data) {
+    list.remove(edit);
+    screen.render();
+    if ((err == null) && (data != null ? data.length : void 0)) {
+      return cb(data);
+    }
+  });
+};
+
+
+/*
 000      000   0000000  000000000
 000      000  000          000   
 000      000  0000000      000   
@@ -376,7 +451,7 @@ error = function() {
  */
 
 listStash = function(hash) {
-  var config, createSite, data, editColum, editPattern, list, selectedConfig, selectedHash, siteKey, url;
+  var config, createSite, data, editPattern, list, selectedConfig, selectedHash, siteKey, url;
   data = [[fw(1) + 'site', 'password', 'pattern', 'seed'], ['', '', '', '']];
   for (siteKey in stash.configs) {
     config = stash.configs[siteKey];
@@ -384,7 +459,9 @@ listStash = function(hash) {
     data.push([bold + fg(2, 2, 5) + url + reset, fg(5, 5, 0) + makePassword(genHash(url + mstr), config) + reset, fw(6) + (config.pattern === stash.pattern && ' ' || config.pattern) + reset, fw(3) + (trim(config.seed).length && '✓' || '') + reset]);
   }
   data.push(['', '', '', '']);
+  clearBox('stash');
   list = blessed.listtable({
+    id: 'stash',
     parent: box,
     data: data,
     top: 'center',
@@ -395,6 +472,7 @@ listStash = function(hash) {
     tags: true,
     keys: true,
     noCellBorders: true,
+    invertSelected: true,
     padding: {
       left: 2,
       right: 2
@@ -430,60 +508,6 @@ listStash = function(hash) {
   };
 
   /*
-  00000000  0000000    000  000000000   0000000   0000000   000    
-  000       000   000  000     000     000       000   000  000    
-  0000000   000   000  000     000     000       000   000  000    
-  000       000   000  000     000     000       000   000  000    
-  00000000  0000000    000     000      0000000   0000000   0000000
-   */
-  editColum = function(column, cb) {
-    var edit, left, text;
-    text = list.getItem(list.getScroll()).getText();
-    left = reduce(list._maxes.slice(0, column), (function(sum, n) {
-      return sum + n + 1;
-    }), 0);
-    edit = blessed.textbox({
-      value: trim(text.substr(left, list._maxes[column] - 2)),
-      parent: list,
-      left: left - 1,
-      width: list._maxes[column] + 1,
-      top: list.getScroll() - 1,
-      align: 'left',
-      height: 3,
-      tags: true,
-      keys: true,
-      border: {
-        type: 'line'
-      },
-      style: {
-        fg: color.text,
-        border: {
-          fg: color.border
-        }
-      }
-    });
-    screen.render();
-    edit.on('keypress', function(ch, k) {
-      var key;
-      key = k.full;
-      if (key === 'left') {
-        return screen;
-      }
-    });
-    edit.on('resize', function() {
-      list.remove(edit);
-      return screen.render();
-    });
-    return edit.readInput(function(err, data) {
-      list.remove(edit);
-      screen.render();
-      if ((err == null) && (data != null ? data.length : void 0)) {
-        return cb(data);
-      }
-    });
-  };
-
-  /*
   00000000    0000000   000000000  000000000  00000000  00000000   000   000
   000   000  000   000     000        000     000       000   000  0000  000
   00000000   000000000     000        000     0000000   0000000    000 0 000
@@ -491,7 +515,7 @@ listStash = function(hash) {
   000        000   000     000        000     00000000  000   000  000   000
    */
   editPattern = function() {
-    return editColum(2, function(pattern) {
+    return editColum(list, 2, function(pattern) {
       if (password.isValidPattern(pattern)) {
         config = selectedConfig();
         config.pattern = pattern;
@@ -503,7 +527,7 @@ listStash = function(hash) {
   };
   createSite = function() {
     list.select(numConfigs() + 2);
-    return editColum(0, function(site) {
+    return editColum(list, 0, function(site) {
       return newSite(site);
     });
   };
@@ -523,78 +547,188 @@ listStash = function(hash) {
   list.on('keypress', function(ch, k) {
     var copy, index, key, ref, site;
     key = k.full;
+    switch (key) {
+      case 'backspace':
 
-    /*
-    0000000    00000000  000      00000000  000000000  00000000
-    000   000  000       000      000          000     000     
-    000   000  0000000   000      0000000      000     0000000 
-    000   000  000       000      000          000     000     
-    0000000    00000000  0000000  00000000     000     00000000
-     */
-    if (key === 'backspace') {
-      index = list.getScroll();
-      if (index > 1) {
-        list.removeItem(index);
-        site = keysIn(stash.configs)[index - 2];
-        delete stash.configs[site];
-        dirty();
-      }
-    }
-    if (key === 's') {
-      writeStash();
-      log('saved');
-    }
-    if (key === 'r') {
-      hash = selectedHash();
-      readStash(function() {
-        return listStash(hash);
-      });
-    }
-    if (key === 'p') {
-      if (selectedConfig()) {
-        editPattern();
-      }
-    }
-    if (key === '/') {
-      if (config = selectedConfig()) {
-        newSeed(config);
-        dirty();
-        listStash(selectedHash());
-      }
-    }
-    if (key === '.') {
-      if (config = selectedConfig()) {
-        clearSeed(config);
-        dirty();
-        listStash(selectedHash());
-      }
-    }
-    if (key === 'n') {
-      createSite();
-    }
-
-    /*
-    00000000  000   000  000000000  00000000  00000000 
-    000       0000  000     000     000       000   000
-    0000000   000 0 000     000     0000000   0000000  
-    000       000  0000     000     000       000   000
-    00000000  000   000     000     00000000  000   000
-     */
-    if (key === 'enter') {
-      if ((isdirty == null) && (config = selectedConfig())) {
-        url = decrypt(config.url, mstr);
-        copy = require('copy-paste');
-        copy.copy(makePassword(genHash(url + mstr), config));
-        return process.exit(0);
-      } else {
-        if ((ref = list.getScroll()) === 0 || ref === 1 || ref === (numConfigs() + 2)) {
-          return createSite();
-        } else {
+        /*
+        0000000    00000000  000      00000000  000000000  00000000
+        000   000  000       000      000          000     000     
+        000   000  0000000   000      0000000      000     0000000 
+        000   000  000       000      000          000     000     
+        0000000    00000000  0000000  00000000     000     00000000
+         */
+        index = list.getScroll();
+        if (index > 1) {
+          list.removeItem(index);
+          site = keysIn(stash.configs)[index - 2];
+          delete stash.configs[site];
+          return dirty();
+        }
+        break;
+      case 'r':
+        hash = selectedHash();
+        return readStash(function() {
+          return listStash(hash);
+        });
+      case 'p':
+        if (selectedConfig()) {
           return editPattern();
+        }
+        break;
+      case '/':
+        if (config = selectedConfig()) {
+          newSeed(config);
+          dirty();
+          return listStash(selectedHash());
+        }
+        break;
+      case '.':
+        if (config = selectedConfig()) {
+          clearSeed(config);
+          dirty();
+          return listStash(selectedHash());
+        }
+        break;
+      case 'n':
+        return createSite();
+      case ',':
+        return listConfig();
+      case 'enter':
+
+        /*
+        00000000  000   000  000000000  00000000  00000000 
+        000       0000  000     000     000       000   000
+        0000000   000 0 000     000     0000000   0000000  
+        000       000  0000     000     000       000   000
+        00000000  000   000     000     00000000  000   000
+         */
+        if ((isdirty == null) && (config = selectedConfig())) {
+          url = decrypt(config.url, mstr);
+          copy = require('copy-paste');
+          copy.copy(makePassword(genHash(url + mstr), config));
+          return process.exit(0);
+        } else {
+          if ((ref = list.getScroll()) === 0 || ref === 1 || ref === (numConfigs() + 2)) {
+            return createSite();
+          } else {
+            return editPattern();
+          }
+        }
+        break;
+      default:
+        return handleKey(key);
+    }
+  });
+};
+
+
+/*
+ 0000000   0000000   000   000  00000000  000   0000000 
+000       000   000  0000  000  000       000  000      
+000       000   000  000 0 000  000000    000  000  0000
+000       000   000  000  0000  000       000  000   000
+ 0000000   0000000   000   000  000       000   0000000
+ */
+
+listConfig = function(index) {
+  var c, cfg, close, data, j, len, list, value;
+  cfg = [['default pattern', 'pattern', 'string'], ['auto close delay in ms', 'autoclose', 'int'], ['seed new sites', 'seed', 'bool'], ['show decrypted list', 'decryptall', 'bool']];
+  data = [[fw(1) + 'setting', 'value'], ['', '']];
+  for (j = 0, len = cfg.length; j < len; j++) {
+    c = cfg[j];
+    switch (c[2]) {
+      case 'bool':
+        value = stash[c[1]] && '✓' || '❌';
+        break;
+      case 'int':
+        value = String(stash[c[1]]);
+        break;
+      default:
+        value = stash[c[1]];
+    }
+    data.push([bold + fw(6) + c[0] + reset, fg(5, 5, 0) + value + reset]);
+  }
+  clearBox('config');
+  list = blessed.listtable({
+    id: 'config',
+    parent: box,
+    data: data,
+    top: 'center',
+    left: 'center',
+    width: '80%',
+    height: '80%',
+    align: 'left',
+    tags: true,
+    keys: true,
+    noCellBorders: true,
+    padding: {
+      left: 2,
+      right: 2
+    },
+    border: {
+      type: 'line'
+    },
+    style: {
+      fg: color.text,
+      border: {
+        fg: color.border,
+        bg: color.bg
+      },
+      cell: {
+        fg: 'magenta',
+        selected: {
+          bg: color.bg
         }
       }
     }
   });
+  close = function() {
+    clearBox('config');
+    return listStash();
+  };
+  list.on('keypress', function(ch, k) {
+    var key;
+    key = k.full;
+    switch (key) {
+      case 'escape':
+        return close();
+      case 'enter':
+        if (list.getScroll() === 1) {
+          return close();
+        } else {
+          index = list.getScroll() - 2;
+          if (cfg[index][2] === 'bool') {
+            stash[cfg[index][1]] = !stash[cfg[index][1]];
+            dirty();
+            return listConfig(index);
+          } else {
+            return editColum(list, 1, function(value) {
+              stash[cfg[index][1]] = value;
+              dirty();
+              return listConfig(index);
+            });
+          }
+        }
+        break;
+      case 'space':
+      case 'left':
+      case 'right':
+        index = list.getScroll() - 2;
+        if (cfg[index][2] === 'bool') {
+          stash[cfg[index][1]] = !stash[cfg[index][1]];
+          dirty();
+          return listConfig(index);
+        }
+        break;
+      default:
+        return handleKey(key);
+    }
+  });
+  if (index != null) {
+    list.select(index + 2);
+  }
+  list.focus();
+  return screen.render();
 };
 
 
@@ -761,7 +895,6 @@ exit = function() {
 
 /*
 
-- 'nightrider' animation after password enter
 - config:
     default pattern
     always add seed
