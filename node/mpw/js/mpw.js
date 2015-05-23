@@ -1,4 +1,4 @@
-var BG, BW, _s, _url, ansi, args, blessed, bold, box, clearBox, clearSeed, clr, color, containsLink, cryptools, decrypt, decryptFile, default_pattern, dirty, drawScreen, editColum, encrypt, error, exit, extractSite, fg, fs, fw, genHash, handleKey, indexOf, isdirty, jsonStr, keysIn, listConfig, listStash, log, main, makePassword, mstr, newSeed, newSite, nomnom, numConfigs, pad, password, path, random, readStash, reduce, reset, screen, sleep, stash, stashFile, trim, undirty, unlock, v, writeStash;
+var BG, BW, _s, _url, ansi, args, autoClose, autoCloseTimer, blessed, bold, box, clearBox, clearSeed, clr, color, containsLink, cryptools, decrypt, decryptFile, default_pattern, dirty, drawScreen, editColum, encrypt, error, exit, extractSite, fg, fill, fs, fw, genHash, handleKey, indexOf, isdirty, jsonStr, keysIn, listConfig, listStash, lock, log, main, makePassword, mstr, newSeed, newSite, nomnom, numConfigs, pad, password, path, random, readStash, reduce, reset, screen, sleep, stash, stashFile, trim, undirty, unlock, v, writeStash;
 
 ansi = require('ansi-256-colors');
 
@@ -85,6 +85,8 @@ BW = function(i) {
 
 default_pattern = 'abcd+efgh+12';
 
+autoCloseTimer = void 0;
+
 
 /*
  0000000   00000000    0000000    0000000
@@ -167,7 +169,7 @@ readStash = function(cb) {
       pattern: default_pattern,
       autoclose: 20,
       decryptall: false,
-      seed: false,
+      seed: true,
       configs: {}
     };
     undirty();
@@ -208,7 +210,7 @@ if (args.reset) {
  */
 
 if (args.version) {
-  v = '0.0.623'.split('.');
+  v = '0.0.705'.split('.');
   console.log(bold + BG(0, 0, 1) + fw(23) + " p" + BG(0, 0, 2) + "w" + BG(0, 0, 3) + fw(23) + "m" + fg(1, 1, 5) + " " + fw(23) + BG(0, 0, 4) + " " + BG(0, 0, 5) + fw(23) + " " + v[0] + " " + BG(0, 0, 4) + fg(1, 1, 5) + '.' + BG(0, 0, 3) + fw(23) + " " + v[1] + " " + BG(0, 0, 2) + fg(0, 0, 5) + '.' + BG(0, 0, 1) + fw(23) + " " + v[2] + " ");
   process.exit(0);
 }
@@ -227,18 +229,33 @@ screen = blessed.screen({
   smartCSR: true,
   cursorShape: box,
   resizeTimeout: 100,
-  artificialCursor: true
+  artificialCursor: true,
+  style: {
+    fg: color.text,
+    bg: color.bg
+  }
 });
 
 screen.title = 'mpw';
 
-box = blessed.box({
+fill = blessed.box({
   parent: screen,
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  style: {
+    bg: 'black'
+  }
+});
+
+box = blessed.box({
+  parent: fill,
   top: 'center',
   left: 'center',
   width: '90%',
   height: '90%',
-  content: fw(6) + '{bold}mpw{/bold} 0.0.623',
+  content: fw(6) + '{bold}mpw{/bold} 0.0.705',
   tags: true,
   dockBorders: true,
   border: {
@@ -264,21 +281,6 @@ drawScreen = function(ms) {
   return sleep.usleep(ms * 1000);
 };
 
-clearBox = function(id) {
-  var child, j, len, ref, results;
-  ref = box.children;
-  results = [];
-  for (j = 0, len = ref.length; j < len; j++) {
-    child = ref[j];
-    if (child.id === id) {
-      results.push(box.remove(child));
-    } else {
-      results.push(void 0);
-    }
-  }
-  return results;
-};
-
 
 /*
 0000000    000  00000000   000000000  000   000
@@ -293,6 +295,7 @@ isdirty = void 0;
 dirty = function() {
   if (isdirty == null) {
     isdirty = blessed.element({
+      id: 'dirty',
       parent: box,
       content: '▣',
       right: 1,
@@ -316,6 +319,39 @@ undirty = function() {
 
 
 /*
+ 0000000  000      00000000   0000000   00000000   0000000     0000000   000   000
+000       000      000       000   000  000   000  000   000  000   000   000 000 
+000       000      0000000   000000000  0000000    0000000    000   000    00000  
+000       000      000       000   000  000   000  000   000  000   000   000 000 
+ 0000000  0000000  00000000  000   000  000   000  0000000     0000000   000   000
+ */
+
+clearBox = function(id) {
+  var child, j, len, ref, results, results1;
+  if (id != null) {
+    ref = box.children;
+    results = [];
+    for (j = 0, len = ref.length; j < len; j++) {
+      child = ref[j];
+      if (child.id === id) {
+        log('removed');
+        results.push(box.remove(child));
+      } else {
+        results.push(void 0);
+      }
+    }
+    return results;
+  } else {
+    results1 = [];
+    while (box.children.length) {
+      results1.push(box.remove(box.children[0]));
+    }
+    return results1;
+  }
+};
+
+
+/*
 000   000  00000000  000   000  00000000   00000000   00000000   0000000   0000000
 000  000   000        000 000   000   000  000   000  000       000       000     
 0000000    0000000     00000    00000000   0000000    0000000   0000000   0000000 
@@ -329,7 +365,7 @@ handleKey = function(key) {
       return writeStash();
     case 'C-c':
     case 'escape':
-      return process.exit(0);
+      return exit();
   }
 };
 
@@ -415,8 +451,10 @@ editColum = function(list, column, cb) {
     },
     style: {
       fg: color.text,
+      bg: 'black',
       border: {
-        fg: color.border
+        fg: color.border,
+        bg: 'black'
       }
     }
   });
@@ -482,6 +520,7 @@ listStash = function(hash) {
     },
     style: {
       fg: color.text,
+      bg: 'black',
       border: {
         fg: color.border,
         bg: color.bg
@@ -489,6 +528,7 @@ listStash = function(hash) {
       cell: {
         fg: 'magenta',
         selected: {
+          fg: 'brightwhite',
           bg: color.bg
         }
       }
@@ -546,6 +586,7 @@ listStash = function(hash) {
    */
   list.on('keypress', function(ch, k) {
     var copy, index, key, ref, site;
+    autoClose();
     key = k.full;
     switch (key) {
       case 'backspace':
@@ -606,7 +647,7 @@ listStash = function(hash) {
           url = decrypt(config.url, mstr);
           copy = require('copy-paste');
           copy.copy(makePassword(genHash(url + mstr), config));
-          return process.exit(0);
+          return exit();
         } else {
           if ((ref = list.getScroll()) === 0 || ref === 1 || ref === (numConfigs() + 2)) {
             return createSite();
@@ -632,7 +673,7 @@ listStash = function(hash) {
 
 listConfig = function(index) {
   var c, cfg, close, data, j, len, list, value;
-  cfg = [['default pattern', 'pattern', 'string'], ['auto close delay in ms', 'autoclose', 'int'], ['seed new sites', 'seed', 'bool'], ['show decrypted list', 'decryptall', 'bool']];
+  cfg = [['default pattern', 'pattern', 'string'], ['auto close delay (seconds)', 'autoclose', 'int'], ['seed new sites', 'seed', 'bool'], ['show decrypted list', 'decryptall', 'bool']];
   data = [[fw(1) + 'setting', 'value'], ['', '']];
   for (j = 0, len = cfg.length; j < len; j++) {
     c = cfg[j];
@@ -670,13 +711,14 @@ listConfig = function(index) {
     },
     style: {
       fg: color.text,
+      bg: 'black',
       border: {
         fg: color.border,
         bg: color.bg
       },
       cell: {
-        fg: 'magenta',
         selected: {
+          fg: 'brightwhite',
           bg: color.bg
         }
       }
@@ -688,9 +730,11 @@ listConfig = function(index) {
   };
   list.on('keypress', function(ch, k) {
     var key;
+    autoClose();
     key = k.full;
     switch (key) {
       case 'escape':
+      case ',':
         return close();
       case 'enter':
         if (list.getScroll() === 1) {
@@ -703,6 +747,9 @@ listConfig = function(index) {
             return listConfig(index);
           } else {
             return editColum(list, 1, function(value) {
+              if (cfg[index][2] === 'int') {
+                value = parseInt(value);
+              }
               stash[cfg[index][1]] = value;
               dirty();
               return listConfig(index);
@@ -764,7 +811,11 @@ newSite = function(site) {
   config = {};
   config.url = encrypt(site, mstr);
   config.pattern = stash.pattern;
-  clearSeed(config);
+  if (stash.seed) {
+    newSeed(config);
+  } else {
+    clearSeed(config);
+  }
   hash = genHash(site + mstr);
   stash.configs[hash] = config;
   dirty();
@@ -802,18 +853,17 @@ unlock = function() {
     }
   });
   screen.render();
-  passwordBox.on('keypress', function(ch, key) {
-    if (key.full === 'C-c') {
-      process.exit(0);
-    }
-    if (key.full === 'escape') {
-      return process.exit(0);
+  passwordBox.on('keypress', function(ch, k) {
+    var key;
+    key = k.full;
+    if (key !== 's') {
+      return handleKey(k.full);
     }
   });
   return passwordBox.readInput(function(err, data) {
     var value;
     if (err != null) {
-      process.exit(0);
+      process.exit(1);
     }
     mstr = data;
     value = pad('', passwordBox.value.length, '●');
@@ -826,6 +876,21 @@ unlock = function() {
     box.remove(passwordBox);
     return readStash(main);
   });
+};
+
+lock = function() {
+  if (isdirty != null) {
+    return;
+  }
+  clearBox();
+  screen.render();
+  if (autoCloseTimer) {
+    clearTimeout(autoCloseTimer);
+  }
+  autoCloseTimer = void 0;
+  mstr = void 0;
+  stash = void 0;
+  return unlock();
 };
 
 
@@ -843,6 +908,7 @@ main = function() {
     unlock();
     return;
   }
+  autoClose();
   if (args._.length === 0) {
     clipboard = require('copy-paste').paste();
     if (containsLink(clipboard)) {
@@ -877,9 +943,17 @@ if (mstr != null) {
 00000000  000   000  000     000
  */
 
+autoClose = function() {
+  if (autoCloseTimer != null) {
+    clearTimeout(autoCloseTimer);
+    autoCloseTimer = void 0;
+  }
+  if (stash.autoclose > 0) {
+    return autoCloseTimer = setTimeout(lock, stash.autoclose * 1000);
+  }
+};
+
 exit = function() {
-  writeStash();
-  mstr = 0;
   return process.exit(0);
 };
 

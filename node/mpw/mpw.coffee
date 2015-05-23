@@ -51,6 +51,7 @@ fw     = (i) -> ansi.fg.grayscale[i]
 BW     = (i) -> ansi.bg.grayscale[i]
 
 default_pattern = 'abcd+efgh+12'
+autoCloseTimer = undefined
     
 ###
  0000000   00000000    0000000    0000000
@@ -108,7 +109,7 @@ readStash = (cb) ->
             pattern:    default_pattern 
             autoclose:  20
             decryptall: false
-            seed:       false
+            seed:       true
             configs:    {}
         undirty()
         cb()
@@ -131,7 +132,6 @@ if args.reset
     catch
         console.log 'can\'t remove ', stashFile
     process.exit 0
-    
     
 ###
 000   000  00000000  00000000    0000000  000   0000000   000   000
@@ -161,11 +161,23 @@ screen = blessed.screen
     cursorShape: box
     resizeTimeout: 100
     artificialCursor: true
+    style:              
+        fg:     color.text
+        bg:     color.bg
     
 screen.title = 'mpw'
 
-box = blessed.box
+fill = blessed.box
     parent:             screen
+    top: 0
+    left: 0
+    right: 0
+    bottom: 0
+    style:              
+        bg:     'black'
+
+box = blessed.box
+    parent:             fill
     top:                'center'
     left:               'center'
     width:              '90%'
@@ -189,11 +201,6 @@ drawScreen = (ms) ->
     screen.program.flush()
     sleep.usleep(ms*1000)
 
-clearBox = (id) ->
-    for child in box.children
-        if child.id == id
-            box.remove child
-
 ###
 0000000    000  00000000   000000000  000   000
 000   000  000  000   000     000      000 000 
@@ -206,6 +213,7 @@ isdirty = undefined
 dirty = () ->
     if not isdirty?
         isdirty = blessed.element
+            id: 'dirty'
             parent: box
             content: '▣' #'◥' 
             right: 1
@@ -223,6 +231,23 @@ undirty = () ->
         screen.render()
         
 ###
+ 0000000  000      00000000   0000000   00000000   0000000     0000000   000   000
+000       000      000       000   000  000   000  000   000  000   000   000 000 
+000       000      0000000   000000000  0000000    0000000    000   000    00000  
+000       000      000       000   000  000   000  000   000  000   000   000 000 
+ 0000000  0000000  00000000  000   000  000   000  0000000     0000000   000   000
+###
+clearBox = (id) ->
+    if id?
+        for child in box.children
+            if child.id == id
+                log 'removed'
+                box.remove child
+    else
+        while box.children.length
+            box.remove box.children[0]
+            
+###
 000   000  00000000  000   000  00000000   00000000   00000000   0000000   0000000
 000  000   000        000 000   000   000  000   000  000       000       000     
 0000000    0000000     00000    00000000   0000000    0000000   0000000   0000000 
@@ -235,7 +260,7 @@ handleKey = (key) ->
         when 's' # save
             writeStash()
         when 'C-c', 'escape' 
-            process.exit 0        
+            exit()        
     
 ###
 000       0000000    0000000 
@@ -272,7 +297,9 @@ error = () ->
             bg:     color.error_bg
             border: bg: color.error_border    
     box.append errorBox  
-    errorMessage = BG(5,0,0) + bold + fg(5,5,0) + "[ERROR]\n" + reset + bold + fg(5,3,0) + arguments[0] + '\n' + fg(5,5,0) + [].splice.call(arguments,1).join('\n') + reset
+    errorMessage = BG(5,0,0) + bold + fg(5,5,0) + "[ERROR]\n" + reset + 
+                               bold + fg(5,3,0) + arguments[0] + '\n' + 
+                               fg(5,5,0) + [].splice.call(arguments,1).join('\n') + reset
     errorBox.display errorMessage, 3, () -> process.exit 1
     
 ###
@@ -299,8 +326,10 @@ editColum = (list, column, cb) ->
             type: 'line'
         style:  
             fg:     color.text
+            bg:     'black'
             border: 
                 fg: color.border
+                bg: 'black'
     screen.render()
     
     edit.on 'keypress', (ch, k) ->
@@ -364,12 +393,14 @@ listStash = (hash) ->
                 type: 'line'
             style:  
                 fg:     color.text
+                bg:     'black'
                 border: 
                     fg: color.border
                     bg: color.bg
                 cell: 
                   fg:   'magenta'
                   selected:
+                      fg: 'brightwhite'
                       bg: color.bg
 
         selectedHash = () ->
@@ -415,7 +446,9 @@ listStash = (hash) ->
         ###
         list.on 'keypress', (ch, k) -> 
             
+            autoClose()
             key = k.full
+            
             switch key
                 
                 when 'backspace' # delete current item
@@ -467,7 +500,7 @@ listStash = (hash) ->
                         url      = decrypt config.url, mstr
                         copy     = require 'copy-paste'
                         copy.copy makePassword genHash(url+mstr), config
-                        process.exit 0
+                        exit()
                     else
                         if list.getScroll() in [ 0, 1, numConfigs()+2]
                             createSite()
@@ -488,10 +521,10 @@ listStash = (hash) ->
         
 listConfig = (index) ->
     cfg = [
-        ['default pattern'       , 'pattern'   , 'string']
-        ['auto close delay in ms', 'autoclose' , 'int']
-        ['seed new sites'        , 'seed'      , 'bool']
-        ['show decrypted list'   , 'decryptall', 'bool']
+        ['default pattern'           , 'pattern'   , 'string']
+        ['auto close delay (seconds)', 'autoclose' , 'int']
+        ['seed new sites'            , 'seed'      , 'bool']
+        ['show decrypted list'       , 'decryptall', 'bool']
     ] 
     
     data = [
@@ -535,24 +568,27 @@ listConfig = (index) ->
             type: 'line'
         style:  
             fg:     color.text
+            bg:     'black'
             border: 
                 fg: color.border
                 bg: color.bg
             cell: 
-              fg:   'magenta'
               selected:
-                  bg: color.bg  
+                  fg: 'brightwhite'
+                  bg: color.bg
 
     close = () -> 
         clearBox 'config'
         listStash()
                   
     list.on 'keypress', (ch, k) ->
+        
+        autoClose()
         key = k.full
         
         switch key
             
-            when 'escape'
+            when 'escape', ','
                 close()
             
             when 'enter'
@@ -566,6 +602,8 @@ listConfig = (index) ->
                         listConfig index
                     else
                         editColum list, 1, (value) ->
+                            if cfg[index][2] == 'int'
+                                value = parseInt value
                             stash[cfg[index][1]] = value
                             dirty()
                             listConfig index
@@ -609,7 +647,10 @@ newSite = (site) ->
     config.url = encrypt site, mstr
     config.pattern = stash.pattern
 
-    clearSeed config
+    if stash.seed
+        newSeed config
+    else
+        clearSeed config
 
     hash = genHash site+mstr
     stash.configs[hash] = config
@@ -639,14 +680,16 @@ unlock = () ->
             fg:     color.password
             bg:     color.password_bg
             border: bg: color.password_border
+            
     screen.render()
 
-    passwordBox.on 'keypress', (ch, key) ->
-        if key.full == 'C-c' then process.exit 0
-        if key.full == 'escape' then process.exit 0
+    passwordBox.on 'keypress', (ch, k) -> 
+        key = k.full
+        if key != 's'
+            handleKey k.full
     
     passwordBox.readInput (err,data) -> 
-        if err? then process.exit 0
+        if err? then process.exit 1
         mstr = data
         value = pad '', passwordBox.value.length, '●'
         while passwordBox.content.length <= passwordBox.width
@@ -656,6 +699,18 @@ unlock = () ->
         drawScreen 20
         box.remove passwordBox
         readStash main
+        
+lock = () ->
+    if isdirty? then return
+    clearBox()
+    screen.render()
+    if autoCloseTimer
+        clearTimeout autoCloseTimer
+    autoCloseTimer = undefined
+    mstr           = undefined
+    stash          = undefined
+    # setTimeout unlock, 100
+    unlock()
             
 ###
 00     00   0000000   000  000   000
@@ -670,6 +725,8 @@ main = () ->
     if not stash?
         unlock()
         return
+
+    autoClose()
 
     if args._.length == 0 # no url arguments provided
         clipboard = require('copy-paste').paste()
@@ -701,10 +758,14 @@ else
 00000000  000   000  000     000   
 ###
 
-exit = () ->
-    writeStash()
-    mstr = 0
-    process.exit 0
+autoClose = () ->
+    if autoCloseTimer?
+        clearTimeout autoCloseTimer
+        autoCloseTimer = undefined
+    if stash.autoclose > 0
+        autoCloseTimer = setTimeout lock, stash.autoclose*1000
+
+exit = () -> process.exit 0
   
 ###
 000000000   0000000   0000000     0000000 
