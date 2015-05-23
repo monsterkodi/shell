@@ -6,7 +6,7 @@
 000       000   000     000     000           000     000   000  000   000  000           000
  0000000  000   000     000     000           000      0000000    0000000   0000000  0000000
  */
-var bcrypt, cipherType, crypto, decrypt, decryptFile, encrypt, encryptFile, exportlist, fileEncoding, fs, genHash, genSalt, zipObject;
+var bcrypt, cipherType, crypto, decrypt, decryptFile, encrypt, encryptFile, exp, fileEncoding, fs, genHash, genSalt, zipObject;
 
 fs = require('fs');
 
@@ -74,8 +74,8 @@ genSalt = function(length) {
   return salt.substr(0, length);
 };
 
-exportlist = ['encrypt', 'decrypt', 'decryptFile', 'encryptFile', 'genHash', 'genSalt'];
+exp = ['encrypt', 'decrypt', 'decryptFile', 'encryptFile', 'genHash', 'genSalt'];
 
-module.exports = zipObject(exportlist.map(function(e) {
+module.exports = zipObject(exp.map(function(e) {
   return [e, eval(e)];
 }));

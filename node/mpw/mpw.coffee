@@ -48,7 +48,7 @@ BG     = ansi.bg.getRgb
 fw     = (i) -> ansi.fg.grayscale[i]
 BW     = (i) -> ansi.bg.grayscale[i]
 
-default_pattern = 'aaaa-aaa-aaaa|0000' 
+default_pattern = 'abcd+efgh+12'
     
 ###
  0000000   00000000    0000000    0000000
@@ -91,15 +91,18 @@ writeStash = () ->
 readStash = (cb) ->
     if fs.existsSync stashFile
         decryptFile stashFile, mstr, (err, json) -> 
-            if err? 
-                error.apply @, err
+            if err?
+                if err[0] == 'can\'t decrypt file'
+                    stash = undefined
+                    cb()
+                else
+                    error.apply @, err
             else
-                # console.log err, json
                 stash = JSON.parse(json)
                 undirty()
                 cb()
     else
-        stash = { configs: {} }        
+        stash = { pattern: default_pattern, configs: {} }        
         undirty()
         cb()
 
@@ -165,6 +168,7 @@ box = blessed.box
     shadow:             true
     dockBorders:        true
     ignoreDockContrast: true
+    # borderChars:        '╔═╗║║╚═╝'    
     border:             type: 'line'
     style:              
         fg:     color.text
@@ -215,6 +219,7 @@ undirty = () ->
 screen.on 'keypress', (ch, key) ->
     if key.full == 'C-c' then process.exit 0
     if key.full == 'escape' then process.exit 0
+    if key.full == 'q' then process.exit 0
     
 ###
 000       0000000    0000000 
@@ -266,23 +271,25 @@ listStash = (hash) ->
     
         data = [[fw(1)+'site', 'password', 'pattern', 'seed'], ['', '', '', '']]
         for siteKey of stash.configs
-            url = decrypt stash.configs[siteKey].url, mstr        
+            config = stash.configs[siteKey]
+            url = decrypt config.url, mstr        
             data.push [ 
                 bold+fg(2,2,5)+url+reset
-                fg(5,5,0)+password.make(genHash(url+mstr), stash.configs[siteKey])+reset
-                fw(6)+stash.configs[siteKey].pattern+reset
-                fw(3)+stash.configs[siteKey].seed+reset
+                fg(5,5,0)+makePassword(genHash(url+mstr), config)+reset
+                # fw(6)+config.pattern+reset
+                fw(6)+(config.pattern==stash.pattern and ' ' or config.pattern)+reset
+                # fw(3)+config.seed+reset
+                fw(3)+(trim(config.seed).length and '✓' or '')+reset
             ]
         data.push ['', '', '', '']
         
         list = blessed.listtable
             parent:         box
             data:           data
-            # top:            'center'
-            bottom: 0
-            left:           'center'
-            width:          '90%'
-            height:         '50%'
+            left:           6
+            right:          6
+            top:            3
+            bottom:         2
             align:          'left'
             tags:           true
             keys:           true
@@ -365,16 +372,12 @@ listStash = (hash) ->
         ###
         editPattern = () ->
             editColum 2, (pattern) ->
-                config = selectedConfig()
-                if '$' in pattern
-                    url = decrypt config.url, mstr
-                    url = url.split('.')[0]
-                    pattern = pattern.replace '$', url
-                config.pattern = pattern
-                # newSeed config
-                clearSeed config
-                dirty()
-                listStash selectedHash()
+                if password.isValidPattern pattern
+                    config = selectedConfig()
+                    config.pattern = pattern
+                    clearSeed config
+                    dirty()
+                    listStash selectedHash()
 
         createSite = () ->
             list.select numConfigs()+2
@@ -411,24 +414,24 @@ listStash = (hash) ->
                     delete stash.configs[site] 
                     dirty()
                     
-            if key == 's'
+            if key == 's' # save
                 writeStash()
                 log 'saved'
                 
-            if key == 'p' 
-                if selectedConfig() then editPattern()
-                    
-            if key == 'r'
+            if key == 'r' # reload
                 hash = selectedHash()
                 readStash () -> listStash hash
-                    
-            if key == '/'
+                
+            if key == 'p' # edit pattern
+                if selectedConfig() then editPattern()
+                                        
+            if key == '/' # new seed
                 if config = selectedConfig()
                     newSeed config
                     dirty()
                     listStash selectedHash()
 
-            if key == '.'
+            if key == '.' # clear seed
                 if config = selectedConfig()
                     clearSeed config
                     dirty()
@@ -447,7 +450,7 @@ listStash = (hash) ->
                 if not isdirty? and config = selectedConfig()
                     url      = decrypt config.url, mstr
                     copy     = require 'copy-paste'
-                    copy.copy password.make genHash(url+mstr), config
+                    copy.copy makePassword genHash(url+mstr), config
                     process.exit 0
                 else
                     if list.getScroll() in [ 0, 1, numConfigs()+2]
@@ -470,7 +473,10 @@ newSeed = (config) ->
     
 clearSeed = (config) ->
     config.seed = pad '', config.pattern.length, ' '
-
+    
+makePassword = (hash, config) ->
+    password.make hash, config.pattern, config.seed
+    
 newSite = (site) ->
     return if not site?
     site = trim site
@@ -479,7 +485,6 @@ newSite = (site) ->
     config.url = encrypt site, mstr
     config.pattern = stash.pattern
 
-    # newSeed config
     clearSeed config
 
     hash = genHash site+mstr
@@ -514,10 +519,10 @@ unlock = () ->
 
     passwordBox.on 'keypress', (ch, key) ->
         if key.full == 'C-c' then process.exit 0
+        if key.full == 'escape' then process.exit 0
     
     passwordBox.readInput (err,data) -> 
-        
-        if err? or not data?.length then process.exit 0
+        if err? then process.exit 0
         box.remove passwordBox
         mstr = data
         readStash main
@@ -532,6 +537,10 @@ unlock = () ->
 
 main = () ->
 
+    if not stash?
+        unlock()
+        return
+
     if args._.length == 0 # no url arguments provided
         clipboard = require('copy-paste').paste()
         if containsLink clipboard
@@ -542,8 +551,6 @@ main = () ->
     else
         site = args._[0]
                     
-    stash.pattern = default_pattern unless stash.pattern
-
     hash = genHash site+mstr
 
     if stash.configs?[hash]?
@@ -579,10 +586,10 @@ exit = () ->
 ###
 
 - 'nightrider' animation after password enter
-- autoclose timeout
-- don't show list fully decrypted by default
 - config:
     default pattern
     always add seed
+    auto close time
+    fully decrypted 
     
 ###

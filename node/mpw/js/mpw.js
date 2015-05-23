@@ -1,5 +1,4 @@
-var BG, BW, _s, _url, ansi, args, blessed, bold, box, clearSeed, clr, color, containsLink, cryptools, decrypt, decryptFile, default_pattern, dirty, encrypt, error, exit, extractSite, fg, fs, fw, genHash, indexOf, isdirty, jsonStr, keysIn, listStash, log, main, mstr, newSeed, newSite, nomnom, numConfigs, pad, password, path, readStash, reduce, reset, screen, stash, stashFile, trim, undirty, unlock, v, writeStash,
-  indexOf1 = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+var BG, BW, _s, _url, ansi, args, blessed, bold, box, clearSeed, clr, color, containsLink, cryptools, decrypt, decryptFile, default_pattern, dirty, encrypt, error, exit, extractSite, fg, fs, fw, genHash, indexOf, isdirty, jsonStr, keysIn, listStash, log, main, makePassword, mstr, newSeed, newSite, nomnom, numConfigs, pad, password, path, readStash, reduce, reset, screen, stash, stashFile, trim, undirty, unlock, v, writeStash;
 
 ansi = require('ansi-256-colors');
 
@@ -80,7 +79,7 @@ BW = function(i) {
   return ansi.bg.grayscale[i];
 };
 
-default_pattern = 'aaaa-aaa-aaaa|0000';
+default_pattern = 'abcd+efgh+12';
 
 
 /*
@@ -147,7 +146,12 @@ readStash = function(cb) {
   if (fs.existsSync(stashFile)) {
     return decryptFile(stashFile, mstr, function(err, json) {
       if (err != null) {
-        return error.apply(this, err);
+        if (err[0] === 'can\'t decrypt file') {
+          stash = void 0;
+          return cb();
+        } else {
+          return error.apply(this, err);
+        }
       } else {
         stash = JSON.parse(json);
         undirty();
@@ -156,6 +160,7 @@ readStash = function(cb) {
     });
   } else {
     stash = {
+      pattern: default_pattern,
       configs: {}
     };
     undirty();
@@ -196,7 +201,7 @@ if (args.reset) {
  */
 
 if (args.version) {
-  v = '0.0.271'.split('.');
+  v = '0.0.363'.split('.');
   console.log(bold + BG(0, 0, 1) + fw(23) + " p" + BG(0, 0, 2) + "w" + BG(0, 0, 3) + fw(23) + "m" + fg(1, 1, 5) + " " + fw(23) + BG(0, 0, 4) + " " + BG(0, 0, 5) + fw(23) + " " + v[0] + " " + BG(0, 0, 4) + fg(1, 1, 5) + '.' + BG(0, 0, 3) + fw(23) + " " + v[1] + " " + BG(0, 0, 2) + fg(0, 0, 5) + '.' + BG(0, 0, 1) + fw(23) + " " + v[2] + " ");
   process.exit(0);
 }
@@ -226,7 +231,7 @@ box = blessed.box({
   left: 'center',
   width: '90%',
   height: '90%',
-  content: fw(6) + '{bold}mpw{/bold} 0.0.271',
+  content: fw(6) + '{bold}mpw{/bold} 0.0.363',
   tags: true,
   shadow: true,
   dockBorders: true,
@@ -297,6 +302,9 @@ screen.on('keypress', function(ch, key) {
     process.exit(0);
   }
   if (key.full === 'escape') {
+    process.exit(0);
+  }
+  if (key.full === 'q') {
     return process.exit(0);
   }
 });
@@ -363,20 +371,21 @@ error = function() {
  */
 
 listStash = function(hash) {
-  var createSite, data, editColum, editPattern, list, selectedConfig, selectedHash, siteKey, url;
+  var config, createSite, data, editColum, editPattern, list, selectedConfig, selectedHash, siteKey, url;
   data = [[fw(1) + 'site', 'password', 'pattern', 'seed'], ['', '', '', '']];
   for (siteKey in stash.configs) {
-    url = decrypt(stash.configs[siteKey].url, mstr);
-    data.push([bold + fg(2, 2, 5) + url + reset, fg(5, 5, 0) + password.make(genHash(url + mstr), stash.configs[siteKey]) + reset, fw(6) + stash.configs[siteKey].pattern + reset, fw(3) + stash.configs[siteKey].seed + reset]);
+    config = stash.configs[siteKey];
+    url = decrypt(config.url, mstr);
+    data.push([bold + fg(2, 2, 5) + url + reset, fg(5, 5, 0) + makePassword(genHash(url + mstr), config) + reset, fw(6) + (config.pattern === stash.pattern && ' ' || config.pattern) + reset, fw(3) + (trim(config.seed).length && '✓' || '') + reset]);
   }
   data.push(['', '', '', '']);
   list = blessed.listtable({
     parent: box,
     data: data,
-    bottom: 0,
-    left: 'center',
-    width: '90%',
-    height: '50%',
+    left: 6,
+    right: 6,
+    top: 3,
+    bottom: 2,
     align: 'left',
     tags: true,
     keys: true,
@@ -479,17 +488,13 @@ listStash = function(hash) {
    */
   editPattern = function() {
     return editColum(2, function(pattern) {
-      var config;
-      config = selectedConfig();
-      if (indexOf1.call(pattern, '$') >= 0) {
-        url = decrypt(config.url, mstr);
-        url = url.split('.')[0];
-        pattern = pattern.replace('$', url);
+      if (password.isValidPattern(pattern)) {
+        config = selectedConfig();
+        config.pattern = pattern;
+        clearSeed(config);
+        dirty();
+        return listStash(selectedHash());
       }
-      config.pattern = pattern;
-      clearSeed(config);
-      dirty();
-      return listStash(selectedHash());
     });
   };
   createSite = function() {
@@ -512,7 +517,7 @@ listStash = function(hash) {
   000   000  00000000     000     0000000
    */
   list.on('keypress', function(ch, k) {
-    var config, copy, index, key, ref, site;
+    var copy, index, key, ref, site;
     key = k.full;
 
     /*
@@ -535,16 +540,16 @@ listStash = function(hash) {
       writeStash();
       log('saved');
     }
-    if (key === 'p') {
-      if (selectedConfig()) {
-        editPattern();
-      }
-    }
     if (key === 'r') {
       hash = selectedHash();
       readStash(function() {
         return listStash(hash);
       });
+    }
+    if (key === 'p') {
+      if (selectedConfig()) {
+        editPattern();
+      }
     }
     if (key === '/') {
       if (config = selectedConfig()) {
@@ -575,7 +580,7 @@ listStash = function(hash) {
       if ((isdirty == null) && (config = selectedConfig())) {
         url = decrypt(config.url, mstr);
         copy = require('copy-paste');
-        copy.copy(password.make(genHash(url + mstr), config));
+        copy.copy(makePassword(genHash(url + mstr), config));
         return process.exit(0);
       } else {
         if ((ref = list.getScroll()) === 0 || ref === 1 || ref === (numConfigs() + 2)) {
@@ -603,6 +608,10 @@ newSeed = function(config) {
 
 clearSeed = function(config) {
   return config.seed = pad('', config.pattern.length, ' ');
+};
+
+makePassword = function(hash, config) {
+  return password.make(hash, config.pattern, config.seed);
 };
 
 newSite = function(site) {
@@ -657,11 +666,14 @@ unlock = function() {
   screen.render();
   passwordBox.on('keypress', function(ch, key) {
     if (key.full === 'C-c') {
+      process.exit(0);
+    }
+    if (key.full === 'escape') {
       return process.exit(0);
     }
   });
   return passwordBox.readInput(function(err, data) {
-    if ((err != null) || !(data != null ? data.length : void 0)) {
+    if (err != null) {
       process.exit(0);
     }
     box.remove(passwordBox);
@@ -681,6 +693,10 @@ unlock = function() {
 
 main = function() {
   var clipboard, hash, ref, site;
+  if (stash == null) {
+    unlock();
+    return;
+  }
   if (args._.length === 0) {
     clipboard = require('copy-paste').paste();
     if (containsLink(clipboard)) {
@@ -691,9 +707,6 @@ main = function() {
     }
   } else {
     site = args._[0];
-  }
-  if (!stash.pattern) {
-    stash.pattern = default_pattern;
   }
   hash = genHash(site + mstr);
   if (((ref = stash.configs) != null ? ref[hash] : void 0) != null) {
@@ -737,9 +750,9 @@ exit = function() {
 /*
 
 - 'nightrider' animation after password enter
-- autoclose timeout
-- don't show list fully decrypted by default
 - config:
     default pattern
     always add seed
+    auto close time
+    fully decrypted
  */

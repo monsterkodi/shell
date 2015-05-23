@@ -49,8 +49,8 @@ genSalt = (length) ->
         salt += bcrypt.genSaltSync(12).substr(10)
     salt.substr 0, length
 
-exportlist = 
+exp = 
     [
         'encrypt', 'decrypt', 'decryptFile', 'encryptFile', 'genHash', 'genSalt'
     ]
-module.exports = zipObject(exportlist.map((e) -> [e, eval(e)]))
+module.exports = zipObject(exp.map((e) -> [e, eval(e)]))

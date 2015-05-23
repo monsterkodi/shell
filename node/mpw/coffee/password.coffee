@@ -12,29 +12,36 @@ indexOf   = require 'lodash.indexof'
 charsets = [
     'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVXYZ'
     '0123456789'
-    '-+.><_='
-    '|\\/:[]'   
+    '-'
+    '.'
+    '+=<>~'
+    '!|@#$%^&*(){}[];:?,/_\'\"\`\\'
     ]
 
 setWithChar = (char) ->
     for set in charsets
         if indexOf(set, char) >= 0
             return set
+            
+isValidPattern = (pattern) ->
+    for c in pattern
+        return false if not setWithChar(c)?
+    true
 
-make = (hash, config) ->
+make = (hash, pattern, seed) ->
     pw = ""
-    ss = Math.floor(hash.length / config.pattern.length)
-    for i in [0...config.pattern.length]        
-        sum = config.seed.charCodeAt i
+    ss = Math.floor(hash.length / pattern.length)
+    for i in [0...pattern.length]        
+        sum = seed.charCodeAt i
         for s in [0...ss]
             sum += parseInt(hash[i*ss+s], 16)
-        sum += config.pattern.charCodeAt i
-        cs  = setWithChar config.pattern[i]
+        sum += pattern.charCodeAt i
+        cs  = setWithChar pattern[i]
         pw += cs[sum%cs.length]
     pw
     
-exportlist = 
+exp = 
     [
-        'make'
+        'make', 'isValidPattern'
     ]
-module.exports = zipObject(exportlist.map((e) -> [e, eval(e)]))
+module.exports = zipObject(exp.map((e) -> [e, eval(e)]))
