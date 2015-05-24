@@ -210,7 +210,7 @@ if (args.reset) {
  */
 
 if (args.version) {
-  v = '0.1.105'.split('.');
+  v = '0.1.127'.split('.');
   console.log(bold + BG(0, 0, 1) + fw(23) + " m" + BG(0, 0, 2) + "p" + BG(0, 0, 3) + fw(23) + "w" + fg(1, 1, 5) + " " + fw(23) + BG(0, 0, 4) + " " + BG(0, 0, 5) + fw(23) + " " + v[0] + " " + BG(0, 0, 4) + fg(1, 1, 5) + '.' + BG(0, 0, 3) + fw(23) + " " + v[1] + " " + BG(0, 0, 2) + fg(0, 0, 5) + '.' + BG(0, 0, 1) + fw(23) + " " + v[2] + " ");
   process.exit(0);
 }
@@ -228,7 +228,6 @@ screen = blessed.screen({
   autoPadding: true,
   smartCSR: true,
   cursorShape: box,
-  resizeTimeout: 100,
   artificialCursor: true,
   style: {
     fg: color.text,
@@ -255,7 +254,7 @@ box = blessed.box({
   left: 'center',
   width: '90%',
   height: '90%',
-  content: fw(6) + ' {bold}mpw{/bold} ' + fw(3) + '0.1.105',
+  content: fw(6) + ' {bold}mpw{/bold} ' + fw(3) + '0.1.127',
   tags: true,
   dockBorders: true,
   border: {
@@ -269,10 +268,6 @@ box = blessed.box({
       bg: color.bg
     }
   }
-});
-
-screen.on('resize', function() {
-  return log('resize');
 });
 
 drawScreen = function(ms) {
@@ -448,13 +443,15 @@ editColum = function(list, column, cb) {
  */
 
 listStash = function(hash) {
-  var config, createSite, data, editPattern, list, pwd, selectedConfig, selectedHash, siteKey, url;
+  var config, createSite, data, editPattern, list, pat, pcol, pwd, selectedConfig, selectedHash, siteKey, url;
   data = [[fw(1) + 'site', 'password', 'pattern', 'seed'], ['', '', '', '']];
   for (siteKey in stash.configs) {
     config = stash.configs[siteKey];
     url = decrypt(config.url, mstr);
     pwd = (stash.decryptall || hash === siteKey) && makePassword(genHash(url + mstr), config) || '';
-    data.push([bold + fg(2, 2, 5) + url + reset, fg(5, 5, 0) + pwd + reset, fw(6) + (config.pattern === stash.pattern && ' ' || config.pattern) + reset, fw(3) + (trim(config.seed).length && '✓' || '') + reset]);
+    pcol = hash === siteKey && fg(5, 5, 0) || fw(15);
+    pat = config.pattern === stash.pattern && ' ' || (stash.decryptall && config.pattern || '✓');
+    data.push([bold + fg(2, 2, 5) + url + reset, pcol + pwd + reset, fw(6) + pat + reset, fw(3) + (trim(config.seed).length && '✓' || '') + reset]);
   }
   data.push(['', '', '', '']);
   clearBox('stash');
@@ -462,6 +459,8 @@ listStash = function(hash) {
     config = stash.configs[hash];
     url = decrypt(config.url, mstr);
     copy.copy(makePassword(genHash(url + mstr), config));
+  } else {
+    copy.copy('');
   }
   list = blessed.listtable({
     id: 'stash',
@@ -542,7 +541,9 @@ listStash = function(hash) {
     });
   };
   list.on('select', function() {
-    listStash(selectedHash());
+    if (selectedHash() != null) {
+      listStash(selectedHash());
+    }
     return autoClose();
   });
   list.on('scroll', function() {
@@ -642,22 +643,29 @@ listStash = function(hash) {
  */
 
 listConfig = function(index) {
-  var c, cfg, close, data, j, len, list, value;
-  cfg = [['default pattern', 'pattern', 'string'], ['auto close delay (seconds)', 'autoclose', 'int'], ['seed new sites', 'seed', 'bool'], ['show decrypted list', 'decryptall', 'bool']];
+  var c, cfg, close, data, j, len, list, value, vcol;
+  cfg = [['default pattern', 'pattern', 'string'], ['auto close delay', 'autoclose', 'int'], ['seed new sites', 'seed', 'bool'], ['show all passwords', 'decryptall', 'bool']];
   data = [[fw(1) + 'setting', 'value'], ['', '']];
   for (j = 0, len = cfg.length; j < len; j++) {
     c = cfg[j];
+    vcol = fg(5, 5, 0);
     switch (c[2]) {
       case 'bool':
-        value = stash[c[1]] && '✓' || '❌';
+        if (stash[c[1]]) {
+          vcol = fg(0, 3, 0);
+          value = '✓';
+        } else {
+          value = '❌';
+        }
         break;
       case 'int':
         value = String(stash[c[1]]);
+        vcol = fg(2, 2, 5);
         break;
       default:
         value = stash[c[1]];
     }
-    data.push([bold + fw(9) + c[0] + reset, fg(5, 5, 0) + value + reset]);
+    data.push([bold + fw(9) + c[0] + reset, vcol + value + reset]);
   }
   clearBox('config');
   list = blessed.listtable({
@@ -915,9 +923,9 @@ autoClose = function() {
 
 clockTimer = void 0;
 
-clockCount = 0;
-
 clockDisplay = void 0;
+
+clockCount = 0;
 
 clock = function(seconds) {
   clockCount = seconds;
@@ -947,9 +955,9 @@ clockTick = function() {
   }
   if (clockCount > 0) {
     if (clockCount >= 10) {
-      clockDisplay.content = (clockCount > 20 && fw(6) || fg(5, 3, 0)) + ['▖', '▗', '▝', '▘'][clockCount % 4];
+      clockDisplay.content = (clockCount > 20 && fw(6) || fg(4, 2, 0)) + ['▖', '▗', '▝', '▘'][clockCount % 4];
     } else {
-      clockDisplay.content = String(clockCount);
+      clockDisplay.content = bold + fg(5, 3, 0) + String(clockCount);
     }
     clockCount -= 1;
     if (clockTimer == null) {

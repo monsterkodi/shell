@@ -10,9 +10,9 @@ cryptools   = require './coffee/cryptools'
 sleep       = require 'sleep'
 pad         = require 'lodash.pad'
 trim        = require 'lodash.trim'
-keysIn      = require 'lodash.keysIn'
+keysIn      = require 'lodash.keysin'
 reduce      = require 'lodash.reduce'
-indexOf     = require 'lodash.indexOf'
+indexOf     = require 'lodash.indexof'
 random      = require 'lodash.random'
 copy        = require 'copy-paste'
 genHash     = cryptools.genHash
@@ -159,7 +159,7 @@ screen = blessed.screen
     autoPadding: true
     smartCSR:    true
     cursorShape: box
-    resizeTimeout: 100
+    # resizeTimeout: 100
     artificialCursor: true
     style:              
         fg:     color.text
@@ -193,8 +193,8 @@ box = blessed.box
             fg: color.border
             bg: color.bg
 
-screen.on 'resize', () ->
-    log 'resize'
+# screen.on 'resize', () ->
+#     log 'resize'
 
 drawScreen = (ms) ->
     screen.draw(0, screen.lines.length - 1)
@@ -331,10 +331,12 @@ listStash = (hash) ->
             config = stash.configs[siteKey]
             url    = decrypt config.url, mstr      
             pwd    = (stash.decryptall or hash == siteKey) and makePassword(genHash(url+mstr), config) or ''
+            pcol   = (hash == siteKey and fg(5,5,0) or fw(15))
+            pat    = (config.pattern == stash.pattern and ' ' or (stash.decryptall and config.pattern or '✓'))
             data.push [ 
                 bold + fg(2,2,5) + url + reset
-                fg(5,5,0) + pwd + reset
-                fw(6) + (config.pattern==stash.pattern and ' ' or config.pattern)+reset
+                pcol + pwd + reset
+                fw(6) + pat + reset
                 fw(3) + (trim(config.seed).length and '✓' or '')+reset
             ]
         data.push ['', '', '', '']
@@ -345,6 +347,8 @@ listStash = (hash) ->
             config = stash.configs[hash]
             url    = decrypt config.url, mstr
             copy.copy makePassword genHash(url+mstr), config
+        else
+            copy.copy ''
             
         list = blessed.listtable
             id:             'stash'
@@ -408,7 +412,7 @@ listStash = (hash) ->
             editColum list, 0, (site) -> newSite site
 
         list.on 'select', () -> 
-            listStash selectedHash()
+            listStash selectedHash() if selectedHash()?
             autoClose()
             
         list.on 'scroll', () ->
@@ -497,10 +501,10 @@ listStash = (hash) ->
         
 listConfig = (index) ->
     cfg = [
-        ['default pattern'           , 'pattern'   , 'string']
-        ['auto close delay (seconds)', 'autoclose' , 'int']
-        ['seed new sites'            , 'seed'      , 'bool']
-        ['show decrypted list'       , 'decryptall', 'bool']
+        ['default pattern'   , 'pattern'   , 'string']
+        ['auto close delay'  , 'autoclose' , 'int']
+        ['seed new sites'    , 'seed'      , 'bool']
+        ['show all passwords', 'decryptall', 'bool']
     ] 
     
     data = [
@@ -509,18 +513,23 @@ listConfig = (index) ->
     ]
     
     for c in cfg
-        
+        vcol = fg(5,5,0)
         switch c[2]
             when 'bool'
-                value = stash[c[1]] and '✓' or '❌'
+                if stash[c[1]]
+                    vcol = fg(0,3,0)
+                    value = '✓'
+                else
+                    value = '❌'
             when 'int'
                 value = String(stash[c[1]])
+                vcol = fg(2,2,5)
             else
                 value = stash[c[1]]
                 
         data.push [ 
             bold + fw(9) + c[0] + reset
-            fg(5,5,0) + value + reset
+            vcol + value + reset
         ]
      
     clearBox 'config'
@@ -726,9 +735,9 @@ autoClose = () ->
     if stash.autoclose > 0
         clock stash.autoclose
     
-clockTimer = undefined
-clockCount = 0
+clockTimer   = undefined
 clockDisplay = undefined
+clockCount   = 0
 
 clock = (seconds) ->
     
@@ -746,8 +755,8 @@ clock = (seconds) ->
             align:  'right'
             tags:   true
             style:  
-                fg:     color.password
-                bg:     color.password_bg
+                fg: color.password
+                bg: color.password_bg
     
     clockTick()
     
@@ -755,9 +764,9 @@ clockTick = () ->
     if not clockDisplay? then return
     if clockCount > 0
         if clockCount >= 10
-            clockDisplay.content = (clockCount > 20 and fw(6) or fg(5,3,0)) + ['▖','▗','▝','▘'][clockCount%4]
+            clockDisplay.content = (clockCount > 20 and fw(6) or fg(4,2,0)) + ['▖','▗','▝','▘'][clockCount%4]
         else
-            clockDisplay.content = String(clockCount)
+            clockDisplay.content = bold + fg(5,3,0) + String(clockCount)
         clockCount -= 1
         if not clockTimer?
             clockTimer = setInterval clockTick, 1000
