@@ -102,12 +102,13 @@ readStash = (cb) ->
                     error.apply @, err
             else
                 stash = JSON.parse(json)
+                stash.decryptall = false
+                #log jsonStr stash
                 undirty()
                 cb()
     else
         stash = 
             pattern:    default_pattern 
-            autoclose:  20
             decryptall: false
             seed:       true
             configs:    {}
@@ -193,15 +194,11 @@ box = blessed.box
             fg: color.border
             bg: color.bg
 
-# screen.on 'resize', () ->
-#     log 'resize'
-
 drawScreen = (ms) ->
     screen.draw(0, screen.lines.length - 1)
     screen.program.flush()
     sleep.usleep(ms*1000)
-
-
+    
 ###
  0000000  000      00000000   0000000   00000000   0000000     0000000   000   000
 000       000      000       000   000  000   000  000   000  000   000   000 000 
@@ -210,14 +207,18 @@ drawScreen = (ms) ->
  0000000  0000000  00000000  000   000  000   000  0000000     0000000   000   000
 ###
 clearBox = (id) ->
-    if id?
-        for child in box.children
-            if child.id == id
-                log 'removed'
-                box.remove child
-    else
-        while box.children.length
-            box.remove box.children[0]
+    while box.children.length
+        box.children[0].destroy()
+        # box.remove box.children[0]
+            
+configTable = undefined
+stashTable = undefined
+            
+clearTables = () ->
+    configTable?.destroy()            
+    stashTable?.destroy()            
+    configTable = undefined
+    stashTable = undefined
             
 ###
 000   000  00000000  000   000  00000000   00000000   00000000   0000000   0000000
@@ -283,7 +284,7 @@ error = () ->
 ###
 
 editColum = (list, column, cb) ->
-    noAutoClose()
+
     text = list.getItem(list.getScroll()).getText()
     left = reduce(list._maxes.slice(0,column), ((sum, n) -> sum+n+1), 0)
     edit = blessed.textbox
@@ -313,7 +314,6 @@ editColum = (list, column, cb) ->
         list.remove edit
         screen.render()    
         if not err?
-            autoClose()
             cb data                
     
 ###
@@ -324,6 +324,7 @@ editColum = (list, column, cb) ->
 0000000  000  0000000      000   
 ###
 
+stashTable = undefined
 listStash = (hash) ->
     
         data = [[fw(1)+'site', 'password', 'pattern', 'seed'], ['', '', '', '']]
@@ -337,12 +338,10 @@ listStash = (hash) ->
                 bold + fg(2,2,5) + url + reset
                 pcol + pwd + reset
                 fw(6) + pat + reset
-                fw(3) + (trim(config.seed).length and '✓' or '')+reset
+                fg(0,3,0) + (trim(config.seed).length and '✓' or '')+reset
             ]
         data.push ['', '', '', '']
         
-        clearBox 'stash'
-
         if hash?
             config = stash.configs[hash]
             url    = decrypt config.url, mstr
@@ -350,8 +349,8 @@ listStash = (hash) ->
         else
             copy.copy ''
             
+        clearTables()
         list = blessed.listtable
-            id:             'stash'
             parent:         box
             data:           data
             top:            'center'
@@ -379,6 +378,7 @@ listStash = (hash) ->
                   selected:
                       fg: 'brightwhite'
                       bg: color.bg
+        stashTable = list
 
         selectedHash = () ->
             index = list.getScroll()
@@ -413,11 +413,7 @@ listStash = (hash) ->
 
         list.on 'select', () -> 
             listStash selectedHash() if selectedHash()?
-            autoClose()
             
-        list.on 'scroll', () ->
-            autoClose()
-
         list.focus()
         if hash?
             list.select (indexOf keysIn(stash.configs), hash) + 2        
@@ -432,7 +428,6 @@ listStash = (hash) ->
         ###
         list.on 'keypress', (ch, k) -> 
             
-            autoClose()
             key = k.full
             
             switch key
@@ -488,7 +483,7 @@ listStash = (hash) ->
                         createSite()
                 else
                     handleKey key        
-                        
+        
         return
     
 ###
@@ -498,11 +493,11 @@ listStash = (hash) ->
 000       000   000  000  0000  000       000  000   000
  0000000   0000000   000   000  000       000   0000000 
 ###
-        
+    
+configTable = undefined    
 listConfig = (index) ->
     cfg = [
         ['default pattern'   , 'pattern'   , 'string']
-        ['auto close delay'  , 'autoclose' , 'int']
         ['seed new sites'    , 'seed'      , 'bool']
         ['show all passwords', 'decryptall', 'bool']
     ] 
@@ -531,9 +526,8 @@ listConfig = (index) ->
             bold + fw(9) + c[0] + reset
             vcol + value + reset
         ]
-     
-    clearBox 'config'
-    
+         
+    clearTables()
     list = blessed.listtable
         id:             'config'
         parent:         box
@@ -562,16 +556,12 @@ listConfig = (index) ->
               selected:
                   fg: 'brightwhite'
                   bg: color.bg
+    configTable = list
 
-    close = () -> 
-        clearBox 'config'
-        listStash()
-        
-    list.on 'select', () -> autoClose()
-                  
+    close = () -> listStash()
+                          
     list.on 'keypress', (ch, k) ->
         
-        autoClose()
         key = k.full
         
         cfgIndex = index or list.getScroll()-2
@@ -587,7 +577,8 @@ listConfig = (index) ->
                 else
                     if cfg[cfgIndex][2] == 'bool'
                         stash[cfg[cfgIndex][1]] = not stash[cfg[cfgIndex][1]]
-                        dirty()
+                        if cfg[cfgIndex][1] != 'decryptall'
+                            dirty()
                         listConfig index
                     else
                         editColum list, 1, (value) ->
@@ -684,9 +675,9 @@ unlock = () ->
             passwordBox.render()
             drawScreen 2
         drawScreen 20
-        box.remove passwordBox
+        passwordBox.destroy()
         readStash main
-        
+                
 lock = () ->
     if isdirty? then return
     clearBox()
@@ -707,84 +698,28 @@ lock = () ->
 isdirty = undefined
 dirty = () ->
     if not isdirty?
-        isdirty = true
-        stopClock '◉'
+        isdirty = blessed.element
+            parent:  box
+            content: '◉'
+            top:     0
+            right:   1
+            height:  1
+            width:   2
+            fg:      color.dirty
+            bg:      color.bg
+            align:   'right'
+            tags:    true
+            style:   
+                fg: color.password
+                bg: color.password_bg
     screen.render()
 
 undirty = () ->
     if isdirty?
+        isdirty.destroy()
         isdirty = undefined
         screen.render()
-        autoClose()
-        
-###
- 0000000  000       0000000    0000000  000   000
-000       000      000   000  000       000  000 
-000       000      000   000  000       0000000  
-000       000      000   000  000       000  000 
- 0000000  0000000   0000000    0000000  000   000
-###
 
-noAutoClose = () ->
-    stopClock()
-
-autoClose = () ->
-    if isdirty?
-        stopClock '◉'
-        return
-    if stash.autoclose > 0
-        clock stash.autoclose
-    
-clockTimer   = undefined
-clockDisplay = undefined
-clockCount   = 0
-
-clock = (seconds) ->
-    
-    clockCount = seconds
-            
-    if not clockDisplay?
-        clockDisplay = blessed.element
-            parent: box
-            top:    0
-            right:  1
-            height: 1
-            width:  2
-            fg:     color.dirty
-            bg:     color.bg
-            align:  'right'
-            tags:   true
-            style:  
-                fg: color.password
-                bg: color.password_bg
-    
-    clockTick()
-    
-clockTick = () ->
-    if not clockDisplay? then return
-    if clockCount > 0
-        if clockCount >= 10
-            clockDisplay.content = (clockCount > 20 and fw(6) or fg(4,2,0)) + ['▖','▗','▝','▘'][clockCount%4]
-        else
-            clockDisplay.content = bold + fg(5,3,0) + String(clockCount)
-        clockCount -= 1
-        if not clockTimer?
-            clockTimer = setInterval clockTick, 1000
-        screen.render()
-    else
-        clearInterval clockTimer
-        clockTimer = undefined
-        box.remove clockDisplay
-        clockDisplay = undefined
-        lock()
-            
-stopClock = (reason) ->
-    if clockTimer
-        clearInterval clockTimer
-        clockTimer = undefined
-    clockDisplay.content = reason or '▣'
-    screen.render()
-            
 ###
 00     00   0000000   000  000   000
 000   000  000   000  000  0000  000
@@ -798,8 +733,6 @@ main = () ->
     if not stash?
         unlock()
         return
-
-    autoClose()
 
     if args._.length == 0 # no url arguments provided
         clipboard = copy.paste()
@@ -841,5 +774,7 @@ exit = () -> process.exit 0
    000      0000000   0000000     0000000 
 ###
 ###
-
+    - backup files?
+    - color dots
+    - sort sites
 ###
