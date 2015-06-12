@@ -8,15 +8,16 @@ apm install atom-beautify
 apm install autocomplete-paths
 apm install build
 apm install file-icons
-apm install filetype-color
+# apm install filetype-color
 apm install tree-view-filter
 apm install language-fish-shell
 apm install minimap
 apm install preview
-apm install project-manager
+# apm install project-manager
 apm install sort-lines
 apm install zentabs
 apm install toggle-invisibles
+apm install pigments
 
-apm install even-darker-syntax
+apm install dunkelbunt-syntax
 apm install flatland-dark-ui
