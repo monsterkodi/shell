@@ -9,7 +9,7 @@
   "author": "monsterkodi",
   "license": "Public Domain",
   "bin": {
-    "color-ls": "./bin/mpw"
+    "mpw": "./bin/mpw"
   },
   "repository": {
     "type": "git",
