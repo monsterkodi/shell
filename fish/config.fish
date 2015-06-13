@@ -70,6 +70,8 @@ if [ $PATH[-1] != "." ]
     set PATH $PATH .
 end
 
+set PATH $PATH /usr/local/sbin
+
 function __fish_command_not_found_handler --on-event fish_command_not_found
 
     set -l subdir ( coffee ~/shell/node/tools/firstsubdir.coffee $argv )
