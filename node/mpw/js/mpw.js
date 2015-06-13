@@ -210,7 +210,7 @@ if (args.reset) {
  */
 
 if (args.version) {
-  v = '0.1.128'.split('.');
+  v = '0.1.129'.split('.');
   console.log(bold + BG(0, 0, 1) + fw(23) + " m" + BG(0, 0, 2) + "p" + BG(0, 0, 3) + fw(23) + "w" + fg(1, 1, 5) + " " + fw(23) + BG(0, 0, 4) + " " + BG(0, 0, 5) + fw(23) + " " + v[0] + " " + BG(0, 0, 4) + fg(1, 1, 5) + '.' + BG(0, 0, 3) + fw(23) + " " + v[1] + " " + BG(0, 0, 2) + fg(0, 0, 5) + '.' + BG(0, 0, 1) + fw(23) + " " + v[2] + " ");
   process.exit(0);
 }
@@ -254,7 +254,7 @@ box = blessed.box({
   left: 'center',
   width: '90%',
   height: '90%',
-  content: fw(6) + ' {bold}mpw{/bold} ' + fw(3) + '0.1.128',
+  content: fw(6) + ' {bold}mpw{/bold} ' + fw(3) + '0.1.129',
   tags: true,
   dockBorders: true,
   border: {

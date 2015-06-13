@@ -10,7 +10,7 @@ module.exports = (grunt) ->
                 pepper: []
             task:
                 files:
-                    'mpw': [ 'mpw.coffee' ]
+                    'pwm': [ 'pwm.coffee' ]
 
         salt:
             options:
@@ -29,11 +29,11 @@ module.exports = (grunt) ->
         coffee:
             options:
                 bare: true
-            mpw:
+            pwm:
                 expand: true,
                 flatten: true,
                 cwd: '.',
-                src: ['.pepper/mpw.coffee'],
+                src: ['.pepper/pwm.coffee'],
                 dest: 'js',
                 ext: '.js'
             coffee:
@@ -48,10 +48,25 @@ module.exports = (grunt) ->
             file: 'package.json'
 
         shell:
+            kill:
+                command: "killall Electron"
+            clean: 
+                command: "rm -rf pwm.app"
+            build: 
+                command: "node_modules/electron-packager/cli.js . pwm --platform=darwin --arch=x64 --version=0.26.0 --ignore=node_modules/electron --icon=Icon.icns"
+            start: 
+                command: "electron ."
             publish:
                 command: 'npm publish'
             npmpage:
-                command: 'open https://www.npmjs.com/package/mpw'
+                command: 'open https://www.npmjs.com/package/pwm'
+    ###
+    npm install --save-dev grunt-contrib-watch
+    npm install --save-dev grunt-contrib-coffee
+    npm install --save-dev grunt-bumpup
+    npm install --save-dev grunt-pepper
+    npm install --save-dev grunt-shell
+    ###
 
     grunt.loadNpmTasks 'grunt-contrib-watch'
     grunt.loadNpmTasks 'grunt-contrib-coffee'
@@ -59,6 +74,6 @@ module.exports = (grunt) ->
     grunt.loadNpmTasks 'grunt-pepper'
     grunt.loadNpmTasks 'grunt-shell'
 
-    grunt.registerTask 'build',     [ 'bumpup', 'salt', 'pepper', 'coffee' ]
+    grunt.registerTask 'build',     [ 'bumpup', 'salt', 'pepper', 'coffee', 'shell:clean', 'shell:build', 'shell:start' ]
     grunt.registerTask 'default',   [ 'build' ]
     #grunt.registerTask 'publish',   [ 'bumpup', 'shell:publish', 'shell:npmpage' ]

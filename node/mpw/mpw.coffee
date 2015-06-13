@@ -178,16 +178,16 @@ fill = blessed.box
         bg:     'black'
 
 box = blessed.box
-    parent:             fill
-    top:                'center'
-    left:               'center'
-    width:              '90%'
-    height:             '90%'
-    content:            fw(6) + ' {bold}mpw{/bold} '+ fw(3) + '::package.json:version::'
-    tags:               true
-    dockBorders:        true
-    border:             type: 'line'
-    style:              
+    parent:      fill
+    top:         'center'
+    left:        'center'
+    width:       '90%'
+    height:      '90%'
+    content:     fw(6) + ' {bold}mpw{/bold} '+ fw(3) + '::package.json:version::'
+    tags:        true
+    dockBorders: true
+    border:      type: 'line'
+    style:       
         fg:     color.text
         bg:     color.bg
         border: 
