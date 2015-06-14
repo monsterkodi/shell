@@ -40,7 +40,7 @@ input
     color:            color.gray
     border-radius:    4px
     border:           1px solid color.black
-    -webkit-transition:  all 0.30s ease-in-out
+    -webkit-transition:  all 0.3s ease-in-out
 
     &:focus
         background-color:   color.gray-very-dark
@@ -63,10 +63,12 @@ input
     right:          0
     text-align:     center
     color:          rgba(255, 255, 255, 0.1)
-    -webkit-transition:  all 0.80s ease-in-out
-
+    -webkit-transition: all 0.8s ease-in-out
+    &#password-ghost
+        -webkit-transition: all 0.2s ease-in-out
+        
 .border
-    -webkit-transition:  all 0.30s ease-in-out
+    -webkit-transition:  all 0.3s ease-in-out
     box-shadow:    inset 2px 2px 17px rgba(0, 0, 0, 0.25)
     border:        1px solid color.gray-very-dark
     position:      relative

@@ -43,6 +43,9 @@ input#master:focus {
   color: rgba(255,255,255,0.1);
   -webkit-transition: all 0.8s ease-in-out;
 }
+.ghost#password-ghost {
+  -webkit-transition: all 0.2s ease-in-out;
+}
 .border {
   -webkit-transition: all 0.3s ease-in-out;
   box-shadow: inset 2px 2px 17px rgba(0,0,0,0.25);

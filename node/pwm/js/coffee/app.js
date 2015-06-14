@@ -38,7 +38,7 @@ error = function() {
 
 mstr = void 0;
 
-default_pattern = 'kodi-el-aldi-42';
+default_pattern = 'abcd+efgh+12';
 
 stashFile = process.env.HOME + '/.config/pwm.stash';
 
@@ -105,6 +105,15 @@ document.observe('dom:loaded', function() {
   clip = clipboard.readText();
   if (containsLink(clip)) {
     return $("site").value = extractSite(clip);
+  }
+});
+
+win.on('focus', function(event) {
+  if ((mstr != null) && mstr.length) {
+    $("site").focus();
+    return $("site").setSelectionRange(0, $("site").value.length);
+  } else {
+    return $("master").focus();
   }
 });
 

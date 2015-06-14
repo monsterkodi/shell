@@ -16,8 +16,7 @@ jsonStr      = (a) -> JSON.stringify a, null, " "
 
 error     = () -> alert(arguments)
 mstr      = undefined
-# default_pattern = 'abcd+efgh+12'
-default_pattern = 'kodi-el-aldi-42'
+default_pattern = 'abcd+efgh+12'
 stashFile = process.env.HOME+'/.config/pwm.stash'
 stash     = {}
 
@@ -57,11 +56,12 @@ document.observe 'dom:loaded', ->
     if containsLink clip
         $("site").value = extractSite clip
 
-# win.on 'focus', (event) -> 
-#     if mstr? and mstr.length
-#         $("site").focus()
-#     else
-#         $("master").focus()
+win.on 'focus', (event) -> 
+    if mstr? and mstr.length
+        $("site").focus()
+        $("site").setSelectionRange 0, $("site").value.length
+    else
+        $("master").focus()
         
 document.on 'keydown', (event) ->
     # console.log 'key ' + event.which #+ ' ' + String.fromCharCode(event.which)
