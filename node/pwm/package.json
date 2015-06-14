@@ -1,9 +1,16 @@
 {
   "name": "pwm",
-  "version": "0.1.203",
+  "version": "0.1.303",
   "description": "pwm",
   "dependencies": {
-    "menubar": "*"
+    "bcryptjs": "^2.1.0",
+    "lodash": "^3.9.3",
+    "lodash.indexof": "^3.0.2",
+    "lodash.pad": "^3.1.0",
+    "lodash.trim": "^3.0.1",
+    "lodash.zipobject": "^3.0.0",
+    "menubar": "*",
+    "underscore.string": "^3.1.1"
   },
   "devDependencies": {
     "electron-packager": "^4.0.2",

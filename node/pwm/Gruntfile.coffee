@@ -67,8 +67,9 @@ module.exports = (grunt) ->
                 command: "rm -rf pwm.app"
             build: 
                 command: "node_modules/electron-packager/cli.js . pwm --platform=darwin --arch=x64 --version=0.26.0 --ignore=node_modules/electron --icon=Icon.icns"
+            test: 
+                command: "electron ."
             start: 
-                # command: "electron ."
                 command: "killall Electron || sleep 1 && open pwm.app"
             publish:
                 command: 'npm publish'
@@ -93,5 +94,6 @@ module.exports = (grunt) ->
     grunt.loadNpmTasks 'grunt-shell'
 
     grunt.registerTask 'build',     [ 'bumpup', 'stylus', 'salt', 'pepper', 'bower_concat', 'coffee', 'shell:clean', 'shell:build', 'shell:start' ]
-    grunt.registerTask 'default',   [ 'build' ]
+    grunt.registerTask 'test',      [ 'bumpup', 'stylus', 'salt', 'pepper', 'bower_concat', 'coffee', 'shell:clean', 'shell:build', 'shell:test' ]
+    grunt.registerTask 'default',   [ 'test' ]
     #grunt.registerTask 'publish',   [ 'bumpup', 'shell:publish', 'shell:npmpage' ]

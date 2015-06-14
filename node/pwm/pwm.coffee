@@ -5,8 +5,8 @@ menubar  = require 'menubar'
 mb= menubar 
     dir:           __dirname + '/..'
     preloadWindow: true
-    width:         200
-    height:        110 # 60
+    width:         300
+    height:        196
 
 showWindow = ->
     mb.window.show()

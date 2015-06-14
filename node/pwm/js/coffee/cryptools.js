@@ -12,7 +12,7 @@ fs = require('fs');
 
 crypto = require('crypto');
 
-bcrypt = require('bcrypt');
+bcrypt = require('bcryptjs');
 
 zipObject = require('lodash.zipobject');
 
@@ -31,6 +31,8 @@ encrypt = function(data, key) {
 
 decrypt = function(data, key) {
   var cipher, dec;
+  console.log('decrypt...' + key + ':' + data);
+  console.log('decrypt...' + key + ':' + genHash(key));
   cipher = crypto.createDecipher(cipherType, genHash(key));
   dec = cipher.update(data, 'hex', 'utf8');
   return dec += cipher.final('utf8');

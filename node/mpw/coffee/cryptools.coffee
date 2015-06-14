@@ -20,7 +20,10 @@ encrypt = (data, key) ->
     enc += cipher.final 'hex'
     
 decrypt = (data, key) ->
+    console.log 'decrypt...' + key + ':' + data
+    # console.log 'decrypt...' + key + ':' + genHash(key)
     cipher = crypto.createDecipher cipherType, genHash(key)
+    # console.log 'decrypt...' + cipher    
     dec  = cipher.update data, 'hex', 'utf8'
     dec += cipher.final 'utf8'
     

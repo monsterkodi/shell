@@ -8,7 +8,7 @@
 
 fs        = require 'fs'
 crypto    = require 'crypto'
-bcrypt    = require 'bcrypt'
+bcrypt    = require 'bcryptjs'
 zipObject = require 'lodash.zipobject'
 
 cipherType   = 'aes-256-cbc'
@@ -20,6 +20,8 @@ encrypt = (data, key) ->
     enc += cipher.final 'hex'
     
 decrypt = (data, key) ->
+    console.log 'decrypt...' + key + ':' + data
+    console.log 'decrypt...' + key + ':' + genHash(key)
     cipher = crypto.createDecipher cipherType, genHash(key)
     dec  = cipher.update data, 'hex', 'utf8'
     dec += cipher.final 'utf8'
@@ -36,6 +38,7 @@ decryptFile = (file, key, cb) ->
             cb ['can\'t read file at', file]
             return
         try
+            # console.log 'decrypting...' + key + ':' + encrypted
             cb null, decrypt(encrypted, key)
         catch
             cb ['can\'t decrypt file', file]
