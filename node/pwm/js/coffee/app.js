@@ -1,4 +1,4 @@
-var _url, clearSeed, clipboard, containsLink, cryptools, decrypt, decryptFile, default_pattern, dirty, encrypt, error, extractSite, fs, genHash, jsonStr, main, makePassword, masterBlurred, masterChanged, masterFocus, mstr, newSeed, newSite, numConfigs, pad, password, passwordBlurred, passwordFocus, readStash, setSite, showPassword, siteBlurred, siteChanged, siteFocus, stash, stashFile, trim, undirty, updateSitePassword, win, writeStash;
+var _url, clearSeed, clipboard, containsLink, cryptools, decrypt, decryptFile, dirty, encrypt, error, extractSite, fs, genHash, jsonStr, main, makePassword, masterBlurred, masterChanged, masterFocus, mstr, newSeed, newSite, numConfigs, pad, password, passwordBlurred, passwordFocus, pattern, readStash, setSite, showPassword, siteBlurred, siteChanged, siteFocus, stash, stashFile, trim, undirty, updateSitePassword, win, writeStash;
 
 win = (require('remote')).getCurrentWindow();
 
@@ -38,11 +38,11 @@ error = function() {
 
 mstr = void 0;
 
-default_pattern = 'abcd+efgh+12';
+stash = {};
 
 stashFile = process.env.HOME + '/.config/pwm.stash';
 
-stash = {};
+pattern = 'abcd+efgh+12';
 
 masterChanged = function() {
   mstr = $("master").value;
@@ -177,7 +177,7 @@ readStash = function(cb) {
     });
   } else {
     stash = {
-      pattern: default_pattern,
+      pattern: pattern,
       decryptall: false,
       seed: false,
       configs: {}
