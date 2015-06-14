@@ -12,17 +12,20 @@ mb = menubar({
 });
 
 showWindow = function() {
-  var screen, screenWidth, winPosX, windowWidth;
-  mb.window.show();
-  windowWidth = mb.window.getSize()[0];
+  var screen, screenWidth, win, winPosX, windowWidth;
+  win = mb.window;
+  win.show();
+  win.setMinimumSize(309, 60);
+  win.setMaximumSize(309, 196);
+  windowWidth = win.getSize()[0];
   console.log("window:" + windowWidth);
   screen = require('screen');
   screenWidth = screen.getPrimaryDisplay().workAreaSize.width;
   console.log("screen:" + screenWidth);
   winPosX = ((screenWidth - windowWidth) / 2).toFixed();
   console.log("winposx:" + winPosX);
-  mb.window.setPosition(Number(winPosX), 0);
-  return mb.window;
+  win.setPosition(Number(winPosX), 0);
+  return win;
 };
 
 mb.on('after-create-window', function() {

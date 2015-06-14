@@ -23,19 +23,23 @@ stash     = {}
 
 masterChanged = () -> 
     mstr = $("master").value
+    $("master-ghost").setStyle opacity: if mstr?.length then 0 else 1
     updateSitePassword $("site").value
 masterFocus = () ->
     $("master-border").addClassName 'focus'
 masterBlurred = () ->
     $("master-border").removeClassName 'focus'
-    while $("master").value.length < 18
-        $("master").value += 'x'
+    if $("master").value.length
+        while $("master").value.length < 18
+            $("master").value += 'x'
 siteFocus       = () -> $("site-border").addClassName 'focus'
 siteBlurred     = () -> $("site-border").removeClassName 'focus'
 passwordFocus   = () -> $("password-border").addClassName 'focus'
 passwordBlurred = () -> $("password-border").removeClassName 'focus'
     
-siteChanged = () -> updateSitePassword $("site").value
+siteChanged = () -> 
+    $("site-ghost").setStyle opacity: if $("site").value.length then 0 else 1
+    updateSitePassword $("site").value
 
 document.observe 'dom:loaded', ->     
     $("master").on 'focus', masterFocus
@@ -43,7 +47,8 @@ document.observe 'dom:loaded', ->
     $("site").on 'focus', siteFocus
     $("site").on 'blur', siteBlurred
     $("password").on 'focus', passwordFocus
-    $("password").on 'blur', passwordBlurred    
+    $("password").on 'blur', passwordBlurred 
+    # $("password").setAttribute 'disabled', 'disabled'
     
     $("master").on 'input', masterChanged    
     $("site").on 'input', siteChanged
@@ -126,7 +131,7 @@ clearSeed = (config) ->
     config.seed = pad '', config.pattern.length, ' '
     
 makePassword = (hash, config) ->
-    console.log "hash:" + hash + "config:" + jsonStr(config)
+    # console.log "hash:" + hash + "config:" + jsonStr(config)
     password.make hash, config.pattern, config.seed
     
 newSite = (site) ->
@@ -137,8 +142,9 @@ newSite = (site) ->
     
 updateSitePassword = (site) ->
     site = trim site
-    if not site?.length
+    if not site?.length or not mstr?.length
         $("password").value = ""
+        $("password-ghost").setStyle opacity: 1
         return
     config = {}
     config.url = encrypt site, mstr
@@ -158,6 +164,7 @@ showPassword = (config) ->
     pass   = makePassword genHash(url+mstr), config
     console.log pass
     $("password").value = pass
+    $("password-ghost").setStyle opacity: 0
     pass
     
 # listStash = (hash) ->

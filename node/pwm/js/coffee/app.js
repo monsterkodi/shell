@@ -46,6 +46,9 @@ stash = {};
 
 masterChanged = function() {
   mstr = $("master").value;
+  $("master-ghost").setStyle({
+    opacity: (mstr != null ? mstr.length : void 0) ? 0 : 1
+  });
   return updateSitePassword($("site").value);
 };
 
@@ -56,11 +59,13 @@ masterFocus = function() {
 masterBlurred = function() {
   var results;
   $("master-border").removeClassName('focus');
-  results = [];
-  while ($("master").value.length < 18) {
-    results.push($("master").value += 'x');
+  if ($("master").value.length) {
+    results = [];
+    while ($("master").value.length < 18) {
+      results.push($("master").value += 'x');
+    }
+    return results;
   }
-  return results;
 };
 
 siteFocus = function() {
@@ -80,6 +85,9 @@ passwordBlurred = function() {
 };
 
 siteChanged = function() {
+  $("site-ghost").setStyle({
+    opacity: $("site").value.length ? 0 : 1
+  });
   return updateSitePassword($("site").value);
 };
 
@@ -187,7 +195,6 @@ clearSeed = function(config) {
 };
 
 makePassword = function(hash, config) {
-  console.log("hash:" + hash + "config:" + jsonStr(config));
   return password.make(hash, config.pattern, config.seed);
 };
 
@@ -202,8 +209,11 @@ newSite = function(site) {
 updateSitePassword = function(site) {
   var config, hash, pass;
   site = trim(site);
-  if (!(site != null ? site.length : void 0)) {
+  if (!(site != null ? site.length : void 0) || !(mstr != null ? mstr.length : void 0)) {
     $("password").value = "";
+    $("password-ghost").setStyle({
+      opacity: 1
+    });
     return;
   }
   config = {};
@@ -225,6 +235,9 @@ showPassword = function(config) {
   pass = makePassword(genHash(url + mstr), config);
   console.log(pass);
   $("password").value = pass;
+  $("password-ghost").setStyle({
+    opacity: 0
+  });
   return pass;
 };
 
