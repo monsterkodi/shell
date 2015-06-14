@@ -13,15 +13,15 @@ decryptFile  = cryptools.decryptFile
 extractSite  = _url.extractSite
 containsLink = _url.containsLink
 jsonStr      = (a) -> JSON.stringify a, null, " "
+error        = () -> alert(arguments)
 
-error     = () -> alert(arguments)
 mstr      = undefined
-default_pattern = 'abcd+efgh+12'
-stashFile = process.env.HOME+'/.config/pwm.stash'
 stash     = {}
+stashFile = process.env.HOME+'/.config/pwm.stash'
+pattern   = 'abcd+efgh+12'
 
 masterChanged = () -> 
-    mstr = $("master").value
+    mstr = $("master").value 
     $("master-ghost").setStyle opacity: if mstr?.length then 0 else 1
     updateSitePassword $("site").value
 masterFocus = () ->
@@ -36,11 +36,15 @@ siteBlurred     = () -> $("site-border").removeClassName 'focus'
 passwordFocus   = () -> $("password-border").addClassName 'focus'
 passwordBlurred = () -> $("password-border").removeClassName 'focus'
     
+setSite = (site) ->
+    $("site").value = site
+    siteChanged()
+    
 siteChanged = () -> 
     $("site-ghost").setStyle opacity: if $("site").value.length then 0 else 1
     updateSitePassword $("site").value
 
-document.observe 'dom:loaded', ->     
+document.observe 'dom:loaded', ->
     $("master").on 'focus', masterFocus
     $("master").on 'blur', masterBlurred
     $("site").on 'focus', siteFocus
@@ -54,7 +58,7 @@ document.observe 'dom:loaded', ->
     $("master").focus()
     clip = clipboard.readText()
     if containsLink clip
-        $("site").value = extractSite clip
+        setSite extractSite clip
 
 win.on 'focus', (event) -> 
     if mstr? and mstr.length
@@ -106,7 +110,7 @@ readStash = (cb) ->
                 cb()
     else
         stash = 
-            pattern:    default_pattern 
+            pattern:    pattern 
             decryptall: false
             seed:       false
             configs:    {}

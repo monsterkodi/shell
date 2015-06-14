@@ -8,15 +8,15 @@ mb = menubar({
   dir: __dirname + '/..',
   preloadWindow: true,
   width: 309,
-  height: 196
+  height: 120
 });
 
 showWindow = function() {
   var screen, screenWidth, win, winPosX, windowWidth;
   win = mb.window;
   win.show();
-  win.setMinimumSize(309, 59);
-  win.setMaximumSize(309, 196);
+  win.setMinimumSize(309, 56);
+  win.setMaximumSize(309, 192);
   windowWidth = win.getSize()[0];
   console.log("window:" + windowWidth);
   screen = require('screen');

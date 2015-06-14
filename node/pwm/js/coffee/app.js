@@ -1,4 +1,4 @@
-var _url, clearSeed, clipboard, containsLink, cryptools, decrypt, decryptFile, default_pattern, dirty, encrypt, error, extractSite, fs, genHash, jsonStr, main, makePassword, masterBlurred, masterChanged, masterFocus, mstr, newSeed, newSite, numConfigs, pad, password, passwordBlurred, passwordFocus, readStash, showPassword, siteBlurred, siteChanged, siteFocus, stash, stashFile, trim, undirty, updateSitePassword, win, writeStash;
+var _url, clearSeed, clipboard, containsLink, cryptools, decrypt, decryptFile, default_pattern, dirty, encrypt, error, extractSite, fs, genHash, jsonStr, main, makePassword, masterBlurred, masterChanged, masterFocus, mstr, newSeed, newSite, numConfigs, pad, password, passwordBlurred, passwordFocus, readStash, setSite, showPassword, siteBlurred, siteChanged, siteFocus, stash, stashFile, trim, undirty, updateSitePassword, win, writeStash;
 
 win = (require('remote')).getCurrentWindow();
 
@@ -84,6 +84,11 @@ passwordBlurred = function() {
   return $("password-border").removeClassName('focus');
 };
 
+setSite = function(site) {
+  $("site").value = site;
+  return siteChanged();
+};
+
 siteChanged = function() {
   $("site-ghost").setStyle({
     opacity: $("site").value.length ? 0 : 1
@@ -104,7 +109,7 @@ document.observe('dom:loaded', function() {
   $("master").focus();
   clip = clipboard.readText();
   if (containsLink(clip)) {
-    return $("site").value = extractSite(clip);
+    return setSite(extractSite(clip));
   }
 });
 
