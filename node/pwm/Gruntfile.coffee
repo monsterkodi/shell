@@ -28,6 +28,12 @@ module.exports = (grunt) ->
                 files:
                     'pwm.css': ['pwm.styl']
 
+        bower_concat:
+            all:
+                dest: 'js/lib/bower.js'
+                bowerOptions:
+                    relative: false
+
         watch:
           sources:
             files: ['*.coffee', 'coffee/**.coffee', '*.styl']
@@ -62,8 +68,8 @@ module.exports = (grunt) ->
             build: 
                 command: "node_modules/electron-packager/cli.js . pwm --platform=darwin --arch=x64 --version=0.26.0 --ignore=node_modules/electron --icon=Icon.icns"
             start: 
-                command: "electron ."
-                # command: "open pwm.app"
+                # command: "electron ."
+                command: "killall Electron || sleep 1 && open pwm.app"
             publish:
                 command: 'npm publish'
             npmpage:
@@ -72,6 +78,7 @@ module.exports = (grunt) ->
     npm install --save-dev grunt-contrib-watch
     npm install --save-dev grunt-contrib-coffee
     npm install --save-dev grunt-contrib-stylus
+    npm install --save-dev grunt-bower-concat
     npm install --save-dev grunt-bumpup
     npm install --save-dev grunt-pepper
     npm install --save-dev grunt-shell
@@ -80,10 +87,11 @@ module.exports = (grunt) ->
     grunt.loadNpmTasks 'grunt-contrib-watch'
     grunt.loadNpmTasks 'grunt-contrib-coffee'
     grunt.loadNpmTasks 'grunt-contrib-stylus'
+    grunt.loadNpmTasks 'grunt-bower-concat'
     grunt.loadNpmTasks 'grunt-bumpup'
     grunt.loadNpmTasks 'grunt-pepper'
     grunt.loadNpmTasks 'grunt-shell'
 
-    grunt.registerTask 'build',     [ 'bumpup', 'stylus', 'salt', 'pepper', 'coffee', 'shell:clean', 'shell:build', 'shell:start' ]
+    grunt.registerTask 'build',     [ 'bumpup', 'stylus', 'salt', 'pepper', 'bower_concat', 'coffee', 'shell:clean', 'shell:build', 'shell:start' ]
     grunt.registerTask 'default',   [ 'build' ]
     #grunt.registerTask 'publish',   [ 'bumpup', 'shell:publish', 'shell:npmpage' ]

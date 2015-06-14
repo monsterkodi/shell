@@ -3,7 +3,7 @@ color                  = {}
 color.black            = #000000
 color.gray-most-dark   = #181818
 color.gray-very-dark   = #282828
-color.gray-dark        = #444444
+color.gray-dark        = #333333
 color.gray             = #888888
 color.gray-bright      = #cccccc
 color.gray-very-bright = #dddddd
@@ -23,25 +23,30 @@ color.blue-bright      = #8888ff
 color.blue-very-bright = #aaaaff
 
 body
-	background-color: color.gray-very-dark
-	
-input
-	font-size: 16px
-	width: 100%
-	margin-bottom: 4px
-	margin-top: 4px
-	padding: 2px
-	padding-left: 6px
-	padding-right: 6px
-	background-color: color.gray-dark
-	color: color.orange
-	border-radius: 4px
-	border: 1px solid color.black
-	-webkit-transition: all 0.30s ease-in-out
-	-moz-transition: all 0.30s ease-in-out
+    background-color: color.gray-dark
+    margin:           0px
+    padding:          16px
 
-	&:focus
-		background-color: color.red
-		border: 1px solid color.orange-bright
-		box-shadow: 0 0 5px color.orange-bright
-		outline: none
+input
+    font-size:        24px
+    width:            100%
+    padding-left:     6px
+    box-sizing:       border-box
+    background-color: color.gray-very-dark
+    color:            color.orange
+    border-radius:    4px
+    border:           1px solid color.black
+    -webkit-transition:  all 0.30s ease-in-out
+    -moz-transition:     all 0.30s ease-in-out
+
+    &:focus
+        background-color:   color.gray-very-dark
+        border:   1px solid color.orange-bright
+        box-shadow: 0 0 5px color.orange-bright
+        outline:    none
+
+.border
+    border:        1px solid color.gray-very-dark
+    padding:       10px
+    border-radius: 10px
+    box-shadow: inset 2px 2px 17px rgba(0, 0, 0, 0.25)

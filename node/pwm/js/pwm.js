@@ -1,8 +1,4 @@
-var ipc, log, mb, menubar, shortcut, showWindow;
-
-log = console.log;
-
-ipc = require('ipc');
+var mb, menubar, shortcut, showWindow;
 
 shortcut = require('global-shortcut');
 
@@ -12,7 +8,7 @@ mb = menubar({
   dir: __dirname + '/..',
   preloadWindow: true,
   width: 200,
-  height: 94
+  height: 110
 });
 
 showWindow = function() {
@@ -23,12 +19,8 @@ showWindow = function() {
 mb.on('after-create-window', function() {
   var doc;
   doc = mb.window.webContents;
-  showWindow();
-  return shortcut.register('ctrl+`', function() {
+  shortcut.register('ctrl+`', function() {
     return showWindow();
   });
-});
-
-ipc.on('close', function(event, arg) {
-  return mb.window.hide();
+  return setTimeout(showWindow, 10);
 });
