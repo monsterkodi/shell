@@ -11,7 +11,7 @@ mb= menubar
 showWindow = () ->
     win = mb.window
     win.show()
-    win.setMinimumSize(309, 60)
+    win.setMinimumSize(309, 59)
     win.setMaximumSize(309, 196)
     windowWidth = win.getSize()[0]
     console.log "window:" + windowWidth

@@ -40,17 +40,29 @@ input
     color:            color.gray
     border-radius:    4px
     border:           1px solid color.black
+    text-align: center
     -webkit-transition:  all 0.3s ease-in-out
 
     &:focus
-        background-color:   color.gray-very-dark
-        box-shadow: 0 0 10px color.yellow
+        background-color: color.gray-very-dark
         outline:    none
-        color:      color.orange
     &#master
         color:      color.gray-dark
         &:focus
+            box-shadow: 0 0 10px color.yellow
             color:  color.orange
+    &#site
+        color:      color.green-dark
+        &::selection
+            color:  color.green-bright
+        &:focus
+            box-shadow: 0 0 10px color.green-bright
+            color:  color.green
+    &#password
+        color:      color.blue-bright
+        &:focus
+            box-shadow: 0 0 10px color.blue-very-bright
+            color:  color.blue-very-bright
 
 .ghost
     pointer-events: none
@@ -61,7 +73,8 @@ input
     top:            12px
     left:           0
     right:          0
-    text-align:     center
+    text-align:     left
+    padding-left:   20px
     color:          rgba(255, 255, 255, 0.1)
     -webkit-transition: all 0.8s ease-in-out
     &#password-ghost
@@ -81,3 +94,14 @@ input
 #master-border
 #site-border
     margin-bottom: 12px
+
+#site-border
+    &.focus
+        background-color: color.green
+        box-shadow:       inset 2px 2px 17px rgba(0, 0, 0, 0.75)
+
+#password-border
+    &.focus
+        background-color: color.blue
+        box-shadow:       inset 2px 2px 17px rgba(0, 0, 0, 0.75)
+    
