@@ -1,6 +1,6 @@
 {
   "name": "pwm",
-  "version": "0.1.26",
+  "version": "0.1.108",
   "description": "pwm",
   "dependencies": {
     "menubar": "*"
@@ -11,9 +11,11 @@
     "grunt": "^0.4.5",
     "grunt-bumpup": "^0.6.2",
     "grunt-contrib-coffee": "^0.13.0",
+    "grunt-contrib-stylus": "^0.21.0",
     "grunt-contrib-watch": "^0.6.1",
     "grunt-pepper": "^0.4.7",
-    "grunt-shell": "^1.1.2"
+    "grunt-shell": "^1.1.2",
+    "grunt-stylus": "^0.2.1"
   },
   "main": "js/pwm.js",
   "scripts": {

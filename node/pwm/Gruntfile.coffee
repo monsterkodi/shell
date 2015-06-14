@@ -21,9 +21,16 @@ module.exports = (grunt) ->
                 files:
                     'asciiText':   ['**/*.coffee']
 
+        stylus:
+            options:
+                compress: false
+            compile:
+                files:
+                    'pwm.css': ['pwm.styl']
+
         watch:
           sources:
-            files: ['*.coffee', 'coffee/**.coffee']
+            files: ['*.coffee', 'coffee/**.coffee', '*.styl']
             tasks: ['build']
 
         coffee:
@@ -56,6 +63,7 @@ module.exports = (grunt) ->
                 command: "node_modules/electron-packager/cli.js . pwm --platform=darwin --arch=x64 --version=0.26.0 --ignore=node_modules/electron --icon=Icon.icns"
             start: 
                 command: "electron ."
+                # command: "open pwm.app"
             publish:
                 command: 'npm publish'
             npmpage:
@@ -63,6 +71,7 @@ module.exports = (grunt) ->
     ###
     npm install --save-dev grunt-contrib-watch
     npm install --save-dev grunt-contrib-coffee
+    npm install --save-dev grunt-contrib-stylus
     npm install --save-dev grunt-bumpup
     npm install --save-dev grunt-pepper
     npm install --save-dev grunt-shell
@@ -70,10 +79,11 @@ module.exports = (grunt) ->
 
     grunt.loadNpmTasks 'grunt-contrib-watch'
     grunt.loadNpmTasks 'grunt-contrib-coffee'
+    grunt.loadNpmTasks 'grunt-contrib-stylus'
     grunt.loadNpmTasks 'grunt-bumpup'
     grunt.loadNpmTasks 'grunt-pepper'
     grunt.loadNpmTasks 'grunt-shell'
 
-    grunt.registerTask 'build',     [ 'bumpup', 'salt', 'pepper', 'coffee', 'shell:clean', 'shell:build', 'shell:start' ]
+    grunt.registerTask 'build',     [ 'bumpup', 'stylus', 'salt', 'pepper', 'coffee', 'shell:clean', 'shell:build', 'shell:start' ]
     grunt.registerTask 'default',   [ 'build' ]
     #grunt.registerTask 'publish',   [ 'bumpup', 'shell:publish', 'shell:npmpage' ]

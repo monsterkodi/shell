@@ -1,0 +1,47 @@
+
+color                  = {} 
+color.black            = #000000
+color.gray-most-dark   = #181818
+color.gray-very-dark   = #282828
+color.gray-dark        = #444444
+color.gray             = #888888
+color.gray-bright      = #cccccc
+color.gray-very-bright = #dddddd
+color.white            = #ffffff
+color.yellow-bright    = #ffff88
+color.yellow           = #ffff00
+color.orange-bright    = #ffaa00
+color.orange           = #ff8800
+color.red              = #ff0000
+color.green-bright     = #00ff00
+color.green            = #00aa00
+color.green-dark       = #006600
+color.blue-dark        = #2222aa
+color.blue             = #4444ff
+color.blue-medium      = #6666ff
+color.blue-bright      = #8888ff
+color.blue-very-bright = #aaaaff
+
+body
+	background-color: color.gray-very-dark
+	
+input
+	font-size: 16px
+	width: 100%
+	margin-bottom: 4px
+	margin-top: 4px
+	padding: 2px
+	padding-left: 6px
+	padding-right: 6px
+	background-color: color.gray-dark
+	color: color.orange
+	border-radius: 4px
+	border: 1px solid color.black
+	-webkit-transition: all 0.30s ease-in-out
+	-moz-transition: all 0.30s ease-in-out
+
+	&:focus
+		background-color: color.red
+		border: 1px solid color.orange-bright
+		box-shadow: 0 0 5px color.orange-bright
+		outline: none
