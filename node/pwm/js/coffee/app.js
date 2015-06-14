@@ -1,4 +1,4 @@
-var _url, clearSeed, clipboard, containsLink, cryptools, decrypt, decryptFile, default_pattern, dirty, encrypt, error, extractSite, fs, genHash, jsonStr, listStash, main, makePassword, masterChanged, mstr, newSeed, newSite, numConfigs, pad, password, readStash, stash, stashFile, trim, undirty, win, writeStash;
+var _url, clearSeed, clipboard, containsLink, cryptools, decrypt, decryptFile, default_pattern, dirty, encrypt, error, extractSite, fs, genHash, jsonStr, main, makePassword, masterBlurred, masterChanged, masterFocus, mstr, newSeed, newSite, numConfigs, pad, password, passwordBlurred, passwordFocus, readStash, showPassword, siteBlurred, siteChanged, siteFocus, stash, stashFile, trim, undirty, updateSitePassword, win, writeStash;
 
 win = (require('remote')).getCurrentWindow();
 
@@ -38,25 +38,66 @@ error = function() {
 
 mstr = void 0;
 
-default_pattern = 'abcd+efgh+12';
+default_pattern = 'kodi-el-aldi-42';
+
+stashFile = process.env.HOME + '/.config/pwm.stash';
+
+stash = {};
 
 masterChanged = function() {
   mstr = $("master").value;
-  return console.log('master changed:' + mstr);
+  return updateSitePassword($("site").value);
+};
+
+masterFocus = function() {
+  return $("master-border").addClassName('focus');
+};
+
+masterBlurred = function() {
+  var results;
+  $("master-border").removeClassName('focus');
+  results = [];
+  while ($("master").value.length < 18) {
+    results.push($("master").value += 'x');
+  }
+  return results;
+};
+
+siteFocus = function() {
+  return $("site-border").addClassName('focus');
+};
+
+siteBlurred = function() {
+  return $("site-border").removeClassName('focus');
+};
+
+passwordFocus = function() {
+  return $("password-border").addClassName('focus');
+};
+
+passwordBlurred = function() {
+  return $("password-border").removeClassName('focus');
+};
+
+siteChanged = function() {
+  return updateSitePassword($("site").value);
 };
 
 document.observe('dom:loaded', function() {
   var clip;
-  $("master").focus();
+  $("master").on('focus', masterFocus);
+  $("master").on('blur', masterBlurred);
+  $("site").on('focus', siteFocus);
+  $("site").on('blur', siteBlurred);
+  $("password").on('focus', passwordFocus);
+  $("password").on('blur', passwordBlurred);
   $("master").on('input', masterChanged);
+  $("site").on('input', siteChanged);
+  $("master").focus();
   clip = clipboard.readText();
   if (containsLink(clip)) {
     return $("site").value = extractSite(clip);
   }
-});
-
-win.on('focus', function(event) {
-  return $("master").focus();
 });
 
 document.on('keydown', function(event) {
@@ -64,10 +105,6 @@ document.on('keydown', function(event) {
     win.hide();
   }
   if (event.which === 13) {
-    while ($("master").value.length < 20) {
-      $("master").value += 'x';
-    }
-    console.log('readStash');
     return readStash(main);
   }
 });
@@ -88,10 +125,6 @@ dirty = function() {
      000     000     000   000       000  000   000
 0000000      000     000   000  0000000   000   000
  */
-
-stashFile = process.env.HOME + '/.config/pwm.stash';
-
-stash = {};
 
 writeStash = function() {
   var buf;
@@ -159,12 +192,18 @@ makePassword = function(hash, config) {
 };
 
 newSite = function(site) {
-  var config, hash;
-  if (site == null) {
-    return;
-  }
+  var pass;
+  pass = updateSitePassword(site);
+  clipboard.writeText(pass);
+  dirty();
+  return $("password").focus();
+};
+
+updateSitePassword = function(site) {
+  var config, hash, pass;
   site = trim(site);
-  if (site.length === 0) {
+  if (!(site != null ? site.length : void 0)) {
+    $("password").value = "";
     return;
   }
   config = {};
@@ -177,34 +216,16 @@ newSite = function(site) {
   }
   hash = genHash(site + mstr);
   stash.configs[hash] = config;
-  dirty();
-  return listStash(hash);
+  return pass = showPassword(config);
 };
 
-listStash = function(hash) {
-  var config, data, pass, pat, pwd, siteKey, url;
-  data = [['site', 'password', 'pattern', 'seed'], ['', '', '', '']];
-  for (siteKey in stash.configs) {
-    config = stash.configs[siteKey];
-    url = decrypt(config.url, mstr);
-    pwd = (stash.decryptall || hash === siteKey) && makePassword(genHash(url + mstr), config) || '';
-    pat = config.pattern === stash.pattern && ' ' || (stash.decryptall && config.pattern || '✓');
-    data.push([url, pwd, pat, trim(config.seed).length && '✓' || '']);
-  }
-  data.push(['', '', '', '']);
-  if (hash != null) {
-    config = stash.configs[hash];
-    url = decrypt(config.url, mstr);
-    pass = makePassword(genHash(url + mstr), config);
-    clipboard.writeText(pass);
-    console.log(pass);
-    $("password").value = pass;
-    $("password").focus();
-  } else {
-    clipboard.clear();
-    $("password").value = "?";
-  }
-  return console.log(data);
+showPassword = function(config) {
+  var pass, url;
+  url = decrypt(config.url, mstr);
+  pass = makePassword(genHash(url + mstr), config);
+  console.log(pass);
+  $("password").value = pass;
+  return pass;
 };
 
 
@@ -217,7 +238,7 @@ listStash = function(hash) {
  */
 
 main = function() {
-  var hash, ref, site;
+  var hash, pass, ref, site;
   if (stash == null) {
     $("site").value = "no stash: " + mstr;
     return;
@@ -233,7 +254,7 @@ main = function() {
   $("site").focus();
   hash = genHash(site + mstr);
   if (((ref = stash.configs) != null ? ref[hash] : void 0) != null) {
-    return listStash(hash);
+    return pass = showPassword(stash.configs[hash]);
   } else {
     return newSite(site);
   }

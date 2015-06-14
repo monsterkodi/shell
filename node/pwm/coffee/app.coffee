@@ -16,31 +16,53 @@ jsonStr      = (a) -> JSON.stringify a, null, " "
 
 error     = () -> alert(arguments)
 mstr      = undefined
-default_pattern = 'abcd+efgh+12'
+# default_pattern = 'abcd+efgh+12'
+default_pattern = 'kodi-el-aldi-42'
+stashFile = process.env.HOME+'/.config/pwm.stash'
+stash     = {}
 
 masterChanged = () -> 
     mstr = $("master").value
-    console.log 'master changed:' + mstr
+    updateSitePassword $("site").value
+masterFocus = () ->
+    $("master-border").addClassName 'focus'
+masterBlurred = () ->
+    $("master-border").removeClassName 'focus'
+    while $("master").value.length < 18
+        $("master").value += 'x'
+siteFocus       = () -> $("site-border").addClassName 'focus'
+siteBlurred     = () -> $("site-border").removeClassName 'focus'
+passwordFocus   = () -> $("password-border").addClassName 'focus'
+passwordBlurred = () -> $("password-border").removeClassName 'focus'
+    
+siteChanged = () -> updateSitePassword $("site").value
 
-document.observe 'dom:loaded', -> 
+document.observe 'dom:loaded', ->     
+    $("master").on 'focus', masterFocus
+    $("master").on 'blur', masterBlurred
+    $("site").on 'focus', siteFocus
+    $("site").on 'blur', siteBlurred
+    $("password").on 'focus', passwordFocus
+    $("password").on 'blur', passwordBlurred    
+    
+    $("master").on 'input', masterChanged    
+    $("site").on 'input', siteChanged
     $("master").focus()
-    $("master").on 'input', masterChanged
     clip = clipboard.readText()
     if containsLink clip
         $("site").value = extractSite clip
 
-win.on 'focus', (event) -> $("master").focus()
+# win.on 'focus', (event) -> 
+#     if mstr? and mstr.length
+#         $("site").focus()
+#     else
+#         $("master").focus()
         
 document.on 'keydown', (event) ->
     # console.log 'key ' + event.which #+ ' ' + String.fromCharCode(event.which)
     if event.which == 27 # escape
         win.hide()
     if event.which == 13 # enter
-        # mstr = $("master").value
-        # $("site").value = 'hello:'+mstr
-        while $("master").value.length < 20
-            $("master").value += 'x'
-        console.log 'readStash'
         readStash main
 
 undirty = -> console.log 'undirty'
@@ -53,9 +75,6 @@ dirty = -> console.log 'dirty'
      000     000     000   000       000  000   000
 0000000      000     000   000  0000000   000   000
 ###
-
-stashFile = process.env.HOME+'/.config/pwm.stash'
-stash     = {}
     
 writeStash = () ->
     buf = new Buffer(JSON.stringify(stash), "utf8")
@@ -111,9 +130,16 @@ makePassword = (hash, config) ->
     password.make hash, config.pattern, config.seed
     
 newSite = (site) ->
-    return if not site?
+    pass = updateSitePassword site
+    clipboard.writeText pass
+    dirty()
+    $("password").focus()
+    
+updateSitePassword = (site) ->
     site = trim site
-    return if site.length == 0
+    if not site?.length
+        $("password").value = ""
+        return
     config = {}
     config.url = encrypt site, mstr
     config.pattern = stash.pattern
@@ -125,37 +151,24 @@ newSite = (site) ->
 
     hash = genHash site+mstr
     stash.configs[hash] = config
-    dirty()
-    listStash hash
+    pass = showPassword config
+
+showPassword = (config) ->
+    url    = decrypt config.url, mstr
+    pass   = makePassword genHash(url+mstr), config
+    console.log pass
+    $("password").value = pass
+    pass
     
-listStash = (hash) ->
-    
-    data = [['site', 'password', 'pattern', 'seed'], ['', '', '', '']]
-    for siteKey of stash.configs
-        config = stash.configs[siteKey]
-        url    = decrypt config.url, mstr      
-        pwd    = (stash.decryptall or hash == siteKey) and makePassword(genHash(url+mstr), config) or ''
-        pat    = (config.pattern == stash.pattern and ' ' or (stash.decryptall and config.pattern or '✓'))
-        data.push [ 
-            url
-            pwd
-            pat
-            trim(config.seed).length and '✓' or ''
-        ]
-    data.push ['', '', '', '']
-    
-    if hash?
-        config = stash.configs[hash]
-        url    = decrypt config.url, mstr
-        pass   = makePassword genHash(url+mstr), config
-        clipboard.writeText pass
-        console.log pass
-        $("password").value = pass
-        $("password").focus()
-    else
-        clipboard.clear()
-        $("password").value = "?"
-    console.log data
+# listStash = (hash) ->
+#     if hash?
+#         config = stash.configs[hash]
+#         url    = decrypt config.url, mstr
+#         pass   = makePassword genHash(url+mstr), config
+#         clipboard.writeText pass
+#         console.log pass
+#         $("password").value = pass
+#         $("password").focus()
     
 ###
 00     00   0000000   000  000   000
@@ -183,7 +196,7 @@ main = () ->
     hash = genHash site+mstr
 
     if stash.configs?[hash]?
-        listStash hash
+        pass = showPassword stash.configs[hash]
     else
         newSite site
         
