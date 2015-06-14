@@ -1,4 +1,4 @@
-var _url, clearSeed, clipboard, containsLink, cryptools, decrypt, decryptFile, dirty, encrypt, error, extractSite, fs, genHash, jsonStr, main, makePassword, masterBlurred, masterChanged, masterFocus, mstr, newSeed, newSite, numConfigs, pad, password, passwordBlurred, passwordFocus, pattern, readStash, setSite, showPassword, siteBlurred, siteChanged, siteFocus, stash, stashFile, trim, undirty, updateSitePassword, win, writeStash;
+var _url, clearSeed, clipboard, containsLink, cryptools, decrypt, decryptFile, dirty, encrypt, error, extractDomain, extractSite, fs, genHash, jsonStr, main, makePassword, masterBlurred, masterChanged, masterFocus, mstr, newSeed, newSite, numConfigs, pad, password, passwordBlurred, passwordFocus, pattern, readStash, setSite, showPassword, siteBlurred, siteChanged, siteFocus, stash, stashFile, trim, undirty, updateSitePassword, win, writeStash;
 
 win = (require('remote')).getCurrentWindow();
 
@@ -25,6 +25,8 @@ decrypt = cryptools.decrypt;
 decryptFile = cryptools.decryptFile;
 
 extractSite = _url.extractSite;
+
+extractDomain = _url.extractDomain;
 
 containsLink = _url.containsLink;
 
@@ -97,7 +99,7 @@ siteChanged = function() {
 };
 
 document.observe('dom:loaded', function() {
-  var clip;
+  var domain;
   $("master").on('focus', masterFocus);
   $("master").on('blur', masterBlurred);
   $("site").on('focus', siteFocus);
@@ -107,16 +109,22 @@ document.observe('dom:loaded', function() {
   $("master").on('input', masterChanged);
   $("site").on('input', siteChanged);
   $("master").focus();
-  clip = clipboard.readText();
-  if (containsLink(clip)) {
-    return setSite(extractSite(clip));
+  if (domain = extractDomain(clipboard.readText())) {
+    return setSite(domain);
   }
 });
 
 win.on('focus', function(event) {
+  var domain;
   if ((mstr != null) && mstr.length) {
-    $("site").focus();
-    return $("site").setSelectionRange(0, $("site").value.length);
+    if (domain = extractDomain(clipboard.readText())) {
+      setSite(domain);
+      clipboard.writeText($("password").value);
+      return $("password").focus();
+    } else {
+      $("site").focus();
+      return $("site").setSelectionRange(0, $("site").value.length);
+    }
   } else {
     return $("master").focus();
   }
@@ -269,9 +277,6 @@ main = function() {
   if (stash == null) {
     $("site").value = "no stash: " + mstr;
     return;
-  }
-  if (containsLink(clipboard.readText())) {
-    $("site").value = extractSite(clipboard.readText());
   }
   site = trim($("site").value);
   console.log('site: ' + site + 'mstr: ' + mstr);

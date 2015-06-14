@@ -6,7 +6,7 @@ mb= menubar
     dir:           __dirname + '/..'
     preloadWindow: true
     width:         309
-    height:        120
+    height:        122
 
 showWindow = () ->
     win = mb.window
@@ -14,17 +14,12 @@ showWindow = () ->
     win.setMinimumSize(309, 56)
     win.setMaximumSize(309, 192)
     windowWidth = win.getSize()[0]
-    console.log "window:" + windowWidth
-    screen   = require 'screen'
-    screenWidth = screen.getPrimaryDisplay().workAreaSize.width
-    console.log "screen:" + screenWidth
-    winPosX = ((screenWidth-windowWidth)/2).toFixed()
-    console.log "winposx:" + winPosX
-    win.setPosition(Number(winPosX), 0)
+    screenWidth = (require 'screen').getPrimaryDisplay().workAreaSize.width
+    winPosX = Number(((screenWidth-windowWidth)/2).toFixed())
+    win.setPosition winPosX, 0
     win
             
 mb.on 'after-create-window', ->
-    console.log 'after-create-window'
     doc = mb.window.webContents
     shortcut.register 'ctrl+`', showWindow
     setTimeout showWindow, 10

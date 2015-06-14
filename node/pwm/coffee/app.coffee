@@ -1,19 +1,20 @@
-win          = (require 'remote').getCurrentWindow()
-fs           = require 'fs'
-clipboard    = require 'clipboard'
-_url         = require './js/coffee/urltools'
-password     = require './js/coffee/password' 
-cryptools    = require './js/coffee/cryptools'
-trim         = require 'lodash.trim'
-pad          = require 'lodash.pad'
-genHash      = cryptools.genHash
-encrypt      = cryptools.encrypt
-decrypt      = cryptools.decrypt
-decryptFile  = cryptools.decryptFile
-extractSite  = _url.extractSite
-containsLink = _url.containsLink
-jsonStr      = (a) -> JSON.stringify a, null, " "
-error        = () -> alert(arguments)
+win           = (require 'remote').getCurrentWindow()
+fs            = require 'fs'
+clipboard     = require 'clipboard'
+_url          = require './js/coffee/urltools'
+password      = require './js/coffee/password' 
+cryptools     = require './js/coffee/cryptools'
+trim          = require 'lodash.trim'
+pad           = require 'lodash.pad'
+genHash       = cryptools.genHash
+encrypt       = cryptools.encrypt
+decrypt       = cryptools.decrypt
+decryptFile   = cryptools.decryptFile
+extractSite   = _url.extractSite
+extractDomain = _url.extractDomain
+containsLink  = _url.containsLink
+jsonStr       = (a) -> JSON.stringify a, null, " "
+error         = () -> alert(arguments)
 
 mstr      = undefined
 stash     = {}
@@ -51,31 +52,33 @@ document.observe 'dom:loaded', ->
     $("site").on 'blur', siteBlurred
     $("password").on 'focus', passwordFocus
     $("password").on 'blur', passwordBlurred 
-    # $("password").setAttribute 'disabled', 'disabled'
     
     $("master").on 'input', masterChanged    
     $("site").on 'input', siteChanged
     $("master").focus()
-    clip = clipboard.readText()
-    if containsLink clip
-        setSite extractSite clip
+    if domain = extractDomain clipboard.readText()
+        setSite domain 
 
 win.on 'focus', (event) -> 
     if mstr? and mstr.length
-        $("site").focus()
-        $("site").setSelectionRange 0, $("site").value.length
+        if domain = extractDomain clipboard.readText()
+            setSite domain
+            clipboard.writeText $("password").value
+            $("password").focus()
+        else
+            $("site").focus()
+            $("site").setSelectionRange 0, $("site").value.length
     else
         $("master").focus()
         
 document.on 'keydown', (event) ->
-    # console.log 'key ' + event.which #+ ' ' + String.fromCharCode(event.which)
     if event.which == 27 # escape
         win.hide()
     if event.which == 13 # enter
         readStash main
 
 undirty = -> console.log 'undirty'
-dirty = -> console.log 'dirty'
+dirty   = -> console.log 'dirty'
 
 ###
  0000000  000000000   0000000    0000000  000   000
@@ -195,8 +198,8 @@ main = () ->
         $("site").value = "no stash: " + mstr
         return
 
-    if containsLink clipboard.readText()
-        $("site").value = extractSite clipboard.readText()
+    # if containsLink clipboard.readText()
+    #     $("site").value = extractSite clipboard.readText()
     site = trim $("site").value
 
     console.log 'site: ' + site + 'mstr: ' + mstr
