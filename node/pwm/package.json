@@ -1,10 +1,11 @@
 {
   "name": "pwm",
-  "version": "0.1.525",
+  "version": "0.1.535",
   "description": "pwm",
   "dependencies": {
     "bcryptjs": "^2.1.0",
     "lodash": "^3.9.3",
+    "lodash.defaults": "^3.1.1",
     "lodash.indexof": "^3.0.2",
     "lodash.last": "^3.0.0",
     "lodash.pad": "^3.1.0",

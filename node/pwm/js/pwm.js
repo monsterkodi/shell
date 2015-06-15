@@ -1,19 +1,21 @@
-var mb, menubar, shortcut, showWindow;
+var BrowserWindow, Tray, app, createWindow, defaults, path, shortcut, showWindow, win;
 
 shortcut = require('global-shortcut');
 
-menubar = require('menubar');
+app = require('app');
 
-mb = menubar({
-  dir: __dirname + '/..',
-  preloadWindow: true,
-  width: 309,
-  height: 122
-});
+path = require('path');
+
+Tray = require('tray');
+
+BrowserWindow = require('browser-window');
+
+defaults = require('lodash.defaults');
+
+win = void 0;
 
 showWindow = function() {
-  var screenWidth, win, winPosX, windowWidth;
-  win = mb.window;
+  var screenWidth, winPosX, windowWidth;
   win.show();
   win.setMinimumSize(309, 56);
   win.setMaximumSize(309, 192);
@@ -24,9 +26,40 @@ showWindow = function() {
   return win;
 };
 
-mb.on('after-create-window', function() {
-  var doc;
-  doc = mb.window.webContents;
-  shortcut.register('ctrl+`', showWindow);
-  return setTimeout(showWindow, 10);
-});
+createWindow = function() {
+  var opts;
+  opts = {
+    dir: __dirname + '/..',
+    preloadWindow: true,
+    width: 309,
+    height: 122,
+    frame: false
+  };
+  if (!path.isAbsolute(opts.dir)) {
+    opts.dir = path.resolve(opts.dir);
+  }
+  if (!opts.index) {
+    opts.index = 'file://' + path.join(opts.dir, 'index.html');
+  }
+  return app.on('ready', function() {
+    var tray;
+    if (app.dock) {
+      app.dock.hide();
+    }
+    tray = new Tray(path.join(opts.dir, 'Icon.png'));
+    tray.on('clicked', function(e, bounds) {
+      if (win && win.isVisible()) {
+        return win.hide();
+      } else {
+        return win != null ? win.show() : void 0;
+      }
+    });
+    win = new BrowserWindow(opts);
+    win.on('blur', win.hide);
+    win.loadUrl(opts.index);
+    shortcut.register('ctrl+`', showWindow);
+    return showWindow();
+  });
+};
+
+createWindow();
