@@ -23,14 +23,19 @@ color.blue-bright      = #8888ff
 color.blue-very-bright = #aaaaff
 
 body
-    background-color: color.gray-dark
+    background-color: #222222
+    border-radius:    20px
     margin:           0px
     padding:          12px
-
+    -webkit-app-region: drag
+    -webkit-user-select: none
+    -webkit-transition:  all 0.3s ease-in-out
+    
 ::selection
     color:            color.yellow
       
 input
+    -webkit-app-region: no-drag
     font-size:        24px
     width:            100%
     padding-left:     6px
@@ -86,9 +91,14 @@ input
     position:      relative
     padding:       10px
     border-radius: 10px
+    background-color: color.gray-dark
     &.focus
         background-color: color.orange
         box-shadow:       inset 2px 2px 17px rgba(0, 0, 0, 0.75)
+
+#sheep 
+    margin-bottom: 10px
+    border-radius: 12px
         
 #master-border
 #site-border
