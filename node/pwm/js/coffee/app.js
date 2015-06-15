@@ -1,20 +1,32 @@
-var _url, clearSeed, clipboard, containsLink, cryptools, decrypt, decryptFile, dirty, encrypt, error, extractDomain, extractSite, fs, genHash, jsonStr, main, makePassword, masterBlurred, masterChanged, masterFocus, mstr, newSeed, newSite, numConfigs, pad, password, passwordBlurred, passwordFocus, pattern, readStash, setSite, showPassword, siteBlurred, siteChanged, siteFocus, stash, stashFile, trim, undirty, updateSitePassword, win, writeStash;
 
-win = (require('remote')).getCurrentWindow();
+/*
+ 0000000   00000000   00000000 
+000   000  000   000  000   000
+000000000  00000000   00000000 
+000   000  000        000      
+000   000  000        000
+ */
+var _url, clearSeed, clipboard, containsLink, cryptools, decrypt, decryptFile, dirty, encrypt, error, extractDomain, extractSite, fs, genHash, jsonStr, knix, log, main, makePassword, masterBlurred, masterChanged, masterFocus, mstr, newSeed, newSite, numConfigs, pad, password, passwordBlurred, passwordFocus, pattern, readStash, setSite, showPassword, siteBlurred, siteChanged, siteFocus, stash, stashFile, trim, undirty, updateSitePassword, win, writeStash;
+
+trim = require('lodash.trim');
+
+pad = require('lodash.pad');
 
 fs = require('fs');
 
 clipboard = require('clipboard');
 
-_url = require('./js/coffee/urltools');
+_url = require('./js/coffee/tools/urltools');
 
-password = require('./js/coffee/password');
+password = require('./js/coffee/tools/password');
 
-cryptools = require('./js/coffee/cryptools');
+cryptools = require('./js/coffee/tools/cryptools');
 
-trim = require('lodash.trim');
+knix = require('./js/coffee/knix/knix');
 
-pad = require('lodash.pad');
+log = (require('./js/coffee/tools/log')).log;
+
+win = (require('remote')).getCurrentWindow();
 
 genHash = cryptools.genHash;
 
@@ -100,6 +112,9 @@ siteChanged = function() {
 
 document.observe('dom:loaded', function() {
   var domain;
+  knix.init({
+    console: true
+  });
   $("master").on('focus', masterFocus);
   $("master").on('blur', masterBlurred);
   $("site").on('focus', siteFocus);
@@ -140,11 +155,11 @@ document.on('keydown', function(event) {
 });
 
 undirty = function() {
-  return console.log('undirty');
+  return log('undirty');
 };
 
 dirty = function() {
-  return console.log('dirty');
+  return log('dirty');
 };
 
 
@@ -165,15 +180,15 @@ writeStash = function() {
 
 readStash = function(cb) {
   if (fs.existsSync(stashFile)) {
-    console.log('stash exists' + stashFile + ' ' + mstr);
+    log('stash exists' + stashFile + ' ' + mstr);
     return decryptFile(stashFile, mstr, function(err, json) {
       if (err != null) {
         if (err[0] === 'can\'t decrypt file') {
-          console.log('err[0]' + err);
+          log('err[0]' + err);
           stash = void 0;
           return cb();
         } else {
-          console.log('err' + err);
+          log('err' + err);
           return error.apply(this, err);
         }
       } else {
@@ -217,6 +232,7 @@ clearSeed = function(config) {
 };
 
 makePassword = function(hash, config) {
+  log("hash:" + hash + "config:" + jsonStr(config));
   return password.make(hash, config.pattern, config.seed);
 };
 
@@ -255,7 +271,7 @@ showPassword = function(config) {
   var pass, url;
   url = decrypt(config.url, mstr);
   pass = makePassword(genHash(url + mstr), config);
-  console.log(pass);
+  log("pass", pass);
   $("password").value = pass;
   $("password-ghost").setStyle({
     opacity: 0
@@ -279,7 +295,7 @@ main = function() {
     return;
   }
   site = trim($("site").value);
-  console.log('site: ' + site + 'mstr: ' + mstr);
+  log('site:', site, 'mstr: ', mstr);
   if ((site == null) || site.length === 0) {
     $("password").value = "";
   }

@@ -1,17 +1,28 @@
 {
   "name": "pwm",
-  "version": "0.1.584",
+  "version": "0.1.683",
   "description": "pwm",
   "dependencies": {
     "bcryptjs": "^2.1.0",
+    "format": "^0.2.1",
     "lodash": "^3.9.3",
+    "lodash.assign": "^3.2.0",
+    "lodash.capitalize": "^3.0.0",
+    "lodash.clone": "^3.0.2",
     "lodash.defaults": "^3.1.1",
+    "lodash.filter": "^3.1.1",
+    "lodash.find": "^3.2.1",
     "lodash.indexof": "^3.0.2",
+    "lodash.isfunction": "^3.0.5",
+    "lodash.isstring": "^3.0.1",
     "lodash.last": "^3.0.0",
     "lodash.pad": "^3.1.0",
+    "lodash.remove": "^3.1.0",
     "lodash.slice": "^3.0.0",
     "lodash.trim": "^3.0.1",
+    "lodash.uniq": "^3.2.1",
     "lodash.zipobject": "^3.0.0",
+    "node-uuid": "^1.4.3",
     "underscore.string": "^3.1.1"
   },
   "devDependencies": {
@@ -30,6 +41,7 @@
   "main": "js/pwm.js",
   "scripts": {
     "build": "electron-packager . Example --platform=darwin --arch=x64 --version=0.26.0 --ignore=node_modules/electron --icon=Icon.icns",
-    "start": "electron ."
+    "start": "electron .",
+    "bower": "bower install octicons font-awesome prototype.js"
   }
 }

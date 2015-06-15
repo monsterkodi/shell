@@ -2,23 +2,32 @@
 <html>
     <head>
         <title>pwm</title>
-        <link rel="stylesheet" href="pwm.css" type="text/css">
         <script src="./js/lib/bower.js"></script>
+        <link rel="stylesheet" href="bower_components/octicons/octicons/octicons.css">
+        <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.css">
+        <link rel="stylesheet" href="style/dark.css" id="style-link">
+        <link rel="stylesheet" href="pwm.css" type="text/css">
         <script src="./js/coffee/app.js"></script>
     </head>
     <body>
-        <img src="sheep.png" id="sheep"><br>
-        <div class="border" id="master-border">
-            <input type="password" name="master" id="master"/>
-            <div class="ghost" id='master-ghost'>master</div>
-        </div>
-        <div class="border" id="site-border">
-            <input type="input"    name="site" id="site"/>
-            <div class="ghost" id='site-ghost'>site</div>
-        </div>
-        <div class="border" id="password-border">
-            <input type="button"    name="password" id="password"/>
-            <div class="ghost" id='password-ghost'>password</div>
+        <div id="stage">
+            <div id=stage_content>
+                <img src="sheep.png" id="sheep"><br>
+                <div class="border" id="master-border">
+                    <input type="password" name="master" id="master"/>
+                    <div class="ghost" id='master-ghost'>master</div>
+                </div>
+                <div class="border" id="site-border">
+                    <input type="input"    name="site" id="site"/>
+                    <div class="ghost" id='site-ghost'>site</div>
+                </div>
+                <div class="border" id="password-border">
+                    <input type="button"    name="password" id="password"/>
+                    <div class="ghost" id='password-ghost'>password</div>
+                </div>
+                <div id="console">
+                </div>
+            </div>
         </div>
     </body>
 </html>

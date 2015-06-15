@@ -1,11 +1,22 @@
-win           = (require 'remote').getCurrentWindow()
-fs            = require 'fs'
-clipboard     = require 'clipboard'
-_url          = require './js/coffee/urltools'
-password      = require './js/coffee/password' 
-cryptools     = require './js/coffee/cryptools'
-trim          = require 'lodash.trim'
-pad           = require 'lodash.pad'
+###
+ 0000000   00000000   00000000 
+000   000  000   000  000   000
+000000000  00000000   00000000 
+000   000  000        000      
+000   000  000        000      
+###
+
+trim      = require 'lodash.trim'
+pad       = require 'lodash.pad'
+fs        = require 'fs'
+clipboard = require 'clipboard'
+_url      = require './js/coffee/tools/urltools'
+password  = require './js/coffee/tools/password' 
+cryptools = require './js/coffee/tools/cryptools'
+knix      = require './js/coffee/knix/knix'
+log       = (require './js/coffee/tools/log').log
+win       = (require 'remote').getCurrentWindow()
+
 genHash       = cryptools.genHash
 encrypt       = cryptools.encrypt
 decrypt       = cryptools.decrypt
@@ -46,6 +57,10 @@ siteChanged = () ->
     updateSitePassword $("site").value
 
 document.observe 'dom:loaded', ->
+    
+    knix.init
+        console: true
+        
     $("master").on 'focus', masterFocus
     $("master").on 'blur', masterBlurred
     $("site").on 'focus', siteFocus
@@ -77,8 +92,8 @@ document.on 'keydown', (event) ->
     if event.which == 13 # enter
         readStash main
 
-undirty = -> console.log 'undirty'
-dirty   = -> console.log 'dirty'
+undirty = -> log 'undirty'
+dirty   = -> log 'dirty'
 
 ###
  0000000  000000000   0000000    0000000  000   000
@@ -95,15 +110,15 @@ writeStash = () ->
 
 readStash = (cb) ->
     if fs.existsSync stashFile
-        console.log 'stash exists' + stashFile + ' ' + mstr
+        log 'stash exists' + stashFile + ' ' + mstr
         decryptFile stashFile, mstr, (err, json) -> 
             if err?
                 if err[0] == 'can\'t decrypt file'
-                    console.log 'err[0]' + err
+                    log 'err[0]' + err
                     stash = undefined
                     cb()
                 else
-                    console.log 'err' + err
+                    log 'err' + err
                     error.apply @, err
             else
                 stash = JSON.parse(json)
@@ -138,7 +153,7 @@ clearSeed = (config) ->
     config.seed = pad '', config.pattern.length, ' '
     
 makePassword = (hash, config) ->
-    # console.log "hash:" + hash + "config:" + jsonStr(config)
+    log "hash:" + hash + "config:" + jsonStr(config)
     password.make hash, config.pattern, config.seed
     
 newSite = (site) ->
@@ -169,7 +184,7 @@ updateSitePassword = (site) ->
 showPassword = (config) ->
     url    = decrypt config.url, mstr
     pass   = makePassword genHash(url+mstr), config
-    console.log pass
+    log "pass", pass
     $("password").value = pass
     $("password-ghost").setStyle opacity: 0
     pass
@@ -180,7 +195,7 @@ showPassword = (config) ->
 #         url    = decrypt config.url, mstr
 #         pass   = makePassword genHash(url+mstr), config
 #         clipboard.writeText pass
-#         console.log pass
+#         log "pass", pass
 #         $("password").value = pass
 #         $("password").focus()
     
@@ -198,13 +213,12 @@ main = () ->
         $("site").value = "no stash: " + stashFile
         return
 
-    # if containsLink clipboard.readText()
-    #     $("site").value = extractSite clipboard.readText()
     site = trim $("site").value
 
-    console.log 'site: ' + site + 'mstr: ' + mstr
+    log 'site:', site, 'mstr: ', mstr
     if not site? or site.length == 0
         $("password").value = ""
+        
     $("site").focus()
                     
     hash = genHash site+mstr

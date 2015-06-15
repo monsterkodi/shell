@@ -13,14 +13,15 @@ BrowserWindow = require('browser-window');
 win = void 0;
 
 showWindow = function() {
-  var screenWidth, winPosX, windowWidth;
+  var screenSize, screenWidth, winPosX, windowWidth;
+  screenSize = (require('screen')).getPrimaryDisplay().workAreaSize;
   if (!win.isVisible()) {
     win.show();
   }
   win.setMinimumSize(364, 466);
-  win.setMaximumSize(364, 466);
+  win.setMaximumSize(364, screenSize.height);
   windowWidth = win.getSize()[0];
-  screenWidth = (require('screen')).getPrimaryDisplay().workAreaSize.width;
+  screenWidth = screenSize.width;
   winPosX = Number(((screenWidth - windowWidth) / 2).toFixed());
   win.setPosition(winPosX, 0);
   return win;
@@ -33,7 +34,7 @@ createWindow = function() {
     index: 'file://' + __dirname + '/../index.html',
     preloadWindow: true,
     width: 364,
-    height: 466,
+    height: 800,
     frame: false
   };
   return app.on('ready', function() {

@@ -8,23 +8,24 @@ BrowserWindow = require 'browser-window'
 win = undefined
 
 showWindow = () ->
+    screenSize = (require 'screen').getPrimaryDisplay().workAreaSize
     win.show() unless win.isVisible()
-    win.setMinimumSize(364, 466)
-    win.setMaximumSize(364, 466)
+    win.setMinimumSize 364, 466
+    win.setMaximumSize 364, screenSize.height
     windowWidth = win.getSize()[0]
-    screenWidth = (require 'screen').getPrimaryDisplay().workAreaSize.width
+    screenWidth = screenSize.width
     winPosX = Number(((screenWidth-windowWidth)/2).toFixed())
     win.setPosition winPosX, 0
     win
 
 createWindow = () ->
     opts = 
-        dir:            __dirname + '/..'
-        index:          'file://' + __dirname + '/../index.html'
-        preloadWindow:  true
-        width:          364
-        height:         466
-        frame:          false
+        dir:           __dirname + '/..'
+        index:         'file://' + __dirname + '/../index.html'
+        preloadWindow: true
+        width:         364
+        height:        800 #466
+        frame:         false
     
     app.on 'ready', () ->
         if app.dock then app.dock.hide()

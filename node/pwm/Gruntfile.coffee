@@ -27,16 +27,19 @@ module.exports = (grunt) ->
             compile:
                 files:
                     'pwm.css': ['pwm.styl']
+                    'style/bright.css': ['style/bright-style.styl']
+                    'style/dark.css': ['style/dark-style.styl']
 
         bower_concat:
             all:
                 dest: 'js/lib/bower.js'
                 bowerOptions:
                     relative: false
+                exclude: ['octicons', 'font-awesome']
 
         watch:
           sources:
-            files: ['*.coffee', 'coffee/**.coffee', '*.styl', '*.html']
+            files: ['./*.coffee', './coffee/**/*.coffee', '*.styl', '*.html']
             tasks: ['build']
 
         coffee:
@@ -55,6 +58,20 @@ module.exports = (grunt) ->
                 cwd: '.',
                 src: ['coffee/*.coffee'],
                 dest: 'js/coffee',
+                ext: '.js'
+            knix:
+                expand: true,
+                flatten: true,
+                cwd: '.',
+                src: ['coffee/knix/*.coffee'],
+                dest: 'js/coffee/knix',
+                ext: '.js'
+            tools:
+                expand: true,
+                flatten: true,
+                cwd: '.',
+                src: ['coffee/tools/*.coffee'],
+                dest: 'js/coffee/tools',
                 ext: '.js'
 
         bumpup:
