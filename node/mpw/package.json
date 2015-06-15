@@ -1,6 +1,6 @@
 {
   "name": "mpw",
-  "version": "0.1.129",
+    "version": "0.2.0",
   "description": "mpw",
   "main": "mpw.coffee",
   "scripts": {
@@ -12,8 +12,7 @@
     "mpw": "./bin/mpw"
   },
   "repository": {
-    "type": "git",
-    "url": "git://github.com/monsterkodi/mpw"
+        "type": "git"
   },
   "preferGlobal": true,
   "keywords": [
