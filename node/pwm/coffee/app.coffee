@@ -195,7 +195,7 @@ showPassword = (config) ->
 main = () ->
 
     if not stash?
-        $("site").value = "no stash: " + mstr
+        $("site").value = "no stash: " + stashFile
         return
 
     # if containsLink clipboard.readText()

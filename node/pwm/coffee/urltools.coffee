@@ -116,12 +116,14 @@ toplevelDomains = [
 
 exports.extractDomain = (str) ->
     r = /(^|\s|(?:http[s]?:\/\/))((?:[\w-]+\.)+\w[\w-]+)(?::[1-9]\d+)?(?:\/[\w\.-~]*)*[\?\w\d\+\-\.,;=&\/#%\$]*(?:\s|$)/
-    s = str.match(r)[2]
-    s = s.substr(4) if _s.startsWith(s, 'www.')
-    split = s.split('.')
-    console.log s + " " + split
-    if last(split) in toplevelDomains
-        (slice split, split.length-2).join '.'
-    else
-        console.log 'not in toplevelDomains:' + last(s.split('.'))
-        undefined
+    m = str.match r
+    if m? and m.length > 2
+        s = m[2]
+        s = s.substr(4) if _s.startsWith(s, 'www.')
+        split = s.split('.')
+        console.log s + " " + split
+        if last(split) in toplevelDomains
+            return (slice split, split.length-2).join '.'
+        else
+            console.log 'not in toplevelDomains:' + last(s.split('.'))
+    undefined

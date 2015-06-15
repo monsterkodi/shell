@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+npm install -g electron-prebuilt
 npm install -g coffee-script
 npm install -g grunt-cli
 npm install -g color-ls

@@ -275,7 +275,7 @@ showPassword = function(config) {
 main = function() {
   var hash, pass, ref, site;
   if (stash == null) {
-    $("site").value = "no stash: " + mstr;
+    $("site").value = "no stash: " + stashFile;
     return;
   }
   site = trim($("site").value);
