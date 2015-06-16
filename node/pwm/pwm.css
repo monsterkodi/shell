@@ -82,7 +82,6 @@ input#password:focus {
 #sheep {
   margin: 12px;
   border-radius: 12px;
-  opacity: 0.1;
 }
 #master-border,
 #site-border {

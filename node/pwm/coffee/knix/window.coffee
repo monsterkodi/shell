@@ -48,13 +48,11 @@ class Window extends Widget
         @config.children = children
         @insertChildren()
         @config.connect = connect
-        @initConnections()
         @layoutChildren()
 
         if @config.popup then knix.addPopup @
 
         if @config.center
-            # @moveTo Math.max(0,Stage.size().width/4 - @getWidth()/2), Math.max(0,Stage.size().height/2 - @getHeight()/2)
             @moveTo Math.max(0, Stage.size().width/2 - @getWidth()/2), Math.max(0,Stage.size().height/2 - @getHeight()/2)
             @config.center = undefined
         @
@@ -87,7 +85,6 @@ class Window extends Widget
         if @config.content == 'scroll'
 
             content.elem.setStyle
-                # position : 'relative'
                 overflow : 'scroll'
                 width    : '100%'
                 height   : '100%'
@@ -143,9 +140,9 @@ class Window extends Widget
 
     addTitleBar: =>
         t = knix.create
-            type   : 'title'
-            text   : @config.title
-            parent : this
+            type:   'title'
+            text:   @config.title
+            parent: this
         t.elem.ondblclick = @maximize
         t.elem.onmousedown  = @onTitleSelect
 
@@ -158,25 +155,25 @@ class Window extends Widget
         
     addCloseButton: =>
         knix.create
-            type     : 'button'
-            class    : 'close tool-button'
-            noMove   : true
-            parent   : this
-            child    :
-                type : 'icon'
-                icon : 'octicon-x'
-            action   : @close
+            type:   'button'
+            class:  'close tool-button'
+            noMove: true
+            parent: this
+            child:  
+                type: 'icon'
+                icon: 'octicon-x'
+            action: @close
 
     addShadeButton: =>
         knix.create
-            type     : 'button'
-            class    : 'shade tool-button'
-            noMove   : true
-            parent   : this
-            child    :
-                type : 'icon'
-                icon : 'octicon-dash'
-            action   : @shade
+            type:   'button'
+            class:  'shade tool-button'
+            noMove: true
+            parent: this
+            child:  
+                type: 'icon'
+                icon: 'octicon-dash'
+            action: @shade
 
     headerSize: (box="border-box-height") =>
         children = Selector.findChildElements(@elem, [ '*.title', '*.close', '*.shade' ])
@@ -250,19 +247,19 @@ class Window extends Widget
                 cursor = 'nesw-resize'
 
             @sizeMoveDrag = new Drag
-                target  : @elem
-                onStart : @sizeStart
-                onMove  : @sizeMove
-                doMove  : false
-                cursor  : cursor
+                target:  @elem
+                onStart: @sizeStart
+                onMove:  @sizeMove
+                doMove:  false
+                cursor:  cursor
 
             @sizeMoveDrag.border = border
         else
             @sizeMoveDrag = new Drag
-                target  : @elem
-                minPos  : pos undefined, 0
-                onMove  : @dragMove
-                cursor  : 'grab'
+                target: @elem
+                minPos: pos undefined, 0
+                onMove: @dragMove
+                cursor: 'grab'
         return
 
     dragMove: (drag) =>
@@ -322,8 +319,7 @@ class Window extends Widget
         else
             @config.pos  = @absPos()
             @config.size = @getSize()
-            # menuHeight   = $('menu').getHeight()
-            menuHeight = 0
+            menuHeight   = $('menu').getHeight()
             @moveTo 0, menuHeight+2
             @resize Stage.size().width, Stage.size().height-menuHeight-2
             @config.isMaximized = true
@@ -392,11 +388,11 @@ class Window extends Widget
         else
             warning 'no elem!'
 
-    scrollToBottom : => @content.elem.scrollTop = @content.elem.scrollHeight
-    scrollToTop    : => @content.elem.scrollTop = 0
+    scrollToBottom: => @content.elem.scrollTop = @content.elem.scrollHeight
+    scrollToTop:    => @content.elem.scrollTop = 0
 
-    contentWidth   : => @elem.getLayout().get('padding-box-width')
-    contentHeight  : => @elem.getLayout().get('padding-box-height') - @headerSize()
+    contentWidth:  => @elem.getLayout().get('padding-box-width')
+    contentHeight: => @elem.getLayout().get('padding-box-height') - @headerSize()
 
     shade: =>
         if @config.isShaded
@@ -427,6 +423,6 @@ class Window extends Widget
     @menuButton: (cfg) =>
 
         Menu.addButton _.def cfg,
-            menu    : 'audio'
+            menu: 'audio'
 
 module.exports = Window

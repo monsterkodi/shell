@@ -19,17 +19,17 @@ class Selectangle extends Widget
         
         cfg = def cfg, defs
         window.document.documentElement.style.cursor = 'crosshair'
-                
+        Stage = require './stage'        
         pos = if cfg.parent?.absPos? then cfg.parent.absPos().to(Stage.mousePos) else Stage.mousePos
 
         @wid = cfg.parent         
         
         super cfg,
-            type   : 'selectangle'
-            parent : 'stage_content'
-            pos    : pos
-            width  : 0
-            height : 0
+            type:   'selectangle'
+            parent: 'stage_content'
+            pos:    pos
+            width:  0
+            height: 0
             
         stage = $('stage_content')
         stage.addEventListener 'mousemove', @onMove
@@ -49,6 +49,7 @@ class Selectangle extends Widget
         super
 
     onMove: (event) =>
+        Stage = require './stage'
         ep  = Stage.absPos event
         if @wid?.absPos? then ep = @wid.absPos().to(ep)
         tl  = ep.min @config.pos

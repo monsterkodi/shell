@@ -92,17 +92,15 @@ class Widget
         @resize @config.width, @config.height if @config.width? or @config.height?
         
         if @config.tooltip
-           Tooltip.create
+            Tooltip = require './tooltip'
+            Tooltip.create
                target: @
                onTooltip: @onTooltip 
 
         #__________________________________________________ event setup
 
         @addMovement()
-
-        @initConnections()
         @initEvents()
-        # Keys.registerWidget @
         @
 
     ###
@@ -122,95 +120,6 @@ class Widget
         @elem.addEventListener "mouseout",   @config.onOut    if @config.onOut?
         @elem.addEventListener "ondblclick", @config.onDouble if @config.onDouble?
         @
-
-    ###
-     0000000   0000000   000   000  000   000  00000000   0000000  000000000  000   0000000   000   000
-    000       000   000  0000  000  0000  000  000       000          000     000  000   000  0000  000
-    000       000   000  000 0 000  000 0 000  0000000   000          000     000  000   000  000 0 000
-    000       000   000  000  0000  000  0000  000       000          000     000  000   000  000  0000
-     0000000   0000000   000   000  000   000  00000000   0000000     000     000   0000000   000   000
-    ###
-
-    initConnections: =>
-        connections = @config.connect
-        return if not connections?
-        for connection in connections
-            @connect connection.signal, connection.slot
-        @
-
-    connect: (signal, slot) =>
-        # tag 'Connection'
-        # log @elem.id, signal, slot
-        [signalSender, signalEvent] = @resolveSignal signal
-        slotFunction = @resolveSlot slot
-        if not signalSender?
-            error "sender not found!"
-        if not signalEvent?
-            error "event not found!"
-        if not slotFunction?
-            error "slot not found!"
-        # log signalSender.elem.id
-        signalSender.elem.addEventListener signalEvent, slotFunction
-        @
-
-    disconnect: (signal, slot) =>
-        [signalSender, signalEvent] = @resolveSignal signal
-        slotFunction = @resolveSlot slot
-        if not signalSender?
-            error "sender not found!"
-        if not signalEvent?
-            error "event not found!"
-        if not slotFunction?
-            error "slot not found!"
-        # log 'disconnect', signalSender.elem.id, signalEvent
-        signalSender.elem.removeEventListener signalEvent, slotFunction
-        @
-
-    connector: (name) =>
-        # tag 'Connection'
-        # log name
-        for t in ['slot', 'signal', 'in', 'out']
-            for e in @elem.select('.'+t)
-                if e.hasClassName 'connector'
-                    # tag 'Connection'
-                    # log 'found connector element', t, e.widget.config[t]
-                    if e.widget.config[t] == name or e.widget.config[t]+':'+t == name
-                        return e.widget
-            # warning 'no elem with class', name
-        error 'connector not found!', name
-        undefined
-
-    resolveSignal: (signal) =>
-        [event, sender] = signal.split(':').reverse()
-        if sender?
-            sdr = @getChild sender
-            sdr = @getWindow()?.getChild(sender) unless sdr?
-            sender = sdr
-        sender = @ unless sender?
-        [sender, event]
-
-    resolveSlot: (slot) =>
-        if typeof slot == 'function'
-            return slot
-        if typeof slot == 'string'
-            [func, receiver] = slot.split(':').reverse()
-            if receiver?
-                # log 'receiver', receiver
-                rec = @getChild(receiver)
-                # log 'receiver', rec, 'child', @getWindow()
-                rec = @getWindow()?.getChild(receiver) unless rec?
-                # log 'receiver', rec, 'window child'
-                receiver = rec
-            receiver = @ unless receiver?
-            # log 'receiver', receiver, 'this'
-            if receiver[func]?
-                if typeof receiver[func] == 'function'
-                    return receiver[func] #.bind(receiver)
-                else
-                    error 'not a function'
-            # log 'no func', func, 'in receiver', receiver
-        error 'cant resolve slot:', slot, typeof slot
-        null
 
     ###
      0000000  000   0000000   000   000   0000000   000    
@@ -371,7 +280,6 @@ class Widget
     
     close: =>
         # log 'close', @elem.id
-        # Keys.unregisterWidget @
         @emitClose()
         @elem?.remove()
         delete @elem
@@ -466,7 +374,7 @@ class Widget
     sizePos:   => return pos @getWidth(), @getHeight()
     getWidth:  => @elem?.getWidth()
     getHeight: => @elem?.getHeight()
-    absRect:   => new Rect @absPos().x, @absPos().y, @getWidth(), @getHeight()
+    absRect:   => Rect = require './rect'; new Rect @absPos().x, @absPos().y, @getWidth(), @getHeight()
 
     innerWidth:   => @elem.getLayout().get("padding-box-width")
     innerHeight:  => @elem.getLayout().get("padding-box-height")
@@ -490,8 +398,6 @@ class Widget
 
     addMovement: =>        
         if @config.isMovable
-            # tag 'Drag'
-            # log 'addMovement', @elem.id
             new Drag
                 target:  @elem
                 minPos:  pos(undefined,0)

@@ -6,7 +6,8 @@
 0000000      000     000   000   0000000   00000000
 ###
 
-pos = require './pos'
+Menu        = require './menu'
+pos         = require './pos'
 
 class Stage
 
@@ -16,7 +17,7 @@ class Stage
         stage = $('stage_content')
         stage.addEventListener 'contextmenu', Menu.showContextMenu
         stage.addEventListener 'mousemove',   Stage.onMove
-        stage.addEventListener 'mousedown',   -> Selectangle.start()
+        stage.addEventListener 'mousedown',   -> (require './selectangle').start()
 
     @onMove: (event) =>
         @mousePos = @absPos event

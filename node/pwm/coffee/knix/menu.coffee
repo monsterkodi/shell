@@ -47,7 +47,7 @@ class Menu extends Widget
     @menu: (id) => $(id)?.getWidget()
         
     @addButton: (cfg, defs) => 
-        cfg = _.def cfg, defs
+        cfg = def cfg, defs
         @menu(cfg.menu).insertChild cfg,
             type:    'button'
             class:   'tool-button'

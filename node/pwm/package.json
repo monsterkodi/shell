@@ -1,6 +1,6 @@
 {
   "name": "pwm",
-  "version": "0.1.762",
+  "version": "0.1.783",
   "description": "pwm",
   "dependencies": {
     "bcryptjs": "^2.1.0",
@@ -13,6 +13,7 @@
     "lodash.filter": "^3.1.1",
     "lodash.find": "^3.2.1",
     "lodash.indexof": "^3.0.2",
+    "lodash.isempty": "^3.0.4",
     "lodash.isfunction": "^3.0.5",
     "lodash.isstring": "^3.0.1",
     "lodash.last": "^3.0.0",

@@ -6,14 +6,18 @@
 000   000  000   000  000  000   000
 ###
 
-capitalize = require 'lodash.capitalize'
-Console    = require './console'
-Widget     = require './widget'
-Stage      = require './stage'
-tools      = require './tools'
-str        = require './str'
-log        = require './log'
-def        = require './def'
+capitalize  = require 'lodash.capitalize'
+isEmpty     = require 'lodash.isempty'
+StyleSwitch = require './styleswitch'
+About       = require './about'
+Console     = require './console'
+Widget      = require './widget'
+Stage       = require './stage'
+Menu        = require './menu'
+tools       = require './tools'
+str         = require './str'
+log         = require './log'
+def         = require './def'
 
 class knix
 
@@ -27,15 +31,12 @@ class knix
 
         log 'welcome to knix', @version
 
-        # Keys.init()
-        # StyleSwitch.init()
+        StyleSwitch.init()
                 
-        # @initSVG()
-        # @initMenu()
+        @initMenu()
         @initAnim()
-        # @initTools()
-        # Audio.init()
-        # Stage.init()
+        @initTools()
+        Stage.init()
     
         c?.raise()
                 
@@ -52,100 +53,54 @@ class knix
     @initMenu: =>
         
         mainMenu = new Menu
-            id      : 'menu'
-            parent  : 'stage'
-            style   : 
-                top : '0px'
+            id:     'menu'
+            parent: 'stage'
+            style:  
+                top: '0px'
             
         toolMenu = new Menu
-            id        : 'tool'
-            parent    : 'stage'
-            style     :
-                top   : '0px'
-                right : '0px'
+            id:     'tool'
+            parent: 'stage'
+            style:  
+                top:   '0px'
+                right: '0px'
         
     @initTools: =>
 
-        a = Menu.addButton
-            menu   : 'menu'
-            text   : 'audio'
-            icon   : 'fa-music'
-            action : -> Menu.menu('audio').show()
-
-        m = new Menu
-            id      : 'audio'
-            class   : 'submenu'
-            parent  : a
-        m.hide()
-
         btn = 
-            menu    : 'tool'
+            menu: 'tool'
 
         Menu.addButton btn,
-            tooltip : 'save'
-            keys    : ['⌥ß']
-            icon    : 'fa-floppy-o'
-            action  : Files.saveWindows
+            tooltip: 'console'
+            icon:    'octicon-terminal'
+            action:  -> new Console()
 
         Menu.addButton btn,
-            tooltip : 'reload'
-            keys    : ['u', '⌥®']
-            icon    : 'fa-retweet'
-            action  : Files.loadLast
+            tooltip: 'fullscreen'
+            icon:    'octicon-device-desktop'
+            action:  Stage.toggleFullscreen
 
         Menu.addButton btn,
-            tooltip : 'load'
-            icon    : 'fa-folder-o'
-            action  : Files.loadMenu
+            tooltip: 'style'
+            keys:    ['i']
+            icon:    'octicon-color-mode'
+            action:  StyleSwitch.toggle
 
         Menu.addButton btn,
-            tooltip : 'console'
-            icon    : 'octicon-terminal'
-            action  : -> new Console()
+            tooltip: 'about'
+            icon:    'octicon-info'
+            action:  About.show
 
         Menu.addButton btn,
-            tooltip : 'fullscreen'
-            icon    : 'octicon-device-desktop'
-            action  : Stage.toggleFullscreen
+            tooltip: 'shade all'
+            icon:    'octicon-dash'
+            action:  knix.shadeWindows
 
         Menu.addButton btn,
-            tooltip : 'style'
-            keys    : ['i']
-            icon    : 'octicon-color-mode'
-            action  : StyleSwitch.toggle
-
-        Menu.addButton btn,
-            tooltip : 'set key'
-            keys    : ['`']
-            icon    : 'fa-keyboard-o'
-            action  : Keys.startInteractive
-
-        Menu.addButton btn,
-            tooltip : 'about'
-            icon    : 'octicon-info'
-            action  : About.show
-
-        Menu.addButton btn,
-            tooltip : 'shade all'
-            icon    : 'octicon-dash'
-            action  : knix.shadeWindows
-
-        Menu.addButton btn,
-            tooltip : 'close windows'
-            icon    : 'octicon-x'
-            keys    : ['⇧⌥„']
-            action  : knix.closeAllWindows
-            
-        Keys.add 'Backspace', knix.delSelection
-        
-        Keys.add '⌥∂', knix.deselectAll
-        Keys.add '⌥å', knix.selectAll
-        Keys.add '⌘x', knix.cutSelection
-        Keys.add '⌘c', knix.copySelection
-        Keys.add '⌘v', knix.pasteSelection
-        Keys.add '⌥∑', knix.closeWindows
-        Keys.add '⇧S', Selectangle.toggle
-        Keys.add '^s',  Selectangle.toggle
+            tooltip: 'close windows'
+            icon:    'octicon-x'
+            keys:    ['⇧⌥„']
+            action:  knix.closeAllWindows            
 
     ###
      0000000  00000000   00000000   0000000   000000000  00000000
@@ -190,8 +145,8 @@ class knix
 
     @stateForWidgets : (widgets) => 
         JSON.stringify {
-            'windows'     : (w.getState() for w in widgets)
-            'connections' : ( [ c.config.source.elem.id, c.config.target.elem.id ] for c in @connectionsForWidgets widgets )
+            'windows':     (w.getState() for w in widgets)
+            'connections': ( [ c.config.source.elem.id, c.config.target.elem.id ] for c in @connectionsForWidgets widgets )
             }, null, '    '        
         
     @cleanState: (state) =>
@@ -222,26 +177,26 @@ class knix
                 widgetConnections.push connection
         widgetConnections
 
-    @allWindows       : => w.widget for w in $$('.window') when not (w.hasClassName('console-window') or w.hasClassName('tooltip'))
-    @selectedWindows  : => w.widget for w in $$('.window.selected') when not (w.hasClassName('console-window') or w.hasClassName('tooltip'))
-    @selectedOrAllWindows : => 
+    @allWindows:           => w.widget for w in $$('.window') when not (w.hasClassName('console-window') or w.hasClassName('tooltip'))
+    @selectedWindows:      => w.widget for w in $$('.window.selected') when not (w.hasClassName('console-window') or w.hasClassName('tooltip'))
+    @selectedOrAllWindows: => 
         w = @selectedWindows()
-        w = @allWindows() if _.isEmpty w
+        w = @allWindows() if isEmpty w
         w
-    @selectedWidgets  : => w.widget for w in $$('.selected') when not (w.hasClassName('console-window') or w.hasClassName('tooltip'))
-    @allConnections   : => _.uniq _.flatten ( c.widget.connections for c in $$('.connector') )
-    @closeConnections : => @allConnections().each (c) -> c.close()
-    @delSelection     : => @selectedWidgets().each (w) -> w.del?() unless w?.isWindow?()
-    @deselectAll      : => @selectedWidgets().each (w) -> w.elem.removeClassName 'selected'
-    @selectAll        : => @allWindows().each (w) -> w.elem.addClassName 'selected'
-    @copySelection    : => 
+    @selectedWidgets:  => w.widget for w in $$('.selected') when not (w.hasClassName('console-window') or w.hasClassName('tooltip'))
+    @allConnections:   => _.uniq _.flatten ( c.widget.connections for c in $$('.connector') )
+    @closeConnections: => @allConnections().each (c) -> c.close()
+    @delSelection:     => @selectedWidgets().each (w) -> w.del?() unless w?.isWindow?()
+    @deselectAll:      => @selectedWidgets().each (w) -> w.elem.removeClassName 'selected'
+    @selectAll:        => @allWindows().each (w) -> w.elem.addClassName 'selected'
+    @copySelection:    => 
         @copyBuffer = @stateForWidgets @selectedWidgets()
         # log @copyBuffer
         # window.prompt "Copy to clipboard", JSON.stringify(@copyBuffer)
-    @cutSelection     : =>
+    @cutSelection: =>
         @copySelection()
         @delSelection()
-    @pasteSelection   : =>
+    @pasteSelection: =>
         @deselectAll()
         if Selectangle.selectangle?.wid?
             widgets = JSON.parse(@copyBuffer).windows
@@ -257,9 +212,9 @@ class knix
                 win.elem.addClassName 'selected'
                 win.moveBy(10,10) if win.isWindow()
 
-    @shadeWindows     : => @selectedOrAllWindows().each (w) -> w.shade()
-    @closeWindows     : => @selectedWindows().each (w) -> w.close()
-    @closeAllWindows  : => @allWindows().each (w) -> w.close()
+    @shadeWindows:    => @selectedOrAllWindows().each (w) -> w.shade()
+    @closeWindows:    => @selectedWindows().each (w) -> w.close()
+    @closeAllWindows: => @allWindows().each (w) -> w.close()
 
     @restore: (state) =>
         @cleanState state
@@ -318,7 +273,7 @@ class knix
     @animate: (o) => @animObjects.push o
     @deanimate: (o) => 
         # log @animObjects.length
-        _.del @animObjects, o
+        tools.del @animObjects, o
         # log @animObjects.length
     
     @anim: (timestamp) =>
@@ -342,9 +297,9 @@ class knix
     @initSVG: =>
 
         svg = @create
-            type   : 'svg'
-            id     : 'stage_svg'
-            parent : 'stage_content'
+            type:   'svg'
+            id:     'stage_svg'
+            parent: 'stage_content'
 
         @svg = svg.svg
 
