@@ -7,11 +7,12 @@ module.exports = (grunt) ->
         pepper:
             options:
                 template: '::'
-                pepper: ['log']
+                pepper:  ['log']
                 paprika: ['dbg']
+                join:    false
             task:
                 files:
-                    'pwm': [ 'pwm.coffee' ]
+                    'pwm': [ 'pwm.coffee', 'coffee/**/*.coffee' ]
 
         salt:
             options:
@@ -20,14 +21,14 @@ module.exports = (grunt) ->
                 refresh: false
             coffee:
                 files:
-                    'asciiText':   ['**/*.coffee']
+                    'asciiText':   [ 'pwm.coffee', 'coffee/**/*.coffee' ]
 
         stylus:
             options:
                 compress: false
             compile:
                 files:
-                    'pwm.css': ['pwm.styl']
+                    'style/pwm.css': ['style/pwm.styl']
                     'style/bright.css': ['style/bright-style.styl']
                     'style/dark.css': ['style/dark-style.styl']
 
@@ -57,21 +58,21 @@ module.exports = (grunt) ->
                 expand: true,
                 flatten: true,
                 cwd: '.',
-                src: ['coffee/*.coffee'],
+                src: ['.pepper/coffee/*.coffee'],
                 dest: 'js/coffee',
                 ext: '.js'
             knix:
                 expand: true,
                 flatten: true,
                 cwd: '.',
-                src: ['coffee/knix/*.coffee'],
+                src: ['.pepper/coffee/knix/*.coffee'],
                 dest: 'js/coffee/knix',
                 ext: '.js'
             tools:
                 expand: true,
                 flatten: true,
                 cwd: '.',
-                src: ['coffee/tools/*.coffee'],
+                src: ['.pepper/coffee/tools/*.coffee'],
                 dest: 'js/coffee/tools',
                 ext: '.js'
 

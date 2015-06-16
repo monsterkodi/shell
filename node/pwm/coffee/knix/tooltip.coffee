@@ -22,6 +22,7 @@ class Tooltip
         cfg.target.elem.on 'mousedown',  @onLeave
 
     @onHover: (event, d) =>
+        Settings = require './settings'
         for e in [d, d.ancestors()].flatten()
             if e?.widget?.tooltip? and Settings.get 'tooltips', false
                 tooltip = e.widget.tooltip

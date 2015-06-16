@@ -12,6 +12,7 @@ filter  = require 'lodash.filter'
 find    = require 'lodash.find'
 warning = require './warning'
 log     = require './log'
+dbg     = require './log'
 str     = require './str'
 pos     = require './pos'
 def     = require './def'
@@ -26,7 +27,7 @@ class Widget
 
         cfg = def cfg, defs
         
-        log cfg
+        # dbg cfg
 
         if not cfg.type?
             warning "NO TYPE?"
@@ -120,6 +121,95 @@ class Widget
         @elem.addEventListener "mouseout",   @config.onOut    if @config.onOut?
         @elem.addEventListener "ondblclick", @config.onDouble if @config.onDouble?
         @
+
+    ###
+     0000000   0000000   000   000  000   000  00000000   0000000  000000000  000   0000000   000   000
+    000       000   000  0000  000  0000  000  000       000          000     000  000   000  0000  000
+    000       000   000  000 0 000  000 0 000  0000000   000          000     000  000   000  000 0 000
+    000       000   000  000  0000  000  0000  000       000          000     000  000   000  000  0000
+     0000000   0000000   000   000  000   000  00000000   0000000     000     000   0000000   000   000
+    ###
+
+    initConnections: =>
+        connections = @config.connect
+        return if not connections?
+        for connection in connections
+            @connect connection.signal, connection.slot
+        @
+
+    connect: (signal, slot) =>
+        # tag 'Connection'
+        # log @elem.id, signal, slot
+        [signalSender, signalEvent] = @resolveSignal signal
+        slotFunction = @resolveSlot slot
+        if not signalSender?
+            error "sender not found!"
+        if not signalEvent?
+            error "event not found!"
+        if not slotFunction?
+            error "slot not found!"
+        # log signalSender.elem.id
+        signalSender.elem.addEventListener signalEvent, slotFunction
+        @
+
+    disconnect: (signal, slot) =>
+        [signalSender, signalEvent] = @resolveSignal signal
+        slotFunction = @resolveSlot slot
+        if not signalSender?
+            error "sender not found!"
+        if not signalEvent?
+            error "event not found!"
+        if not slotFunction?
+            error "slot not found!"
+        # log 'disconnect', signalSender.elem.id, signalEvent
+        signalSender.elem.removeEventListener signalEvent, slotFunction
+        @
+
+    connector: (name) =>
+        # tag 'Connection'
+        # log name
+        for t in ['slot', 'signal', 'in', 'out']
+            for e in @elem.select('.'+t)
+                if e.hasClassName 'connector'
+                    # tag 'Connection'
+                    # log 'found connector element', t, e.widget.config[t]
+                    if e.widget.config[t] == name or e.widget.config[t]+':'+t == name
+                        return e.widget
+            # warning 'no elem with class', name
+        error 'connector not found!', name
+        undefined
+
+    resolveSignal: (signal) =>
+        [event, sender] = signal.split(':').reverse()
+        if sender?
+            sdr = @getChild sender
+            sdr = @getWindow()?.getChild(sender) unless sdr?
+            sender = sdr
+        sender = @ unless sender?
+        [sender, event]
+
+    resolveSlot: (slot) =>
+        if typeof slot == 'function'
+            return slot
+        if typeof slot == 'string'
+            [func, receiver] = slot.split(':').reverse()
+            if receiver?
+                # log 'receiver', receiver
+                rec = @getChild(receiver)
+                # log 'receiver', rec, 'child', @getWindow()
+                rec = @getWindow()?.getChild(receiver) unless rec?
+                # log 'receiver', rec, 'window child'
+                receiver = rec
+            receiver = @ unless receiver?
+            # log 'receiver', receiver, 'this'
+            if receiver[func]?
+                if typeof receiver[func] == 'function'
+                    return receiver[func] #.bind(receiver)
+                else
+                    error 'not a function'
+            # log 'no func', func, 'in receiver', receiver
+        error 'cant resolve slot:', slot, typeof slot
+        null
 
     ###
      0000000  000   0000000   000   000   0000000   000    

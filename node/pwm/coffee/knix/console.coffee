@@ -35,8 +35,8 @@ class Console extends Window
             title       : 'console'
             class       : 'console-window'
             content     : 'scroll'
-            showMethods : Settings.get 'logMethods', false
-            showClasses : Settings.get 'logClasses', false
+            showMethods : Settings.get 'logMethods', true
+            showClasses : Settings.get 'logClasses', true
             buttons     : \
             [
                 action  : @maximize

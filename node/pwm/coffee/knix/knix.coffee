@@ -17,6 +17,7 @@ Menu        = require './menu'
 tools       = require './tools'
 str         = require './str'
 log         = require './log'
+dbg         = require './log'
 def         = require './def'
 
 class knix
@@ -113,14 +114,16 @@ class knix
     @create: (cfg, defs) =>
 
         cfg = def cfg, defs
-        
+        # dbg cfg
         if cfg.type? 
             try
                 cls = require './'+cfg.type
+                # dbg cls
                 return new cls cfg
-            catch
-                ->
-                
+            catch err
+                log 'fugga:', cfg.type, err
+
+        # log 'plain'
         new Widget cfg, { type: 'widget' }
 
     # ________________________________________________________________________________ get

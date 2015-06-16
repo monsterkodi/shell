@@ -152,11 +152,25 @@ document.on('keydown', function(event) {
 });
 
 undirty = function() {
-  return log('undirty');
+  return log({
+    "file": "coffee/app.coffee",
+    "class": "app",
+    "line": 92,
+    "args": [""],
+    "method": "undirty",
+    "type": "."
+  }, 'undirty');
 };
 
 dirty = function() {
-  return log('dirty');
+  return log({
+    "file": "coffee/app.coffee",
+    "class": "app",
+    "line": 93,
+    "args": [""],
+    "method": "dirty",
+    "type": "."
+  }, 'dirty');
 };
 
 
@@ -177,15 +191,36 @@ writeStash = function() {
 
 readStash = function(cb) {
   if (fs.existsSync(stashFile)) {
-    log('stash exists' + stashFile + ' ' + mstr);
+    log({
+      "file": "coffee/app.coffee",
+      "class": "app",
+      "line": 110,
+      "args": ["cb"],
+      "method": "readStash",
+      "type": "."
+    }, 'stash exists' + stashFile + ' ' + mstr);
     return decryptFile(stashFile, mstr, function(err, json) {
       if (err != null) {
         if (err[0] === 'can\'t decrypt file') {
-          log('err[0]' + err);
+          log({
+            "file": "coffee/app.coffee",
+            "class": "app",
+            "line": 114,
+            "args": ["cb"],
+            "method": "readStash",
+            "type": "."
+          }, 'err[0]' + err);
           stash = void 0;
           return cb();
         } else {
-          log('err' + err);
+          log({
+            "file": "coffee/app.coffee",
+            "class": "app",
+            "line": 118,
+            "args": ["cb"],
+            "method": "readStash",
+            "type": "."
+          }, 'err' + err);
           return error.apply(this, err);
         }
       } else {
@@ -229,7 +264,14 @@ clearSeed = function(config) {
 };
 
 makePassword = function(hash, config) {
-  log("hash:" + hash + "config:" + jsonStr(config));
+  log({
+    "file": "coffee/app.coffee",
+    "class": "app",
+    "line": 152,
+    "args": ["hash", "config"],
+    "method": "makePassword",
+    "type": "."
+  }, "hash:" + hash + "config:" + jsonStr(config));
   return password.make(hash, config.pattern, config.seed);
 };
 
@@ -270,7 +312,14 @@ showPassword = function(config) {
   var pass, url;
   url = decrypt(config.url, mstr);
   pass = makePassword(genHash(url + mstr), config);
-  log("pass", pass);
+  log({
+    "file": "coffee/app.coffee",
+    "class": "app",
+    "line": 184,
+    "args": ["config"],
+    "method": "showPassword",
+    "type": "."
+  }, "pass", pass);
   $("password").value = pass;
   $("password-ghost").setStyle({
     opacity: 0
@@ -294,7 +343,14 @@ main = function() {
     return;
   }
   site = trim($("site").value);
-  log('site:', site, 'mstr: ', mstr);
+  log({
+    "file": "coffee/app.coffee",
+    "class": "app",
+    "line": 205,
+    "args": [""],
+    "method": "main",
+    "type": "."
+  }, 'site:', site, 'mstr: ', mstr);
   if ((site == null) || site.length === 0) {
     $("password").value = "";
   }

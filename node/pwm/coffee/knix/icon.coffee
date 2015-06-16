@@ -7,7 +7,8 @@
 ###
 
 Widget = require './widget'
-def    = require '/.def'
+dbg    = require './log'
+def    = require './def'
 
 class Icon extends Widget
 
@@ -18,7 +19,7 @@ class Icon extends Widget
         cfg = def cfg, 
             type: 'icon'
             elem: 'span'
-                
+
         super cfg,
             child:
                 elem:  'i'
