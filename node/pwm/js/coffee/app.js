@@ -6,7 +6,7 @@
 000   000  000        000      
 000   000  000        000
  */
-var _url, clearSeed, clipboard, containsLink, cryptools, decrypt, decryptFile, dirty, encrypt, error, extractDomain, extractSite, fs, genHash, jsonStr, knix, log, main, makePassword, masterBlurred, masterChanged, masterFocus, mstr, newSeed, newSite, numConfigs, pad, password, passwordBlurred, passwordFocus, pattern, readStash, setSite, showPassword, siteBlurred, siteChanged, siteFocus, stash, stashFile, trim, undirty, updateSitePassword, win, writeStash;
+var _url, clearSeed, clipboard, containsLink, cryptools, decrypt, decryptFile, dirty, encrypt, error, extractDomain, extractSite, fs, genHash, ipc, jsonStr, log, main, makePassword, masterBlurred, masterChanged, masterFocus, mstr, newSeed, newSite, numConfigs, pad, password, passwordBlurred, passwordFocus, pattern, readStash, remote, setSite, showPassword, siteBlurred, siteChanged, siteFocus, stash, stashFile, trim, undirty, updateSitePassword, win, writeStash;
 
 clipboard = require('clipboard');
 
@@ -22,11 +22,11 @@ password = require('./js/coffee/tools/password');
 
 cryptools = require('./js/coffee/tools/cryptools');
 
-knix = require('./js/coffee/knix/knix');
+remote = require('remote');
 
-log = require('./js/coffee/knix/log');
+ipc = require('ipc');
 
-win = (require('remote')).getCurrentWindow();
+win = remote.getCurrentWindow();
 
 genHash = cryptools.genHash;
 
@@ -57,6 +57,10 @@ stash = {};
 stashFile = process.env.HOME + '/.config/pwm.stash';
 
 pattern = 'abcd+efgh+12';
+
+log = function() {
+  return ipc.send('knixlog', [].slice.call(arguments, 0));
+};
 
 masterChanged = function() {
   mstr = $("master").value;
@@ -155,7 +159,7 @@ undirty = function() {
   return log({
     "file": "coffee/app.coffee",
     "class": "app",
-    "line": 92,
+    "line": 94,
     "args": [""],
     "method": "undirty",
     "type": "."
@@ -166,7 +170,7 @@ dirty = function() {
   return log({
     "file": "coffee/app.coffee",
     "class": "app",
-    "line": 93,
+    "line": 95,
     "args": [""],
     "method": "dirty",
     "type": "."
@@ -194,7 +198,7 @@ readStash = function(cb) {
     log({
       "file": "coffee/app.coffee",
       "class": "app",
-      "line": 110,
+      "line": 112,
       "args": ["cb"],
       "method": "readStash",
       "type": "."
@@ -205,7 +209,7 @@ readStash = function(cb) {
           log({
             "file": "coffee/app.coffee",
             "class": "app",
-            "line": 114,
+            "line": 116,
             "args": ["cb"],
             "method": "readStash",
             "type": "."
@@ -216,7 +220,7 @@ readStash = function(cb) {
           log({
             "file": "coffee/app.coffee",
             "class": "app",
-            "line": 118,
+            "line": 120,
             "args": ["cb"],
             "method": "readStash",
             "type": "."
@@ -267,7 +271,7 @@ makePassword = function(hash, config) {
   log({
     "file": "coffee/app.coffee",
     "class": "app",
-    "line": 152,
+    "line": 154,
     "args": ["hash", "config"],
     "method": "makePassword",
     "type": "."
@@ -315,7 +319,7 @@ showPassword = function(config) {
   log({
     "file": "coffee/app.coffee",
     "class": "app",
-    "line": 184,
+    "line": 186,
     "args": ["config"],
     "method": "showPassword",
     "type": "."
@@ -346,7 +350,7 @@ main = function() {
   log({
     "file": "coffee/app.coffee",
     "class": "app",
-    "line": 205,
+    "line": 207,
     "args": [""],
     "method": "main",
     "type": "."

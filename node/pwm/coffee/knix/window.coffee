@@ -311,7 +311,6 @@ class Window extends Widget
             @moveBy dx, dy
 
     maximize: =>
-        log @config.isMaximized
         if @config.isMaximized
             @setPos @config.pos
             @setSize @config.size
@@ -415,7 +414,6 @@ class Window extends Widget
 
     del: => @close()
     close: =>
-        log 'close'
         if @config.popup?
             knix.delPopup @
         super

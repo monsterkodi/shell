@@ -30,7 +30,7 @@ class knix
             c = new Console()
             c.shade() if config.console == 'shade'
 
-        log 'welcome to knix', @version
+        # log 'welcome to knix', @version
 
         StyleSwitch.init()
                 
@@ -40,6 +40,7 @@ class knix
         Stage.init()
     
         c?.raise()
+        c?.maximize() if config.console == 'maximized'
                 
         @
     
@@ -116,7 +117,8 @@ class knix
                 # dbg cls
                 return new cls cfg
             catch err
-                log 'fugga:', cfg.type, err
+                # log cfg.type, err
+                0
 
         # log 'plain'
         new Widget cfg, { type: 'widget' }
@@ -149,33 +151,9 @@ class knix
         w = @allWindows() if isEmpty w
         w
     @selectedWidgets:  => w.widget for w in $$('.selected') when @isSelectableWindow(w)
-    @allConnections:   => _.uniq _.flatten ( c.widget.connections for c in $$('.connector') )
-    @closeConnections: => @allConnections().each (c) -> c.close()
     @delSelection:     => @selectedWidgets().each (w) -> w.del?() unless w?.isWindow?()
     @deselectAll:      => @selectedWidgets().each (w) -> w.elem.removeClassName 'selected'
     @selectAll:        => @allWindows().each (w) -> w.elem.addClassName 'selected'
-    @copySelection:    => 
-        @copyBuffer = @stateForWidgets @selectedWidgets()
-        # log @copyBuffer
-        # window.prompt "Copy to clipboard", JSON.stringify(@copyBuffer)
-    @cutSelection: =>
-        @copySelection()
-        @delSelection()
-    @pasteSelection: =>
-        @deselectAll()
-        if Selectangle.selectangle?.wid?
-            widgets = JSON.parse(@copyBuffer).windows
-            restoreConfig = (cfg) ->
-                cfg.parent = cfg.parentID
-                restoreConfig cfg.child if cfg.child?
-                cfg.children?.each (c) -> restoreConfig c
-            restoreConfig c for c in widgets
-            for wid in @restoreWindows widgets
-                wid.elem.addClassName 'selected'
-        else
-            for win in @restore JSON.parse @copyBuffer
-                win.elem.addClassName 'selected'
-                win.moveBy(10,10) if win.isWindow()
 
     @shadeWindows:    => @selectedOrAllWindows().each (w) -> w.shade()
     @closeWindows:    => @selectedWindows().each (w) -> w.close()
@@ -235,22 +213,5 @@ class knix
             animObject?.anim? step
         @animTimeStamp = timestamp
         window.requestAnimationFrame @anim
-
-    ###
-     0000000  000   000   0000000 
-    000       000   000  000      
-    0000000    000 000   000  0000
-         000     000     000   000
-    0000000       0       0000000 
-    ###
-
-    @initSVG: =>
-
-        svg = @create
-            type:   'svg'
-            id:     'stage_svg'
-            parent: 'stage_content'
-
-        @svg = svg.svg
 
 module.exports = knix

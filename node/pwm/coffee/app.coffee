@@ -13,9 +13,9 @@ fs        = require 'fs'
 _url      = require './js/coffee/tools/urltools'
 password  = require './js/coffee/tools/password' 
 cryptools = require './js/coffee/tools/cryptools'
-knix      = require './js/coffee/knix/knix'
-log       = require './js/coffee/knix/log'
-win       = (require 'remote').getCurrentWindow()
+remote    = require 'remote'
+ipc       = require 'ipc'
+win       = remote.getCurrentWindow()
 
 genHash       = cryptools.genHash
 encrypt       = cryptools.encrypt
@@ -31,6 +31,8 @@ mstr      = undefined
 stash     = {}
 stashFile = process.env.HOME+'/.config/pwm.stash'
 pattern   = 'abcd+efgh+12'
+
+log = () -> ipc.send 'knixlog', [].slice.call arguments, 0
 
 masterChanged = () -> 
     mstr = $("master").value 
