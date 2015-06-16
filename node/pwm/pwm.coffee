@@ -24,9 +24,7 @@ knx = undefined
 000   000  000   000  000  000   000  0000000   0000000    0000000 
 ###
 
-ipc.on 'knixlog', (event, args) ->
-    console.log args
-    knx.webContents.send 'logknix', args
+ipc.on 'knixlog', (event, args) -> knx.webContents.send 'logknix', args
 
 ###
  0000000  000   000   0000000   000   000

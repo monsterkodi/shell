@@ -1,6 +1,6 @@
 {
   "name": "pwm",
-  "version": "0.1.835",
+  "version": "0.1.843",
   "description": "pwm",
   "dependencies": {
     "bcryptjs": "^2.1.0",

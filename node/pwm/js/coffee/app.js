@@ -6,7 +6,7 @@
 000   000  000        000      
 000   000  000        000
  */
-var _url, clearSeed, clipboard, containsLink, cryptools, decrypt, decryptFile, dirty, encrypt, error, extractDomain, extractSite, fs, genHash, ipc, jsonStr, log, main, makePassword, masterBlurred, masterChanged, masterFocus, mstr, newSeed, newSite, numConfigs, pad, password, passwordBlurred, passwordFocus, pattern, readStash, remote, setSite, showPassword, siteBlurred, siteChanged, siteFocus, stash, stashFile, trim, undirty, updateSitePassword, win, writeStash;
+var _url, clearSeed, clipboard, containsLink, cryptools, dbg, decrypt, decryptFile, dirty, encrypt, error, extractDomain, extractSite, fs, genHash, ipc, jsonStr, log, main, makePassword, masterBlurred, masterChanged, masterFocus, mstr, newSeed, newSite, numConfigs, pad, password, passwordBlurred, passwordFocus, pattern, readStash, remote, setSite, showPassword, siteBlurred, siteChanged, siteFocus, stash, stashFile, trim, undirty, updateSitePassword, win, writeStash;
 
 clipboard = require('clipboard');
 
@@ -59,6 +59,10 @@ stashFile = process.env.HOME + '/.config/pwm.stash';
 pattern = 'abcd+efgh+12';
 
 log = function() {
+  return ipc.send('knixlog', [].slice.call(arguments, 0));
+};
+
+dbg = function() {
   return ipc.send('knixlog', [].slice.call(arguments, 0));
 };
 
@@ -115,13 +119,13 @@ siteChanged = function() {
 };
 
 document.observe('dom:loaded', function() {
-  var domain;
-  $("master").on('focus', masterFocus);
-  $("master").on('blur', masterBlurred);
-  $("site").on('focus', siteFocus);
-  $("site").on('blur', siteBlurred);
-  $("password").on('focus', passwordFocus);
-  $("password").on('blur', passwordBlurred);
+  var domain, i, inputName, len, ref;
+  ref = ['master', 'site', 'password'];
+  for (i = 0, len = ref.length; i < len; i++) {
+    inputName = ref[i];
+    $(inputName).on('focus', eval(inputName + 'Focus'));
+    $(inputName).on('blur', eval(inputName + 'Blurred'));
+  }
   $("master").on('input', masterChanged);
   $("site").on('input', siteChanged);
   $("master").focus();
@@ -159,8 +163,8 @@ undirty = function() {
   return log({
     "file": "coffee/app.coffee",
     "class": "app",
-    "line": 94,
-    "args": [""],
+    "line": 92,
+    "args": ["site"],
     "method": "undirty",
     "type": "."
   }, 'undirty');
@@ -170,8 +174,8 @@ dirty = function() {
   return log({
     "file": "coffee/app.coffee",
     "class": "app",
-    "line": 95,
-    "args": [""],
+    "line": 93,
+    "args": ["site"],
     "method": "dirty",
     "type": "."
   }, 'dirty');
@@ -198,7 +202,7 @@ readStash = function(cb) {
     log({
       "file": "coffee/app.coffee",
       "class": "app",
-      "line": 112,
+      "line": 110,
       "args": ["cb"],
       "method": "readStash",
       "type": "."
@@ -209,7 +213,7 @@ readStash = function(cb) {
           log({
             "file": "coffee/app.coffee",
             "class": "app",
-            "line": 116,
+            "line": 114,
             "args": ["cb"],
             "method": "readStash",
             "type": "."
@@ -220,7 +224,7 @@ readStash = function(cb) {
           log({
             "file": "coffee/app.coffee",
             "class": "app",
-            "line": 120,
+            "line": 118,
             "args": ["cb"],
             "method": "readStash",
             "type": "."
@@ -271,7 +275,7 @@ makePassword = function(hash, config) {
   log({
     "file": "coffee/app.coffee",
     "class": "app",
-    "line": 154,
+    "line": 152,
     "args": ["hash", "config"],
     "method": "makePassword",
     "type": "."
@@ -316,14 +320,14 @@ showPassword = function(config) {
   var pass, url;
   url = decrypt(config.url, mstr);
   pass = makePassword(genHash(url + mstr), config);
-  log({
+  dbg({
     "file": "coffee/app.coffee",
     "class": "app",
-    "line": 186,
+    "line": 184,
     "args": ["config"],
     "method": "showPassword",
     "type": "."
-  }, "pass", pass);
+  }, "pass:", pass);
   $("password").value = pass;
   $("password-ghost").setStyle({
     opacity: 0
@@ -350,7 +354,7 @@ main = function() {
   log({
     "file": "coffee/app.coffee",
     "class": "app",
-    "line": 207,
+    "line": 205,
     "args": [""],
     "method": "main",
     "type": "."

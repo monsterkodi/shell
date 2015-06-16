@@ -36,7 +36,6 @@ knx = void 0;
  */
 
 ipc.on('knixlog', function(event, args) {
-  console.log(args);
   return knx.webContents.send('logknix', args);
 });
 

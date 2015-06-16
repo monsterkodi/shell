@@ -8,4 +8,5 @@ document.observe 'dom:loaded', ->
         console: 'maximized'
     
     ipc.on 'logknix', (args) -> 
-        console.log 'lognix' + args;log.apply log, args
+        # console.log 'lognix' + args;
+        log.apply log, args

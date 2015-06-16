@@ -33,39 +33,37 @@ stashFile = process.env.HOME+'/.config/pwm.stash'
 pattern   = 'abcd+efgh+12'
 
 log = () -> ipc.send 'knixlog', [].slice.call arguments, 0
+dbg = () -> ipc.send 'knixlog', [].slice.call arguments, 0
 
-masterChanged = () -> 
+masterChanged = -> 
     mstr = $("master").value 
     $("master-ghost").setStyle opacity: if mstr?.length then 0 else 1
     updateSitePassword $("site").value
-masterFocus = () ->
+masterFocus = ->
     $("master-border").addClassName 'focus'
-masterBlurred = () ->
+masterBlurred = ->
     $("master-border").removeClassName 'focus'
     if $("master").value.length
         while $("master").value.length < 18
             $("master").value += 'x'
-siteFocus       = () -> $("site-border").addClassName 'focus'
-siteBlurred     = () -> $("site-border").removeClassName 'focus'
-passwordFocus   = () -> $("password-border").addClassName 'focus'
-passwordBlurred = () -> $("password-border").removeClassName 'focus'
+siteFocus       = -> $("site-border").addClassName 'focus'
+siteBlurred     = -> $("site-border").removeClassName 'focus'
+passwordFocus   = -> $("password-border").addClassName 'focus'
+passwordBlurred = -> $("password-border").removeClassName 'focus'
     
 setSite = (site) ->
     $("site").value = site
     siteChanged()
     
-siteChanged = () -> 
+siteChanged = -> 
     $("site-ghost").setStyle opacity: if $("site").value.length then 0 else 1
     updateSitePassword $("site").value
 
 document.observe 'dom:loaded', ->
     
-    $("master").on 'focus', masterFocus
-    $("master").on 'blur', masterBlurred
-    $("site").on 'focus', siteFocus
-    $("site").on 'blur', siteBlurred
-    $("password").on 'focus', passwordFocus
-    $("password").on 'blur', passwordBlurred 
+    for inputName in ['master', 'site', 'password']
+        $(inputName).on 'focus', eval inputName+'Focus'
+        $(inputName).on 'blur', eval inputName+'Blurred'
     
     $("master").on 'input', masterChanged    
     $("site").on 'input', siteChanged
@@ -183,7 +181,7 @@ updateSitePassword = (site) ->
 showPassword = (config) ->
     url    = decrypt config.url, mstr
     pass   = makePassword genHash(url+mstr), config
-    log "pass", pass
+    dbg pass
     $("password").value = pass
     $("password-ghost").setStyle opacity: 0
     pass
