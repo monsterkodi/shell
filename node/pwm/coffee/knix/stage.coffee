@@ -6,8 +6,7 @@
 0000000      000     000   000   0000000   00000000
 ###
 
-Menu        = require './menu'
-pos         = require './pos'
+pos = require './pos'
 
 class Stage
 
@@ -15,7 +14,6 @@ class Stage
     
     @init: =>
         stage = $('stage_content')
-        stage.addEventListener 'contextmenu', Menu.showContextMenu
         stage.addEventListener 'mousemove',   Stage.onMove
         stage.addEventListener 'mousedown',   -> (require './selectangle').start()
 

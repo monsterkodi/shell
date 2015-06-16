@@ -8,6 +8,7 @@
 
 Window = require './window'
 def    = require './def'
+log    = require './log'
 
 class About extends Window
     
@@ -61,3 +62,5 @@ class About extends Window
         log "about..."
         if $('about') then $('about').raise()
         else new About
+
+module.exports = About

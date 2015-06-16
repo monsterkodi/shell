@@ -1,6 +1,6 @@
 {
   "name": "pwm",
-  "version": "0.1.803",
+  "version": "0.1.813",
   "description": "pwm",
   "dependencies": {
     "bcryptjs": "^2.1.0",
@@ -37,7 +37,9 @@
     "grunt-contrib-watch": "^0.6.1",
     "grunt-pepper": "^0.4.7",
     "grunt-shell": "^1.1.2",
-    "grunt-stylus": "^0.2.1"
+    "grunt-stylus": "^0.2.1",
+    "moment": "^2.10.3",
+    "process": "^0.11.1"
   },
   "main": "js/pwm.js",
   "scripts": {

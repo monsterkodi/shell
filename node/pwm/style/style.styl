@@ -61,9 +61,6 @@ body
 html
     height:           100%
 
-// canvas
-//     background-color: rgba(255,0,0,0.5)
-
 a
     text-decoration: none
     color:           textColors.link
@@ -82,7 +79,6 @@ a
     width:            100%
     height:           100%
     overflow:         hidden
-    // background-color: colors.stage
 
 #stage_svg
     position:         absolute
@@ -297,6 +293,7 @@ a
 */
 
 .window
+    box-sizing:       content-box
     position:         absolute
     overflow:         hidden
     border:               borders.bg
@@ -334,7 +331,7 @@ a
     border-right:     borders.title
     border-bottom:    borders.title
     bgColorHover(colors.close)
-    box-sizing: inherit
+    box-sizing: content-box
 
 .window .shade
 .window .window-button-right
@@ -342,7 +339,7 @@ a
     border-left:      borders.title
     border-bottom:    borders.title
     bgColorHover(colors.shade)
-    box-sizing: inherit
+    box-sizing: content-box
 
 .window .shade
    width:             widgetHeaderSize
@@ -378,6 +375,7 @@ a
 */
 
 .console-window
+    box-sizing:       border-box    
     .content
         padding: 0
         margin: 0
@@ -391,7 +389,9 @@ a
     padding-bottom: 6px
     padding-left:   8px
     padding-top:    6px
+    // box-sizing:       border-box    
     & *
+        // box-sizing:       border-box    
         textCursor()
 
 .console-error
