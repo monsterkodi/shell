@@ -7,8 +7,7 @@
 ###
 
 Button = require './button'
-tools  = require '../tools/tools'
-def    = tools.def
+def    = require './def'
 
 class Toggle extends Button
     

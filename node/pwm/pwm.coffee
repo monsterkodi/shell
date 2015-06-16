@@ -1,11 +1,12 @@
 
 shortcut      = require 'global-shortcut'
-app           = require 'app'
 path          = require 'path'
+app           = require 'app'
 Tray          = require 'tray'
 BrowserWindow = require 'browser-window'
 
 win = undefined
+knx = undefined
 
 showWindow = () ->
     screenSize = (require 'screen').getPrimaryDisplay().workAreaSize
@@ -19,30 +20,50 @@ showWindow = () ->
     win
 
 createWindow = () ->
-    opts = 
-        dir:           __dirname + '/..'
-        index:         'file://' + __dirname + '/../index.html'
-        preloadWindow: true
-        width:         364
-        height:        800 #466
-        frame:         false
     
     app.on 'ready', () ->
+
         if app.dock then app.dock.hide()
 
-        tray = new Tray path.join opts.dir, 'Icon.png'
+        cwd = path.join __dirname, '..'
+        
+        iconFile = path.join cwd, 'Icon.png'
 
-        tray.on 'clicked', (e, bounds) ->
+        tray = new Tray iconFile
+        
+        tray.on 'clicked', () ->
             if win && win.isVisible()
                 win.hide()
+                knx.hide()
             else
+                knx.show()
                 showWindow()
 
-        win = new BrowserWindow opts
+        knx = new BrowserWindow
+            dir:           cwd
+            preloadWindow: true
+            x:             0
+            y:             0
+            width:         800
+            height:        800
+            frame:         false
+            show:          true
+            
+        knx.loadUrl 'file://' + cwd + '/knx.html'
 
+        win = new BrowserWindow
+            dir:           cwd
+            preloadWindow: true
+            width:         364
+            height:        466
+            frame:         false
+
+        win.loadUrl 'file://' + cwd + '/index.html'
+        
         win.on 'blur', win.hide
-        win.loadUrl opts.index
+        
         shortcut.register 'ctrl+`', showWindow
+        
         setTimeout showWindow, 10
               
 createWindow()            

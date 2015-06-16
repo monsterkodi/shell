@@ -48,3 +48,5 @@ class StyleSwitch
             for p in $$('.path')
                 p.instance.style({ filter: @filter })
             delete @filter
+
+module.exports = StyleSwitch

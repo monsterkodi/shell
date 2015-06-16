@@ -1,12 +1,13 @@
 ###
-
  0000000  00000000  000      00000000   0000000  000000000   0000000   000   000   0000000   000      00000000
 000       000       000      000       000          000     000   000  0000  000  000        000      000     
 0000000   0000000   000      0000000   000          000     000000000  000 0 000  000  0000  000      0000000 
      000  000       000      000       000          000     000   000  000  0000  000   000  000      000     
 0000000   00000000  0000000  00000000   0000000     000     000   000  000   000   0000000   0000000  00000000
-
 ###
+
+Widget = require './widget'
+def    = require './def'
 
 class Selectangle extends Widget
 
@@ -16,7 +17,7 @@ class Selectangle extends Widget
 
     init: (cfg, defs) =>
         
-        cfg = _.def cfg, defs
+        cfg = def cfg, defs
         window.document.documentElement.style.cursor = 'crosshair'
                 
         pos = if cfg.parent?.absPos? then cfg.parent.absPos().to(Stage.mousePos) else Stage.mousePos
@@ -69,3 +70,4 @@ class Selectangle extends Widget
             else if not event.shiftKey
                 wid.elem.removeClassName 'selected'
             
+module.exports = Selectangle

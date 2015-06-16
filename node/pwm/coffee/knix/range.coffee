@@ -1,20 +1,21 @@
 ###
-
 00000000    0000000   000   000   0000000   00000000
 000   000  000   000  0000  000  000        000     
 0000000    000000000  000 0 000  000  0000  0000000 
 000   000  000   000  000  0000  000   000  000     
 000   000  000   000  000   000   0000000   00000000
-
 ###
+
+Window = require './window'
+def    = require './def'
 
 class Range extends Window
 
     init: (cfg, defs) =>
     
-        cfg = _.def cfg, defs
+        cfg = def cfg, defs
 
-        cfg = _.def cfg,
+        cfg = def cfg,
             low         : 0.0
             minLow      : -10000
             maxLow      : 10000
@@ -114,3 +115,4 @@ class Range extends Window
             icon    : 'fa-sliders'
             action  : -> new Range
                             center: true
+module.exports = Range

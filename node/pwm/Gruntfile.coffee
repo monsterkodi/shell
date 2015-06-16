@@ -7,7 +7,8 @@ module.exports = (grunt) ->
         pepper:
             options:
                 template: '::'
-                pepper: []
+                pepper: ['log']
+                paprika: ['dbg']
             task:
                 files:
                     'pwm': [ 'pwm.coffee' ]

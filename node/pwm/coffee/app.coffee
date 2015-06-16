@@ -6,15 +6,15 @@
 000   000  000        000      
 ###
 
+clipboard = require 'clipboard'
 trim      = require 'lodash.trim'
 pad       = require 'lodash.pad'
 fs        = require 'fs'
-clipboard = require 'clipboard'
 _url      = require './js/coffee/tools/urltools'
 password  = require './js/coffee/tools/password' 
 cryptools = require './js/coffee/tools/cryptools'
 knix      = require './js/coffee/knix/knix'
-log       = (require './js/coffee/tools/log').log
+log       = require './js/coffee/knix/log'
 win       = (require 'remote').getCurrentWindow()
 
 genHash       = cryptools.genHash
@@ -58,9 +58,6 @@ siteChanged = () ->
 
 document.observe 'dom:loaded', ->
     
-    knix.init
-        console: true
-        
     $("master").on 'focus', masterFocus
     $("master").on 'blur', masterBlurred
     $("site").on 'focus', siteFocus
@@ -123,7 +120,6 @@ readStash = (cb) ->
             else
                 stash = JSON.parse(json)
                 stash.decryptall = false
-                #log jsonStr stash
                 undirty()
                 cb()
     else
@@ -158,16 +154,17 @@ makePassword = (hash, config) ->
     
 newSite = (site) ->
     pass = updateSitePassword site
-    clipboard.writeText pass
-    dirty()
-    $("password").focus()
+    if pass.length
+        clipboard.writeText pass
+        dirty()
+        $("password").focus()
     
 updateSitePassword = (site) ->
     site = trim site
     if not site?.length or not mstr?.length
         $("password").value = ""
         $("password-ghost").setStyle opacity: 1
-        return
+        return ""
     config = {}
     config.url = encrypt site, mstr
     config.pattern = stash.pattern
@@ -188,16 +185,6 @@ showPassword = (config) ->
     $("password").value = pass
     $("password-ghost").setStyle opacity: 0
     pass
-    
-# listStash = (hash) ->
-#     if hash?
-#         config = stash.configs[hash]
-#         url    = decrypt config.url, mstr
-#         pass   = makePassword genHash(url+mstr), config
-#         clipboard.writeText pass
-#         log "pass", pass
-#         $("password").value = pass
-#         $("password").focus()
     
 ###
 00     00   0000000   000  000   000

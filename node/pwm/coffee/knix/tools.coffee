@@ -7,8 +7,6 @@
 ###
 
 zipObject = require 'lodash.zipobject'
-defaults  = require 'lodash.defaults'
-clone     = require 'lodash.clone'
 remove    = require 'lodash.remove'
 
 Element.addMethods 
@@ -22,14 +20,6 @@ Element.addMethods
         return element?.parentElement?.getWidget()
 
 SVGAnimatedLength.prototype._str = -> "<%0.2f>".fmt @baseVal.value
-
-def = (c,d) ->
-    if c?
-        defaults(clone(c), d)
-    else if d?
-        clone(d)
-    else
-        {}
 
 clamp = (r1, r2, v) ->
     if r1 > r2
@@ -61,6 +51,6 @@ del   = (l,e) -> remove l, (n) -> n == e
 
 exp = 
     [
-        'def', 'clamp', 'round', 'floor', 'arg', 'value', 'win', 'wid', 'del'
+        'clamp', 'round', 'floor', 'arg', 'value', 'win', 'wid', 'del'
     ]
 module.exports = zipObject(exp.map((e) -> [e, eval(e)]))

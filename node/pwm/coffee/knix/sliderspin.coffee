@@ -1,18 +1,19 @@
 ###
-
  0000000  000      000  0000000    00000000  00000000    0000000  00000000   000  000   000
 000       000      000  000   000  000       000   000  000       000   000  000  0000  000
 0000000   000      000  000   000  0000000   0000000    0000000   00000000   000  000 0 000
      000  000      000  000   000  000       000   000       000  000        000  000  0000
 0000000   0000000  000  0000000    00000000  000   000  0000000   000        000  000   000
-
 ###
+
+Hbox = require './hbox'
+def  = require './def'
 
 class Sliderspin extends Hbox
     
     init: (cfg, defs) =>
 
-        cfg = _.def cfg, defs
+        cfg = def cfg, defs
         
         children = []
         if cfg.hasInput != false
@@ -60,3 +61,4 @@ class Sliderspin extends Hbox
         @config.value = _.value v
         @getChild('slider').setValue @config.value
         
+module.exports = Sliderspin

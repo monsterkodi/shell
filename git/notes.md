@@ -13,6 +13,9 @@ git reflog
 # unstage files
 git reset HEAD file(s)
 
+# reset file
+git checkout -- file
+
 # reset submodule to remote status
 git submodule update -- <path>
 

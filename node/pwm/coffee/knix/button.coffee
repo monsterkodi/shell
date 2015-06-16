@@ -6,10 +6,9 @@
 0000000     0000000      000        000      0000000   000   000
 ###
 
-Widget   = require './widget'
-tools    = require '../tools/tools'
 isString = require 'lodash.isstring'
-def      = tools.def
+Widget   = require './widget'
+def      = require './def'
 
 class Button extends Widget
     

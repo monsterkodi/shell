@@ -7,8 +7,7 @@
 ###
 
 Window = require './window'
-tools  = require '../tools/tools'
-def    = tools.def
+def    = require './def'
 
 class About extends Window
     

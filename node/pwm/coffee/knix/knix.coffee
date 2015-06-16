@@ -6,14 +6,14 @@
 000   000  000   000  000  000   000
 ###
 
+capitalize = require 'lodash.capitalize'
 Console    = require './console'
 Widget     = require './widget'
-tools      = require '../tools/tools'
-str        = require '../tools/str'
-_log       = require '../tools/log'
-capitalize = require 'lodash.capitalize'
-log        = _log.log
-def        = tools.def
+Stage      = require './stage'
+tools      = require './tools'
+str        = require './str'
+log        = require './log'
+def        = require './def'
 
 class knix
 
@@ -164,7 +164,7 @@ class knix
                 cls = require './'+cfg.type
                 return new cls cfg
             catch
-                console.log 'no widget of type ' + cfg.type
+                ->
                 
         new Widget cfg, { type: 'widget' }
 

@@ -1,18 +1,19 @@
 ###
-
 00000000    0000000   000000000  000   000
 000   000  000   000     000     000   000
 00000000   000000000     000     000000000
 000        000   000     000     000   000
 000        000   000     000     000   000
-
 ###
+
+Widget = require './widget'
+def    = require './def'
 
 class Path extends Widget
 
     init: (cfg, defs) =>
         
-        @config = _.def cfg, _.def defs,
+        @config = def cfg, _.def defs,
             type     : 'path'
             start    : pos(0,0)
             startDir : pos(0,0)
@@ -91,3 +92,5 @@ class Path extends Widget
         s.coords[0+o] = p.x
         s.coords[1+o] = p.y
         @path.replaceSegment si, s
+
+module.exports = Path

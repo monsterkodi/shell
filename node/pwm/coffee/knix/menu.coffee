@@ -7,8 +7,7 @@
 ###
 
 Widget = require './widget'
-tools  = require '../tools/tools'
-def    = tools.def
+def    = require './def'
 
 class Menu extends Widget
 

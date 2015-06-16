@@ -9,8 +9,7 @@
 _s    = require 'underscore.string'
 last  = require 'lodash.last'
 slice = require 'lodash.slice'
-_log  = require './log'
-log   = _log.log
+log   = require '../knix/log'
 
 #╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
 #┃                                                                                                       extractSite ▢

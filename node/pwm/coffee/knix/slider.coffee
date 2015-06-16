@@ -1,12 +1,13 @@
 ###
-
  0000000  000      000  0000000    00000000  00000000 
 000       000      000  000   000  000       000   000
 0000000   000      000  000   000  0000000   0000000  
      000  000      000  000   000  000       000   000
 0000000   0000000  000  0000000    00000000  000   000
-
 ###
+
+Value = require './value'
+def   = require './def'
 
 class Slider extends Value
     
@@ -57,3 +58,5 @@ class Slider extends Value
     setBarValue: (barValue) =>
         pct = @valueToPercentOfWidth(barValue)
         @getChild('slider-bar').elem.style.width = "%.2f%%".fmt pct
+
+module.exports = Slider

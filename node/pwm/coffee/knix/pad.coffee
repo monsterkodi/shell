@@ -1,19 +1,20 @@
 ###
-
 00000000    0000000   0000000  
 000   000  000   000  000   000
 00000000   000000000  000   000
 000        000   000  000   000
 000        000   000  0000000  
-
 ###
+
+Widget = require './widget'
+def    = require './def'
 
 class Pad extends Widget
         
     init: (cfg, defs) =>
     
-        cfg = _.def cfg, defs
-        cfg = _.def cfg,
+        cfg = def cfg, defs
+        cfg = def cfg,
             minWidth   : 100
             minHeight  : 100
             numHandles : 1
@@ -263,3 +264,5 @@ class Pad extends Widget
         @setSVGSize width, height
         @updateHandles()
         @constrainHandles()
+
+module.exports = Pad

@@ -10,10 +10,11 @@ uuid    = require 'node-uuid'
 unique  = require 'lodash.uniq'
 filter  = require 'lodash.filter'
 find    = require 'lodash.find'
-str     = require '../tools/str'
-pos     = require '../tools/pos'
-tools   = require '../tools/tools'
-def     = tools.def
+warning = require './warning'
+log     = require './log'
+str     = require './str'
+pos     = require './pos'
+def     = require './def'
 
 class Widget
 
@@ -25,7 +26,7 @@ class Widget
 
         cfg = def cfg, defs
         
-        # log cfg
+        log cfg
 
         if not cfg.type?
             warning "NO TYPE?"

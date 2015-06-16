@@ -1,20 +1,23 @@
 ###
-
 000   000   0000000   000   000  0000000    000      00000000
 000   000  000   000  0000  000  000   000  000      000     
 000000000  000000000  000 0 000  000   000  000      0000000 
 000   000  000   000  000  0000  000   000  000      000     
 000   000  000   000  000   000  0000000    0000000  00000000
-
 ###
+
+Widget = require './Widget'
+tools  = require './tools'
+pos    = require './pos'
+def    = require './def'
 
 class Handle extends Widget
         
     init: (cfg, defs) =>
 
-        cfg = _.def cfg, defs
+        cfg = def cfg, defs
 
-        @config = _.def cfg,
+        @config = def cfg,
             radius: 16
             noMove: true
                         
@@ -46,8 +49,10 @@ class Handle extends Widget
     
     move: (p) => @setPos @absPos().plus p
     setPos: =>
-        p = _.arg()
+        p = tools.arg()
         o = @relPos()
         if o.notSame p
             @circle.center p.x, p.y
             @elem.dispatchEvent new CustomEvent 'onpos', { 'detail': p }
+
+module.exports = Handle

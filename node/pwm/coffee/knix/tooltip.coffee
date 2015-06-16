@@ -1,19 +1,19 @@
 ###
-
 000000000   0000000    0000000   000      000000000  000  00000000 
    000     000   000  000   000  000         000     000  000   000
    000     000   000  000   000  000         000     000  00000000 
    000     000   000  000   000  000         000     000  000      
    000      0000000    0000000   0000000     000     000  000      
-
 ###
+
+def = require './def'
 
 class Tooltip
 
     @create: (cfg, defs) =>
 
-        cfg = _.def cfg, defs
-        cfg = _.def cfg, 
+        cfg = def cfg, defs
+        cfg = def cfg, 
                   delay : 700
                   
         cfg.target.tooltip = cfg
@@ -70,3 +70,5 @@ class Tooltip
             if w = tooltip.window
                 w.close()
                 delete e.widget.tooltip.window
+
+module.exports = Tooltip

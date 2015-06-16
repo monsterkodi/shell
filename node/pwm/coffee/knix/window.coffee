@@ -7,13 +7,12 @@
 ###
 
 Widget = require './widget'
-Stage  = require '../tools/stage'
-Drag   = require '../tools/drag'
-tools  = require '../tools/tools'
-pos    = require '../tools/pos'
-str    = require '../tools/str'
-log    = (require '../tools/log').log
-def    = tools.def
+Stage  = require './stage'
+Drag   = require './drag'
+pos    = require './pos'
+str    = require './str'
+log    = require './log'
+def    = require './def'
 
 class Window extends Widget
 

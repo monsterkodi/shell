@@ -8,10 +8,9 @@
 
 assign = require 'lodash.assign'
 Stage  = require './stage'
-tools  = require './tools'
-_log   = require './log'
-error  = _log.error
-def    = tools.def
+error  = require './error'
+log    = require './log'
+def    = require './def'
 
 class Drag
 

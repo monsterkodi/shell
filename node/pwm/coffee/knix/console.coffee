@@ -7,11 +7,11 @@
 ###
 
 Window   = require './window'
-Settings = require '../tools/settings'
-Stage    = require '../tools/stage'
-tools    = require '../tools/tools'
-str      = require '../tools/str'
-def      = tools.def
+Settings = require './settings'
+Stage    = require './stage'
+tools    = require './tools'
+str      = require './str'
+def      = require './def'
 win      = tools.win
 wid      = tools.wid
 
@@ -28,10 +28,8 @@ class Console extends Window
         cfg = def cfg,
             x:       0
             y:       0
-            width:   100
-            height:  100
-            # width:   Stage.size().width/2-24
-            # height:  Stage.size().height-55
+            width:   500
+            height:  500
 
         super cfg,
             title       : 'console'

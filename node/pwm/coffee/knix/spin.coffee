@@ -1,18 +1,19 @@
 ###
-
  0000000  00000000   000  000   000
 000       000   000  000  0000  000
 0000000   00000000   000  000 0 000
      000  000        000  000  0000
 0000000   000        000  000   000
-
 ###
+
+Value = require './value'
+def   = require './def'
 
 class Spin extends Value
     
     init: (cfg, defs) =>
 
-        cfg = _.def cfg, defs
+        cfg = def cfg, defs
         
         super cfg,
             type       : 'spin'
@@ -175,3 +176,5 @@ class Spin extends Value
 
     format: (s) => return @config.format.fmt(s) if @config.format?; String(s)
     strip0: (s) => return s.replace(/(0+)$/,'').replace(/([\.]+)$/,'') if s.indexOf('.') > -1; String(s.strip())
+    
+module.exports = Spin

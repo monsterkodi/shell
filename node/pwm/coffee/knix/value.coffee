@@ -1,12 +1,13 @@
 ###
-
 000   000   0000000   000      000   000  00000000
 000   000  000   000  000      000   000  000     
  000 000   000000000  000      000   000  0000000 
    000     000   000  000      000   000  000     
     0      000   000  0000000   0000000   00000000
-
 ###
+
+Widget = require './widget'
+def    = require './def'
 
 class Value extends Widget
 
@@ -68,3 +69,5 @@ class Value extends Widget
             d = - v + Math.round(v/@config.valueStep)*@config.valueStep
             v += d
         v
+
+module.exports = Value

@@ -1,16 +1,18 @@
-var BrowserWindow, Tray, app, createWindow, path, shortcut, showWindow, win;
+var BrowserWindow, Tray, app, createWindow, knx, path, shortcut, showWindow, win;
 
 shortcut = require('global-shortcut');
 
-app = require('app');
-
 path = require('path');
+
+app = require('app');
 
 Tray = require('tray');
 
 BrowserWindow = require('browser-window');
 
 win = void 0;
+
+knx = void 0;
 
 showWindow = function() {
   var screenSize, screenWidth, winPosX, windowWidth;
@@ -28,31 +30,43 @@ showWindow = function() {
 };
 
 createWindow = function() {
-  var opts;
-  opts = {
-    dir: __dirname + '/..',
-    index: 'file://' + __dirname + '/../index.html',
-    preloadWindow: true,
-    width: 364,
-    height: 800,
-    frame: false
-  };
   return app.on('ready', function() {
-    var tray;
+    var cwd, iconFile, tray;
     if (app.dock) {
       app.dock.hide();
     }
-    tray = new Tray(path.join(opts.dir, 'Icon.png'));
-    tray.on('clicked', function(e, bounds) {
+    cwd = path.join(__dirname, '..');
+    iconFile = path.join(cwd, 'Icon.png');
+    tray = new Tray(iconFile);
+    tray.on('clicked', function() {
       if (win && win.isVisible()) {
-        return win.hide();
+        win.hide();
+        return knx.hide();
       } else {
+        knx.show();
         return showWindow();
       }
     });
-    win = new BrowserWindow(opts);
+    knx = new BrowserWindow({
+      dir: cwd,
+      preloadWindow: true,
+      x: 0,
+      y: 0,
+      width: 800,
+      height: 800,
+      frame: false,
+      show: true
+    });
+    knx.loadUrl('file://' + cwd + '/knx.html');
+    win = new BrowserWindow({
+      dir: cwd,
+      preloadWindow: true,
+      width: 364,
+      height: 466,
+      frame: false
+    });
+    win.loadUrl('file://' + cwd + '/index.html');
     win.on('blur', win.hide);
-    win.loadUrl(opts.index);
     shortcut.register('ctrl+`', showWindow);
     return setTimeout(showWindow, 10);
   });

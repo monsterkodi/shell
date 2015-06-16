@@ -7,8 +7,7 @@
 ###
 
 Widget = require './widget'
-tools  = require '../tools/tools'
-def    = tools.def
+def    = require '/.def'
 
 class Icon extends Widget
 
@@ -21,7 +20,7 @@ class Icon extends Widget
             elem: 'span'
                 
         super cfg,
-            child: 
+            child:
                 elem:  'i'
                 class: (cfg.icon.startsWith('fa') and 'fa ' or 'octicon ') + cfg.icon
         

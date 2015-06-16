@@ -8,13 +8,13 @@
  */
 var _url, clearSeed, clipboard, containsLink, cryptools, decrypt, decryptFile, dirty, encrypt, error, extractDomain, extractSite, fs, genHash, jsonStr, knix, log, main, makePassword, masterBlurred, masterChanged, masterFocus, mstr, newSeed, newSite, numConfigs, pad, password, passwordBlurred, passwordFocus, pattern, readStash, setSite, showPassword, siteBlurred, siteChanged, siteFocus, stash, stashFile, trim, undirty, updateSitePassword, win, writeStash;
 
+clipboard = require('clipboard');
+
 trim = require('lodash.trim');
 
 pad = require('lodash.pad');
 
 fs = require('fs');
-
-clipboard = require('clipboard');
 
 _url = require('./js/coffee/tools/urltools');
 
@@ -24,7 +24,7 @@ cryptools = require('./js/coffee/tools/cryptools');
 
 knix = require('./js/coffee/knix/knix');
 
-log = (require('./js/coffee/tools/log')).log;
+log = require('./js/coffee/knix/log');
 
 win = (require('remote')).getCurrentWindow();
 
@@ -112,9 +112,6 @@ siteChanged = function() {
 
 document.observe('dom:loaded', function() {
   var domain;
-  knix.init({
-    console: true
-  });
   $("master").on('focus', masterFocus);
   $("master").on('blur', masterBlurred);
   $("site").on('focus', siteFocus);
@@ -239,9 +236,11 @@ makePassword = function(hash, config) {
 newSite = function(site) {
   var pass;
   pass = updateSitePassword(site);
-  clipboard.writeText(pass);
-  dirty();
-  return $("password").focus();
+  if (pass.length) {
+    clipboard.writeText(pass);
+    dirty();
+    return $("password").focus();
+  }
 };
 
 updateSitePassword = function(site) {
@@ -252,7 +251,7 @@ updateSitePassword = function(site) {
     $("password-ghost").setStyle({
       opacity: 1
     });
-    return;
+    return "";
   }
   config = {};
   config.url = encrypt(site, mstr);
