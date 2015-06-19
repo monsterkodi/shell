@@ -22,4 +22,12 @@ git submodule update -- <path>
 # remove github release
 git tag -d v0.1.1  
 git push origin :v0.1.1
+
+# set remote for local repository
+git remote add origin <remote-url>
+git branch --set-upstream-to=origin/<branch> master
+
+# change remote url
+git remote set-url origin <remote-url>
+
 ```

@@ -1,6 +1,0 @@
-{
-    "cmd": "grunt",
-    "args": ["test"],
-    "sh": false,
-    "cwd": "/Users/kodi/shell/node/pwm"
-}
