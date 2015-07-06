@@ -4,11 +4,11 @@ alias reload 'source ~/shell/fish/config.fish'
 
 # color-ls
 alias lso  '/bin/ls'
-alias ls   'color-ls'
-alias lss  'ls -lsp --stats'
-alias lst  'ls -ltp --stats'
-alias lsk  'ls -lkp --stats'
-alias lll  'ls -lkpro --stats'
+alias ls   'color-ls -p'
+alias lss  'ls -ls --stats'
+alias lst  'ls -lt --stats'
+alias lsk  'ls -lk --stats'
+alias lll  'ls -lkro --stats'
 alias l    'ls'
 alias la   'ls -a'
 alias ll   'ls -l'
@@ -43,6 +43,8 @@ alias show functions
 alias - prevd
 alias + nextd
 alias d dirh
+
+[ -f /usr/local/share/autojump/autojump.fish ]; and . /usr/local/share/autojump/autojump.fish
 
 function fish_title
     pwd
