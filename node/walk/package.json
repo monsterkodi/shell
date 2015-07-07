@@ -1,0 +1,23 @@
+{
+  "name": "walk",
+  "version": "0.0.10",
+  "description": "walk",
+  "main": "index.js",
+  "scripts": {},
+  "author": "monsterkodi",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-bower-concat": "^0.5.0",
+    "grunt-bumpup": "^0.6.2",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-coffee": "^0.13.0",
+    "grunt-contrib-stylus": "^0.21.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-pepper": "^0.5.5",
+    "grunt-shell": "^1.1.2"
+  },
+  "dependencies": {
+    "walkdir": "0.0.10",
+    "walkdir-hash": "^0.1.0"
+  }
+}
