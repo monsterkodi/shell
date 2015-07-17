@@ -1,0 +1,54 @@
+[
+    {
+        type: "button"
+        icon: 'eye-disabled'
+        iconset: 'ion'
+        callback: 'window:toggle-invisibles'
+        tooltip: 'Toggle Invisibles'
+    }
+    {
+        type: "button"
+        icon: "folder-o"
+        iconset: "fa"
+        callback: "pane:close-other-items"
+        tooltip: 'Close Other Tabs'
+    }  
+    {
+        type: "button"
+        icon: "columns"
+        iconset: "fa"
+        callback: "pane:split-right"
+    }
+    {
+        type: "button"
+        icon: "columns fa-rotate-270"
+        iconset: "fa"
+        callback: "pane:split-down"
+    }
+    {
+        type: "button"
+        icon: 'refresh'
+        iconset: 'ion'
+        callback: 'window:reload'
+        tooltip: 'Reload Window'
+    }
+    {
+        type: "button"
+        icon: "markdown"
+        callback: "markdown-preview:toggle"
+        show: "Markdown"
+    }
+    {
+        type: "button"
+        icon: "social-javascript"
+        iconset: 'ion'
+        callback: "preview:toggle"
+        show: "CoffeeScript"
+    }
+    {
+        type: "button"
+        icon: 'tools'
+        callback: 'settings-view:open'
+        tooltip: 'Open Settings View'
+    }
+]

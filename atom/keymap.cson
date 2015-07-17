@@ -30,3 +30,11 @@
   'cmd-down': 'switch-header-source:switch'  
   'shift-cmd-W': 'pane:close-other-items'
   'cmd-r': 'build:trigger'
+  
+'atom-text-editor':
+  'ctrl-s':     'rapid-motion:forward'
+  'ctrl-cmd-r': 'rapid-motion:backward'
+ 
+'atom-text-editor.rapid-motion':
+  ']': 'rapid-motion:forward'
+  '[': 'rapid-motion:backward'
