@@ -8,11 +8,11 @@ apm install atom-beautify
 apm install autocomplete-paths
 apm install build
 apm install file-icons
+apm install make-coffee
 # apm install filetype-color
 apm install tree-view-filter
 apm install minimap
 apm install preview
-# apm install project-manager
 apm install sort-lines
 apm install atom-innerspace
 apm install tabs-to-spaces

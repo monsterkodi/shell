@@ -2,7 +2,9 @@
 source ~/shell/bash/bash.sh
 
 # general aliases
-source ~/shell/bash/alias.sh
+#source ~/shell/bash/alias.sh
+
+source ~/shell/bash/tokens.sh
 
 alias eject='diskutil eject '
 
@@ -22,8 +24,6 @@ export PAGER=vimpager
 export EDITOR='atom'
 export GIT_EDITOR='atom'
 export LESSEDIT='atom %lm %f'
-# git
-export HOMEBREW_GITHUB_API_TOKEN=e40932478a1c33f76037d989c6f9da5fab0bc89d
 
 shopt -s histverify
 

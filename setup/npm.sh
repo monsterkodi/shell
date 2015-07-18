@@ -2,6 +2,7 @@
 
 npm install -g electron-prebuilt
 npm install -g coffee-script
+npm install -g js2coffee
 npm install -g grunt-cli
 npm install -g color-ls
 npm install -g stylus
