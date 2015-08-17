@@ -1,54 +1,86 @@
 [
     {
-        type: "button"
-        icon: 'eye-disabled'
-        iconset: 'ion'
-        callback: 'window:toggle-invisibles'
-        tooltip: 'Toggle Invisibles'
+        type:     "button"
+        icon:     'play-circle'
+        iconset:  'fa'
+        callback: 'build:trigger'
+        tooltip:  'Build'
     }
     {
-        type: "button"
-        icon: "folder-o"
-        iconset: "fa"
+        type:     "button"
+        icon:     'eye-disabled'
+        iconset:  'ion'
+        callback: 'window:toggle-invisibles'
+        tooltip:  'Toggle Invisibles'
+    }
+    {
+        type:     "button"
+        icon:     'more'
+        iconset:  'ion'
+        callback: 'whitespace:convert-tabs-to-spaces'
+        tooltip:  'Convert Tabs to Spaces'
+    }
+    {
+        type:     "button"
+        icon:     'align-left'
+        iconset:  'fa'
+        callback: 'atom-beautify:beautify-editor'
+        tooltip:  'Beautify'
+    }
+    {
+        type:     "button"
+        icon:     "folder-o"
+        iconset:  "fa"
         callback: "pane:close-other-items"
-        tooltip: 'Close Other Tabs'
+        tooltip:  'Close Other Tabs'
     }  
     {
-        type: "button"
-        icon: "columns"
-        iconset: "fa"
+        type:     "button"
+        icon:     "columns"
+        iconset:  "fa"
         callback: "pane:split-right"
+        tooltip:  'Split Right'
     }
     {
-        type: "button"
-        icon: "columns fa-rotate-270"
-        iconset: "fa"
+        type:     "button"
+        icon:     "columns fa-rotate-270"
+        iconset:  "fa"
         callback: "pane:split-down"
+        tooltip:  'Split Down'
     }
     {
-        type: "button"
-        icon: 'refresh'
-        iconset: 'ion'
+        type:     "button"
+        icon:     'th-list'
+        iconset:  'fa'
+        callback: 'tree-view:toggle'
+        tooltip:  'Toggle Treeview'
+    }    
+    {
+        type:     "button"
+        icon:     'refresh'
+        iconset:  'ion'
         callback: 'window:reload'
-        tooltip: 'Reload Window'
+        tooltip:  'Reload Window'
     }
     {
-        type: "button"
-        icon: "markdown"
+        type:     "button"
+        icon:     "markdown"
         callback: "markdown-preview:toggle"
-        show: "Markdown"
+        show:     "Markdown"
+        tooltip:  'Markdown Preview'
     }
     {
-        type: "button"
-        icon: "social-javascript"
-        iconset: 'ion'
+        type:     "button"
+        icon:     "social-javascript"
+        iconset:  'ion'
         callback: "preview:toggle"
-        show: "CoffeeScript"
+        show:     "CoffeeScript"
+        tooltip:  'Preview'
     }
     {
-        type: "button"
-        icon: 'tools'
+        type:     "button"
+        icon:     'tools'
         callback: 'settings-view:open'
-        tooltip: 'Open Settings View'
+        tooltip:  'Open Settings View'
     }
 ]

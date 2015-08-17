@@ -14,12 +14,13 @@ apm install tree-view-filter
 apm install minimap
 apm install preview
 apm install sort-lines
-apm install atom-innerspace
 apm install tabs-to-spaces
 apm install indent-toggle-on-paste
 apm install auto-indent
 apm install zentabs
 apm install pigments
+apm install tool-bar
+apm install flex-tool-bar
 
 apm install dunkelbunt-syntax
 apm install flatland-dark-ui
