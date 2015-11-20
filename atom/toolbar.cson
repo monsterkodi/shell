@@ -8,6 +8,13 @@
     }
     {
         type:     "button"
+        icon:     'th-list'
+        iconset:  'fa'
+        callback: 'tree-view:toggle'
+        tooltip:  'Toggle Treeview'
+    }    
+    {
+        type:     "button"
         icon:     'eye-disabled'
         iconset:  'ion'
         callback: 'window:toggle-invisibles'
@@ -48,13 +55,6 @@
         callback: "pane:split-down"
         tooltip:  'Split Down'
     }
-    {
-        type:     "button"
-        icon:     'th-list'
-        iconset:  'fa'
-        callback: 'tree-view:toggle'
-        tooltip:  'Toggle Treeview'
-    }    
     {
         type:     "button"
         icon:     'refresh'
