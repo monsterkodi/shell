@@ -22,6 +22,21 @@
     }
     {
         type:     "button"
+        icon:     "social-javascript"
+        iconset:  'ion'
+        callback: "preview:toggle"
+        show:     "CoffeeScript"
+        tooltip:  'Preview'
+    }
+    {
+        type:     "button"
+        icon:     "markdown"
+        callback: "markdown-preview:toggle"
+        show:     "Markdown"
+        tooltip:  'Markdown Preview'
+    }
+    {
+        type:     "button"
         icon:     'more'
         iconset:  'ion'
         callback: 'whitespace:convert-tabs-to-spaces'
@@ -61,21 +76,6 @@
         iconset:  'ion'
         callback: 'window:reload'
         tooltip:  'Reload Window'
-    }
-    {
-        type:     "button"
-        icon:     "markdown"
-        callback: "markdown-preview:toggle"
-        show:     "Markdown"
-        tooltip:  'Markdown Preview'
-    }
-    {
-        type:     "button"
-        icon:     "social-javascript"
-        iconset:  'ion'
-        callback: "preview:toggle"
-        show:     "CoffeeScript"
-        tooltip:  'Preview'
     }
     {
         type:     "button"
