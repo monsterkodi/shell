@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 
-npm install -g electron-prebuilt
 npm install -g coffee-script
 npm install -g js2coffee
-npm install -g grunt-cli
+npm install -g gulp
+npm install -g gulper
 npm install -g color-ls
+npm install -g sds
+npm install -g vtop
 npm install -g stylus
 npm install -g bower
 npm install -g html2jade

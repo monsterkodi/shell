@@ -25,7 +25,7 @@ git push origin :v0.1.1
 
 # set remote for local repository
 git remote add origin <remote-url>
-git branch --set-upstream-to=origin/<branch> master
+git branch --set-upstream-to=origin/master master
 
 # change remote url
 git remote set-url origin <remote-url>

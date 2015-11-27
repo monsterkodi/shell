@@ -6,7 +6,7 @@
 	prompt = false
 [core]
 	autocrlf = input
-	excludesfile = ~/shell/git/gitignore_global
+	excludesfile = /Users/kodi/shell/git/gitignore_global
 [color]
 	ui = 1
 	diff = always  
@@ -29,3 +29,9 @@
 	clean = git-lfs clean %f
 	smudge = git-lfs smudge %f
 	required = true
+[difftool "sourcetree"]
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+	path = 
+[mergetool "sourcetree"]
+	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true
