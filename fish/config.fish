@@ -27,7 +27,8 @@ alias push 'git push'
 alias pull 'git pull'
 
 ## npm
-alias npmadd 'npm install -s --save'
+alias npmdev 'npm install --save-dev'
+alias npmadd 'npm install --save'
 alias npmls  'npm ls -s --depth 0'
 
 ## misc
