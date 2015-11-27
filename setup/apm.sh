@@ -17,7 +17,7 @@ apm install sort-lines
 apm install tabs-to-spaces
 apm install indent-toggle-on-paste
 apm install auto-indent
-apm install zentabs
+# apm install zentabs
 apm install pigments
 apm install tool-bar
 apm install flex-tool-bar

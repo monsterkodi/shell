@@ -14,6 +14,23 @@ alias la   'ls -a'
 alias ll   'ls -l'
 alias lla  'ls -la'
 
+# clear
+alias c    'clear'
+
+function cl
+    clear
+    cwd
+    ls -l
+end
+
+function cls
+    clear
+    cwd
+    ls
+end
+
+alias cll 'cl'
+
 ## git
 alias ci   'git commit -a -m'
 alias cim  'git commit -a -m "misc"'
@@ -33,9 +50,9 @@ alias npmls  'npm ls -s --depth 0'
 
 ## misc
 alias h    'hist'
-alias c    'clear'
 alias p    'pwd'
 alias gulp 'gulper'
+alias g    'gulp'
 alias cd.. 'cd ..'
 alias grep 'grep --color'
 alias less 'vimpager'
@@ -60,12 +77,6 @@ end
 
 function fish_right_prompt
     cwd
-end
-
-function cl
-    clear
-    cwd
-    ls -l
 end
 
 set fish_greeting
