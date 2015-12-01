@@ -13,3 +13,4 @@ npm install -g html2jade
 npm install -g js2coffee
 npm install -g css2stylus
 npm install -g npm-check-updates
+npm install -g hl
