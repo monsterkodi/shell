@@ -30,4 +30,8 @@ git branch --set-upstream-to=origin/master master
 # change remote url
 git remote set-url origin <remote-url>
 
+# remove tag
+git tag -d tag
+git push origin:tag
+
 ```

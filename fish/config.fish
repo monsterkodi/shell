@@ -52,7 +52,7 @@ alias npmls  'npm ls -s --depth 0'
 alias h    'hist'
 alias p    'pwd'
 alias gulp 'gulper'
-alias g    'gulp'
+alias g    'gulper'
 alias cd.. 'cd ..'
 alias grep 'grep --color'
 alias less 'vimpager'
@@ -85,6 +85,8 @@ set fish_color_valid_path '--bold' '--underline'
 if [ $PATH[-1] != "." ]
     set PATH $PATH .
 end
+
+set PATH $PATH ./bin
 
 set PATH $PATH /usr/local/sbin
 
