@@ -1,5 +1,6 @@
     
 '.platform-darwin atom-workspace':
+  # 'cmd-r': 'build-tools:first-command'
   'cmd-r': 'build:trigger'
   'shift-cmd-W': 'pane:close-other-items'
   
@@ -7,6 +8,7 @@
   'cmd-up': 'switch-header-source:switch'  
   'cmd-down': 'switch-header-source:switch'  
   'shift-cmd-W': 'pane:close-other-items'
+  # 'cmd-r': 'build-tools:first-command'
   'cmd-r': 'build:trigger'
     
 '.tree-view':

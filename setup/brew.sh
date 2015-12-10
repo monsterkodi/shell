@@ -23,6 +23,7 @@ brew install unison
 brew install python
 brew install python3
 brew install vimpager
+brew install git-crypt
 
 # brew install freetype
 # brew install fontconfig
