@@ -15,21 +15,11 @@ alias ll   'ls -l'
 alias lla  'ls -la'
 
 # clear
-alias c    'clear'
-
-function cl
-    clear
-    cwd
-    ls -l
-end
-
-function cls
-    clear
-    cwd
-    ls
-end
-
+alias c   'clear'
+alias cl  'clear; and cwd; and ls -l'
 alias cll 'cl'
+alias cla 'clear; and cwd; and ls -la'
+alias cls 'clear; and cwd; and ls'
 
 ## git
 alias ci   'git commit -a -m'
@@ -46,6 +36,8 @@ alias pull 'git pull'
 ## npm
 alias npmdev 'npm install --save-dev'
 alias npmadd 'npm install --save'
+alias npmdel 'npm uninstall --save'
+alias npmdeldev 'npm uninstall --save-dev'
 alias npmls  'npm ls -s --depth 0'
 
 ## misc
