@@ -12,6 +12,5 @@ mac/img/
 mac/keys/
 Icon?
 bash/tokens.sh
-node/home/img
-node/home/home.html
-node/home/index.js
+web/*.html
+web/.img

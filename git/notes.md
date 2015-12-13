@@ -34,4 +34,8 @@ git remote set-url origin <remote-url>
 git tag -d tag
 git push origin:tag
 
+# create github pages 
+git checkout -b gh-pages
+git push --set-upstream origin gh-pages
+
 ```
