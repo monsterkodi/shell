@@ -13,4 +13,5 @@ mac/keys/
 Icon?
 bash/tokens.sh
 web/*.html
+web/*.noon
 web/img
