@@ -26,7 +26,8 @@ apm install dunkelbunt-syntax
 apm install flatland-dark-ui
 
 apm install language-fish-shell
-apm install language-cmake
-apm install language-lua
-apm install language-protobuf
+apm install language-noon
 apm install atom-jade
+# apm install language-cmake
+# apm install language-lua
+# apm install language-protobuf
