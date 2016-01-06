@@ -16,12 +16,12 @@ git reset HEAD file(s)
 # reset file
 git checkout -- file
 
+# reset directory
+git checkout -- dir
+git clean dir -fd
+
 # reset submodule to remote status
 git submodule update -- <path>
-
-# remove github release
-git tag -d v0.1.1  
-git push origin :v0.1.1
 
 # set remote for local repository
 git remote add origin <remote-url>
@@ -37,5 +37,9 @@ git push origin:tag
 # create github pages 
 git checkout -b gh-pages
 git push --set-upstream origin gh-pages
+
+# remove github release
+git tag -d v0.1.1  
+git push origin :v0.1.1
 
 ```
