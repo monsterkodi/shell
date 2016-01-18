@@ -6,7 +6,7 @@ defaults write -g NSAllowContinuousSpellChecking -bool false
 # disable warnings when starting downloaded programs
 defaults write com.apple.LaunchServices LSQuarantine -bool NO
 
-# disable application crash reports 
+# disable application crash reports
 defaults write com.apple.CrashReporter DialogType none
 
 # make quicklook text selectable

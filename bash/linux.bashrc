@@ -2,7 +2,7 @@
 source ~/shell/bash/bash.sh
 
 # general aliases
-source ~/shell/bash/alias.sh
+#source ~/shell/bash/alias.sh
 #source ~/shell/bash/tokens.sh
 
 # path

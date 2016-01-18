@@ -41,6 +41,10 @@ alias npmdel 'npm uninstall --save'
 alias npmdeldev 'npm uninstall --save-dev'
 alias npmls  'npm ls -s --depth 0'
 
+# apt
+alias aptadd 'sudo apt-get install'
+alias aptdel 'sudo apt-get uninstall'
+
 ## misc
 alias h    'hist'
 alias p    'pwd'

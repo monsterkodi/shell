@@ -7,8 +7,6 @@ npm install -g gulper
 npm install -g color-ls
 npm install -g sds
 npm install -g noon
-npm install -g konrad
-npm install -g urtil
 npm install -g vtop
 npm install -g stylus
 npm install -g bower
@@ -18,3 +16,6 @@ npm install -g css2stylus
 npm install -g npm-check-updates
 npm install -g hl
 npm install -g vmd
+
+cd ~/shell/node/tools
+npm install
