@@ -7,6 +7,8 @@ npm install -g gulper
 npm install -g color-ls
 npm install -g sds
 npm install -g noon
+npm install -g konrad
+npm install -g urtil
 npm install -g vtop
 npm install -g stylus
 npm install -g bower

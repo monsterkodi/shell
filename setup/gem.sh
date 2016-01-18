@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-gem install facets
-gem install term-ansicolor
+sudo gem install facets
+sudo gem install term-ansicolor
