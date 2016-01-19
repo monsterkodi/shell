@@ -49,4 +49,8 @@ git push --set-upstream origin gh-pages
 git tag -d v0.1.1  
 git push origin :v0.1.1
 
+# git-crypt
+git-crypt export-key <file>
+git-crypt unlock <file>
+
 ```
