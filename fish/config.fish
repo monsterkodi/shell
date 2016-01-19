@@ -30,7 +30,7 @@ alias gls  'gl --stat'
 alias glg  'gl --graph'
 alias gld  'gl -p'
 alias add  'git add'
-alias gd   'git diff'
+alias gd   'git diff -U0 --ignore-space-at-eol'
 alias push 'git push'
 alias pull 'git pull'
 

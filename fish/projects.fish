@@ -10,4 +10,4 @@ function s
     cl
 end
 
-source ~/shell/fish/.projects.fish
+[ -e ~/shell/fish/.projects.fish ]; and source ~/shell/fish/.projects.fish
