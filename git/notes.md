@@ -27,6 +27,10 @@ git submodule update -- <path>
 git remote add origin <remote-url>
 git branch --set-upstream-to=origin/master master
 
+# change commit message
+git commit --amend -m "new message"
+git push --force # if it was already pushed
+
 # change remote url
 git remote set-url origin <remote-url>
 
@@ -37,7 +41,7 @@ git push origin:tag
 # force push a tag
 git push --force origin refs/tags/tag
 
-# create github pages 
+# create github pages
 git checkout -b gh-pages
 git push --set-upstream origin gh-pages
 

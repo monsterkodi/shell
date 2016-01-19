@@ -6,3 +6,4 @@ sudo apt-get install nodejs-legacy
 sudo apt-get install npm
 sudo apt-get install python-pip
 sudo apt-get install ruby
+sudo apt-get install curl
