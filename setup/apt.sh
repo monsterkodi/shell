@@ -8,3 +8,5 @@ sudo apt-get install python-pip
 sudo apt-get install ruby
 sudo apt-get install curl
 sudo apt-get install silversearcher-ag
+sudo apt-get install git-crypt
+sudo apt-get install unison
