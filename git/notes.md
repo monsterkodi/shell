@@ -53,4 +53,8 @@ git push origin :v0.1.1
 git-crypt export-key <file>
 git-crypt unlock <file>
 
+# list merged remote branches sorted by age of last commit
+for branch in `git branch -r --merged | grep -v HEAD`; do echo -e `git show --format="%ci %cr %an" $branch | head -n 1` \\t$branch; done | sort -r
+# as above, but unmerged
+for branch in `git branch -r --no-merged | grep -v HEAD`; do echo -e `git show --format="%ci %cr %an" $branch | head -n 1` \\t$branch; done | sort -r
 ```
