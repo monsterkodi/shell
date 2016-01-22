@@ -15,3 +15,5 @@ bash/tokens.sh
 web/*.html
 web/*.noon
 web/img
+.DS_Store
+node_modules
