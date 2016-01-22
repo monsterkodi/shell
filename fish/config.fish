@@ -63,8 +63,11 @@ alias kb    'k -b'
 alias kt    'k -t'
 alias ki    'k -i'
 alias kh    'k -h'
+alias ks    'k -s'
+alias kd    'k -d'
 alias kr    'k -r'
 alias kR    'k -R'
+alias cc    '~/s/colorcat/bin/colorcat'
 
 ## fish
 alias show functions
