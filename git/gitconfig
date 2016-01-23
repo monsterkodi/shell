@@ -6,7 +6,6 @@
 	prompt = false
 [core]
 	autocrlf = input
-	excludesfile = ~/.gitignore_global
 [color]
 	ui = 1
 	diff = always

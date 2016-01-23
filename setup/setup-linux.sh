@@ -27,7 +27,6 @@ ln -s ~/shell/bash/linux.bashrc ~/.bashrc
 ln -s ~/shell/bash/profile ~/.profile
 ln -s ~/shell/fish ~/.config/
 ln -s ~/shell/git/gitconfig ~/.gitconfig
-ln -s ~/shell/git/gitignore_global ~/.gitignore_global
 
 curl -sL https://deb.nodesource.com/setup_5.x | sudo -E bash -e
 
