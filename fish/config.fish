@@ -39,6 +39,7 @@ alias npmadd 'npm install --save'
 alias npmdel 'npm uninstall --save'
 alias npmdeldev 'npm uninstall --save-dev'
 alias npmls  'npm ls -s --depth 0 | colorcat -P ~/s/konrad/colorcat/npm.noon'
+alias npmll  'npm ls -s           | colorcat -P ~/s/konrad/colorcat/npm.noon'
 
 # apt
 alias aptadd 'sudo apt-get install'
