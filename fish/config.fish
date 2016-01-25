@@ -22,9 +22,8 @@ alias cla 'clear; and cwd; and ls -la'
 alias cls 'clear; and cwd; and ls'
 
 ## git
-alias ci   'git commit -a -m'
-alias cim  'git commit -a -m "misc"'
-alias st   'git status -sb'
+alias ci   'git commit -m'
+alias st   'git status -sb | colorcat -P ~/s/konrad/colorcat/status.noon'
 alias gl   'git log --pretty=format:%\>\|\(14\)%Cred%cr\ %Cgreen%\<\|\(40\)%cn%Cblue%d\ %\<\|\(120,trunc\)%Creset%s'
 alias gls  'gl --stat'
 alias glg  'gl --graph'
@@ -39,7 +38,7 @@ alias npmdev 'npm install --save-dev'
 alias npmadd 'npm install --save'
 alias npmdel 'npm uninstall --save'
 alias npmdeldev 'npm uninstall --save-dev'
-alias npmls  'npm ls -s --depth 0'
+alias npmls  'npm ls -s --depth 0 | colorcat -P ~/s/konrad/colorcat/npm.noon'
 
 # apt
 alias aptadd 'sudo apt-get install'
