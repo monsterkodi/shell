@@ -4,9 +4,9 @@ source ~/shell/bash/bash.sh
 # general aliases
 #source ~/shell/bash/alias.sh
 
-source ~/shell/bash/tokens.sh
+#source ~/shell/bash/tokens.sh
 
-alias eject='diskutil eject '
+#alias eject='diskutil eject '
 
 # syslogd
 # alias stopsyslogd='sudo launchctl stop com.apple.syslogd'
@@ -28,7 +28,3 @@ export LESSEDIT='atom %lm %f'
 shopt -s histverify
 
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
-
-# if [ -f $(brew --prefix)/share/bash-completion/bash_completion ]; then
-#   . $(brew --prefix)/share/bash-completion/bash_completion
-# fi

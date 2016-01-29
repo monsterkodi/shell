@@ -17,3 +17,4 @@ web/*.noon
 web/img
 .DS_Store
 node_modules
+web/confluence.png
