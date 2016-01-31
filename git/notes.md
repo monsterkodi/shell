@@ -53,6 +53,14 @@ git push origin :v0.1.1
 git-crypt export-key <file>
 git-crypt unlock <file>
 
+# prepare syncing of clone and original repo (https://help.github.com/articles/configuring-a-remote-for-a-fork/)
+git remote -v
+git remote add upstream https://github.com/owner/repo.git
+git remote -v
+# sync the fork (https://help.github.com/articles/syncing-a-fork/)
+git fetch upstream
+git merge upstream/master
+
 # list merged remote branches sorted by age of last commit
 for branch in `git branch -r --merged | grep -v HEAD`; do echo -e `git show --format="%ci %cr %an" $branch | head -n 1` \\t$branch; done | sort -r
 # as above, but unmerged
