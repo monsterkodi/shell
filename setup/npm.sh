@@ -5,8 +5,11 @@ npm install -g js2coffee
 npm install -g gulp
 npm install -g gulper
 npm install -g color-ls
+npm install -g colorcat
 npm install -g sds
 npm install -g noon
+npm install -g konrad
+npm install -g strudl
 npm install -g vtop
 npm install -g stylus
 npm install -g bower
