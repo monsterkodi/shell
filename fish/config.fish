@@ -29,7 +29,7 @@ alias gls    'gl --stat'
 alias glg    'gl --graph'
 alias gld    'gl -p'
 alias add    'git add'
-alias gd     'git diff -U0 --ignore-space-at-eol'
+alias gd     'git diff -U0 --ignore-space-at-eol | colorcat -sP ~/s/konrad/cc/diff.noon'
 alias push   'git push          | colorcat -P ~/s/konrad/cc/push.noon'
 alias pull   'git pull          | colorcat -P ~/s/konrad/cc/pull.noon'         
 alias rebase 'git pull --rebase | colorcat -P ~/s/konrad/cc/rebase.noon'
@@ -98,8 +98,7 @@ if [ $PATH[-1] != "." ]
     set PATH $PATH .
 end
 
-set PATH $PATH ./bin
-
+set PATH ./bin $PATH 
 set PATH $PATH /usr/local/sbin
 
 function __fish_command_not_found_handler --on-event fish_command_not_found
