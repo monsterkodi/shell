@@ -30,7 +30,7 @@ alias glg    'gl --graph'
 alias gld    'gl -p'
 alias add    'git add'
 alias gd     'git diff -U0 --ignore-space-at-eol | colorcat -sP ~/s/konrad/cc/diff.noon'
-alias push   'git push          | colorcat -P ~/s/konrad/cc/push.noon'
+alias push   'echo "git push 2>&1" | bash | cc -sP ~/s/konrad/cc/push.noon'
 alias pull   'git pull          | colorcat -P ~/s/konrad/cc/pull.noon'         
 alias rebase 'git pull --rebase | colorcat -P ~/s/konrad/cc/rebase.noon'
 
