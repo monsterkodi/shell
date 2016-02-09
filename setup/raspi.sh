@@ -5,23 +5,24 @@
 # cd ~
 # git clone git@github.com:monsterkodi/shell.git
 
+sudo adduser pi staff
+
 cd ~/shell/setup
 
 ./apt.sh
 
-chsh -s /usr/bin/fish
+wget http://node-arm.herokuapp.com/node_latest_armhf.deb 
+sudo dpkg -i node_latest_armhf.deb
 
+./npm.sh
+./gem.sh
+./pip.sh
+
+rm -f ~/.bashrc
 ln -s ~/shell/bash/linux.bashrc ~/.bashrc
+rm -f ~/.profile
 ln -s ~/shell/bash/profile ~/.profile
 ln -s ~/shell/fish ~/.config/
 ln -s ~/shell/git/gitconfig ~/.gitconfig
 
-curl -sL https://deb.nodesource.com/setup_5.x | sudo -E bash -e
-
-./npm.sh
-
-# sudo chown -R kodi:kodi ~/.npm/*
-
-./gem.sh
-./pip.sh
-
+chsh -s /usr/bin/fish
