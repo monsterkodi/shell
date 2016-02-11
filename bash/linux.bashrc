@@ -19,4 +19,8 @@ export LESSEDIT='atom-beta %lm %f'
 
 shopt -s histverify
 
+export TZ='Europe/Berlin'
+export LC_CTYPE=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig

@@ -4,11 +4,13 @@ alias reload 'source ~/shell/fish/config.fish'
 
 # color-ls
 alias lso  '/bin/ls'
-alias ls   'color-ls -p'
-alias lss  'ls -ls --stats'
-alias lst  'ls -lt --stats'
-alias lsk  'ls -lk --stats'
-alias lll  'ls -lkro --stats'
+if test (uname -n) != 'wecker'
+    alias ls   'color-ls -p'
+    alias lss  'ls -ls --stats'
+    alias lst  'ls -lt --stats'
+    alias lsk  'ls -lk --stats'
+    alias lll  'ls -lkro --stats'
+end
 alias l    'ls'
 alias la   'ls -a'
 alias ll   'ls -l'
@@ -16,10 +18,16 @@ alias lla  'ls -la'
 
 # clear
 alias c   'clear'
-alias cl  'clear; and cwd; and ls -l'
+if test (uname -n) != 'wecker'
+    alias cl  'clear; and cwd; and ls -l'
+    alias cla 'clear; and cwd; and ls -la'
+    alias cls 'clear; and cwd; and ls'
+else
+    alias cl  'clear; and pwd; and ls -l'
+    alias cla 'clear; and pwd; and ls -la'
+    alias cls 'clear; and pwd; and ls'
+end
 alias cll 'cl'
-alias cla 'clear; and cwd; and ls -la'
-alias cls 'clear; and cwd; and ls'
 
 ## git
 alias ci     'git commit -m'
@@ -82,13 +90,23 @@ function fish_title
     pwd
 end
 
-function fish_prompt
-    set_color blue
-    echo "▶ "
-end
-
-function fish_right_prompt
-    cwd
+if test (uname -n) != 'wecker'
+    function fish_prompt
+        set_color blue
+        echo "▶ "
+    end
+    function fish_right_prompt
+        cwd
+    end    
+else
+    function fish_prompt
+        set_color red
+        echo "▶ "
+    end
+    function fish_right_prompt
+        set_color red
+        pwd
+    end    
 end
 
 set fish_greeting
@@ -100,6 +118,8 @@ end
 
 set PATH ./bin $PATH 
 set PATH $PATH /usr/local/sbin
+
+set TZ Europe/Berlin
 
 function __fish_command_not_found_handler --on-event fish_command_not_found
 
