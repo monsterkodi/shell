@@ -28,3 +28,5 @@ export LESSEDIT='atom %lm %f'
 shopt -s histverify
 
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+
+function code () { VSCODE_CWD="$PWD" open -n -b "com.microsoft.VSCode" --args "$@"; }

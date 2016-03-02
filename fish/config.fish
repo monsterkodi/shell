@@ -123,6 +123,10 @@ set PATH $PATH /usr/local/sbin
 
 set TZ Europe/Berlin
 
+function code 
+    env VSCODE_CWD="$PWD" open -n -b "com.microsoft.VSCode" --args "$argv"
+end
+
 function __fish_command_not_found_handler --on-event fish_command_not_found
 
     set -l subdir ( coffee ~/shell/node/tools/firstsubdir.coffee $argv )
