@@ -64,6 +64,7 @@ alias grep 'grep --color'
 alias less 'vimpager'
 alias js2coffee 'js2coffee -i 4'
 alias mocha 'node_modules/.bin/mocha --compilers coffee:coffee-script/register'
+alias cc    '~/s/colorcat/bin/colorcat'
 alias k     '~/s/konrad/bin/konrad'
 alias ku    'k -u'
 alias kp    'k -p'
@@ -76,7 +77,6 @@ alias ks    'k -s'
 alias kd    'k -d'
 alias kr    'k -r'
 alias kR    'k -R'
-alias cc    '~/s/colorcat/bin/colorcat'
 
 ## fish
 alias show functions
