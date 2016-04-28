@@ -13,6 +13,10 @@
 
 sudo dpkg-reconfigure tzdata
 
+## analog audio
+
+amixer cset numid=3 1
+
 ## setup wlan
 
 /etc/network/interfaces
