@@ -46,7 +46,22 @@ getStock = (stock) ->
         y:     20
         class: 'title'
         text:  stock
-        
+    
+    graph = (s, values, x, max, clss) ->
+        y = 97-97*values[0]/max
+        for i in [1...values.length]
+            v = values[i]
+            l = s.line()
+            x += 2
+            ny = 97-97*v/max
+            l.attr
+                class: clss
+                x1: x-2
+                y1: y
+                x2: x
+                y2: ny
+            y = ny
+    
     #000       0000000   000   000   0000000 
     #000      000   000  0000  000  000      
     #000      000   000  000 0 000  000  0000
@@ -65,19 +80,7 @@ getStock = (stock) ->
         y = parseInt(set.data[0][0].substr 2,2)
         m = parseInt(set.data[0][0].substr 5,2)
         x = (y*12+m)*2
-        y = 97-97*values[0]/max
-        for i in [1...values.length]
-            v = values[i]
-            l = @s.line()
-            x += 2
-            ny = 97-97*v/max
-            l.attr
-                class: 'long'
-                x1: x-2
-                y1: y
-                x2: x
-                y2: ny
-            y = ny
+        graph @s, values, x, max, 'long'
         
     arg = 
         start_date:   "2000-01-01"
@@ -106,20 +109,7 @@ getStock = (stock) ->
         values = (d[1] for d in set.data)
         max = Math.max.apply null, values
         x = 13*24
-        y = 97-97*values[0]/max
-        for i in [1...values.length]
-            v = values[i]
-            l = @s.line()
-            x += 2
-            ny = 97-97*v/max
-            l.attr
-                class: 'mid'
-                x1: x-2
-                y1: y
-                x2: x
-                y2: ny
-            y = ny
-            
+        graph @s, values, x, max, 'mid'
             
         # 0000000  000   000   0000000   00000000   000000000
         #000       000   000  000   000  000   000     000   
@@ -135,21 +125,9 @@ getStock = (stock) ->
             data = JSON.parse @response
             set = data.dataset
             values = (d[1] for d in set.data)
-            # max = Math.max.apply null, values
+            max = @max
             x = 13*24+104*3
-            y = 97-97*values[0]/max
-            for i in [1...values.length]
-                v = values[i]
-                l = @s.line()
-                x += 2
-                ny = 97-97*v/max
-                l.attr
-                    class: 'short'
-                    x1: x-2
-                    y1: y
-                    x2: x
-                    y2: ny
-                y = ny
+            graph @s, values, x, max, 'short'
             
         arg = 
             start_date:   "2016-01-01"
@@ -173,46 +151,6 @@ getStock = (stock) ->
     api = "https://www.quandl.com/api/v3/datasets/WIKI/"
     req.open 'GET', "#{api}#{stock}.json?#{opt}&api_key=#{key}", true
     req.send()
-
-    # # 0000000  000   000   0000000   00000000   000000000
-    # #000       000   000  000   000  000   000     000   
-    # #0000000   000000000  000   000  0000000       000   
-    # #     000  000   000  000   000  000   000     000   
-    # #0000000   000   000   0000000   000   000     000   
-    # 
-    # req = new XMLHttpRequest()
-    # req.stock = stock
-    # req.s = s
-    # req.addEventListener "load", () ->                
-    #     data = JSON.parse @response
-    #     set = data.dataset
-    #     values = (d[1] for d in set.data)
-    #     max = Math.max.apply null, values
-    #     x = 13*24+104*3
-    #     y = 97-97*values[0]/max
-    #     for i in [1...values.length]
-    #         v = values[i]
-    #         l = @s.line()
-    #         x += 2
-    #         ny = 97-97*v/max
-    #         l.attr
-    #             class: 'short'
-    #             x1: x-2
-    #             y1: y
-    #             x2: x
-    #             y2: ny
-    #         y = ny
-    #     
-    # arg = 
-    #     start_date:   "2016-01-01"
-    #     end_date:     "2017-01-01"
-    #     collapse:     "dayly"
-    #     column_index: 11 # close adjusted
-    #     order:        'asc'
-    # opt = ("#{k}=#{v}" for k,v of arg).join "&"
-    # api = "https://www.quandl.com/api/v3/datasets/WIKI/"
-    # req.open 'GET', "#{api}#{stock}.json?#{opt}&api_key=#{key}", true
-    # req.send()
     
 window.onload = () ->
     getStock "AAPL"

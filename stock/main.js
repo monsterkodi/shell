@@ -23,7 +23,7 @@
   key = window.location.search.substring(1);
 
   getStock = function(stock) {
-    var api, arg, bg, k, opt, req, s, title, v, yearLines;
+    var api, arg, bg, graph, k, opt, req, s, title, v, yearLines;
     s = Snap();
     s.attr({
       viewBox: '0 0 1000 100',
@@ -64,11 +64,31 @@
       "class": 'title',
       text: stock
     });
+    graph = function(s, values, x, max, clss) {
+      var i, j, l, ny, ref, results, v, y;
+      y = 97 - 97 * values[0] / max;
+      results = [];
+      for (i = j = 1, ref = values.length; 1 <= ref ? j < ref : j > ref; i = 1 <= ref ? ++j : --j) {
+        v = values[i];
+        l = s.line();
+        x += 2;
+        ny = 97 - 97 * v / max;
+        l.attr({
+          "class": clss,
+          x1: x - 2,
+          y1: y,
+          x2: x,
+          y2: ny
+        });
+        results.push(y = ny);
+      }
+      return results;
+    };
     req = new XMLHttpRequest();
     req.stock = stock;
     req.s = s;
     req.addEventListener("load", function() {
-      var d, data, i, j, l, m, max, ny, ref, results, set, v, values, x, y;
+      var d, data, m, max, set, values, x, y;
       data = JSON.parse(this.response);
       set = data.dataset;
       values = (function() {
@@ -85,23 +105,7 @@
       y = parseInt(set.data[0][0].substr(2, 2));
       m = parseInt(set.data[0][0].substr(5, 2));
       x = (y * 12 + m) * 2;
-      y = 97 - 97 * values[0] / max;
-      results = [];
-      for (i = j = 1, ref = values.length; 1 <= ref ? j < ref : j > ref; i = 1 <= ref ? ++j : --j) {
-        v = values[i];
-        l = this.s.line();
-        x += 2;
-        ny = 97 - 97 * v / max;
-        l.attr({
-          "class": 'long',
-          x1: x - 2,
-          y1: y,
-          x2: x,
-          y2: ny
-        });
-        results.push(y = ny);
-      }
-      return results;
+      return graph(this.s, values, x, max, 'long');
     });
     arg = {
       start_date: "2000-01-01",
@@ -126,7 +130,7 @@
     req.stock = stock;
     req.s = s;
     req.addEventListener("load", function() {
-      var d, data, i, j, l, max, ny, ref, set, values, x, y;
+      var d, data, max, set, values, x;
       data = JSON.parse(this.response);
       set = data.dataset;
       values = (function() {
@@ -141,57 +145,27 @@
       })();
       max = Math.max.apply(null, values);
       x = 13 * 24;
-      y = 97 - 97 * values[0] / max;
-      for (i = j = 1, ref = values.length; 1 <= ref ? j < ref : j > ref; i = 1 <= ref ? ++j : --j) {
-        v = values[i];
-        l = this.s.line();
-        x += 2;
-        ny = 97 - 97 * v / max;
-        l.attr({
-          "class": 'mid',
-          x1: x - 2,
-          y1: y,
-          x2: x,
-          y2: ny
-        });
-        y = ny;
-      }
+      graph(this.s, values, x, max, 'mid');
       req = new XMLHttpRequest();
       req.stock = this.stock;
       req.s = this.s;
       req.max = max;
       req.addEventListener("load", function() {
-        var n, ref1, results;
         data = JSON.parse(this.response);
         set = data.dataset;
         values = (function() {
-          var len, n, ref1, results;
-          ref1 = set.data;
+          var j, len, ref, results;
+          ref = set.data;
           results = [];
-          for (n = 0, len = ref1.length; n < len; n++) {
-            d = ref1[n];
+          for (j = 0, len = ref.length; j < len; j++) {
+            d = ref[j];
             results.push(d[1]);
           }
           return results;
         })();
+        max = this.max;
         x = 13 * 24 + 104 * 3;
-        y = 97 - 97 * values[0] / max;
-        results = [];
-        for (i = n = 1, ref1 = values.length; 1 <= ref1 ? n < ref1 : n > ref1; i = 1 <= ref1 ? ++n : --n) {
-          v = values[i];
-          l = this.s.line();
-          x += 2;
-          ny = 97 - 97 * v / max;
-          l.attr({
-            "class": 'short',
-            x1: x - 2,
-            y1: y,
-            x2: x,
-            y2: ny
-          });
-          results.push(y = ny);
-        }
-        return results;
+        return graph(this.s, values, x, max, 'short');
       });
       arg = {
         start_date: "2016-01-01",
