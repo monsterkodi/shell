@@ -1,3 +1,2 @@
 noon        . ext null
 jade        . ext html . replace .. /jade/ /
-browserify  . js/.*.js . main js/stock.js . out main.js 
