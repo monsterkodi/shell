@@ -50,3 +50,8 @@ dpkg --get-selections
 ## files from a package
 
 dpkg -L package
+
+## convert binary <-> ascii
+
+xxd binary
+xxd -r ascii
