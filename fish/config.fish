@@ -149,3 +149,4 @@ function __fish_command_not_found_handler --on-event fish_command_not_found
 end
 
 source ~/shell/fish/projects.fish
+source ~/shell/fish/tokens.crypt
