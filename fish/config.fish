@@ -78,6 +78,8 @@ alias kd    'k -d'
 alias kr    'k -r'
 alias kR    'k -R'
 
+alias watch 'tmux new -c ~/s tmux source-file ~/shell/tmux/konrad-salter'
+
 ## fish
 alias show functions
 alias - prevd

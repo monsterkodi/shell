@@ -1,0 +1,4 @@
+
+set-option -g status-style bg=blue
+set-option -g default-command "exec /usr/local/bin/fish" 
+

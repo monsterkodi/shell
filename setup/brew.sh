@@ -19,6 +19,7 @@ brew install git
 brew install wget
 brew install node
 brew install ruby
+brew install tmux
 brew install unison
 brew install python
 brew install python3
