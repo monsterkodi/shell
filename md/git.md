@@ -21,7 +21,8 @@ git checkout -- dir
 git clean dir -fd
 
 # reset submodule to remote status
-git submodule update -- <path>
+git submodule update --init
+#git submodule update -- <path>
 
 # set remote for local repository
 git remote add origin <remote-url>

@@ -52,6 +52,13 @@ dpkg --get-selections
 dpkg -L package
 
 ## convert binary <-> ascii
-
 xxd binary
 xxd -r ascii
+
+# os x startup
+
+/Library/StartupItems
+/Library/LaunchAgents
+/Library/LaunchDaemons
+/System/Library/LaunchAgents
+/System/Library/LaunchDaemons

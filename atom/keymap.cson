@@ -12,4 +12,4 @@
   'cmd-r': 'build:trigger'
     
 '.tree-view':
-    'right': 'tree-view:preview'
+    'cmd-right': 'tree-view:preview'
