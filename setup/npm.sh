@@ -13,7 +13,6 @@ npm install -g coffee-script
 npm install -g css2stylus
 npm install -g js2coffee
 npm install -g html2jade
-npm install -g js2coffee
 npm install -g stylus
 npm install -g vtop
 npm install -g vmd

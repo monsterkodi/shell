@@ -32,6 +32,11 @@ git branch --set-upstream-to=origin/master master
 git commit --amend -m "new message"
 git push --force # if it was already pushed
 
+# set username
+git config user.name monsterkodi
+git config user.email monsterkodi@gmx.net
+git config -l
+
 # change remote url
 git remote set-url origin <remote-url>
 
