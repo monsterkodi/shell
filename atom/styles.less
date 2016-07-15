@@ -1,167 +1,26 @@
-@import "../../.atom/packages/file-icons/styles/colors";
-@import "../../.atom/packages/file-icons/styles/items";
 
-.tree-view-filter-container .editor.mini {
-    font-size:   11px;
-    font-weight: bold;
+atom-text-editor::shadow .blame-gutter {
+  .hash   { color: #222; }
+  .date   { color: #444; }
+  .author { color: white; }
 }
 
-.file-icons-tab-pane-icon @{pane-tab-selector}, .icon-file-text {
-
-  &[data-name$="TODO"] { .medium-yellow; }
-
-  &[data-name$=".mk"]           { .medium-yellow; }
-  &[data-name$=".mak"]          { .medium-yellow; }
-  &[data-name$=".ini"]          { .medium-yellow; }
-  &[data-name$=".properties"]   { .medium-purple; }
-  &[data-name$=".toml"]         { .medium-green;  }
-  &[data-name$=".clj"],
-  &[data-name$=".cljs"]         { .medium-blue;   }
-  &[data-name$=".clj"],
-  &[data-name$=".cljs"]         { .medium-blue;   }
-  &[data-name$=".xml"]          { .medium-blue;   }
-  &[data-name$=".config"]       { .medium-blue;   }
-  &[data-name$=".manifest"]     { .medium-blue;   }
-  &[data-name$=".jl"]           { .medium-purple; }
-  &[data-name$=".cfc"]          { .light-cyan;    }
-  &[data-name$=".cfm"]          { .medium-cyan;   }
-  &[data-name$=".cfml"]         { .medium-cyan;   }
-  &[data-name$=".less"]         { .dark-blue;     }
-  &[data-name$=".less"]         { .dark-blue;     }
-  &[data-name$=".css"]          { .medium-blue;   }
-  &[data-name$=".styl"]         { .medium-green;  }
-  &[data-name$=".styl"]         { .medium-green;  }
-  &[data-name$=".slim"]         { .medium-orange; }
-  &[data-name$=".skim"]         { .medium-orange; }
-  &[data-name$=".json"]         { .medium-yellow; }
-  &[data-name$=".ndjson"]       { .medium-orange; }
-  &[data-name$=".cson"]         { .medium-maroon; }
-  &[data-name$=".yml"],
-  &[data-name$=".yaml"]         { .light-red;     }
-  &[data-name$=".ex"]           { .dark-purple;   }
-  &[data-name$=".exs"]          { .medium-purple; }
-  &[data-name$=".eex"]          { .medium-purple; }
-  &[data-name$=".erl"]          { .medium-red;    }
-  &[data-name$=".beam"]         { .dark-red;      }
-  &[data-name$=".fs"]           { .medium-blue;   }
-  &[data-name$=".fsx"]          { .medium-blue;   }
-  &[data-name$=".fsi"]          { .medium-blue;   }
-  &[data-name$=".html"]         { .medium-orange; }
-  &[data-name$=".shtml"]        { .medium-cyan;   }
-  &[data-name$=".haml"]         { .medium-yellow; }
-  &[data-name$=".jade"]         { .medium-green;  }
-  &[data-name$=".jsp"]          { .medium-purple; }
-  &[data-name$=".ctp"]          { .medium-blue;   }
-  &[data-name$=".ejs"]          { .medium-green;  }
-  &[data-name$=".swig"]         { .medium-green;  }
-  &[data-name$=".hbs"],
-  &[data-name$=".handlebars"],
-  &[data-name$=".mustache"]     { .medium-orange; }
-  &[data-name$=".emblem"],
-  &[data-name$=".em"]           { .medium-blue;   }
-  &[data-name$=".tpl"]          { .medium-yellow; }
-  &[data-name$=".twig"]         { .medium-green;  }
-  &[data-name$=".jshintrc"]     { .medium-yellow; }
-  &[data-name$=".eslintrc"]     { .medium-yellow; }
-  &[data-name$=".jscsrc"]       { .medium-yellow; }
-  &[data-name$=".module"]       { .medium-blue;   }
-  &[data-name$=".htaccess"]     { .medium-red;    }
-  &[data-name$=".sass"]         { .light-purple;  }
-  &[data-name$=".scss"]         { .dark-purple;   }
-  &[data-name$=".php"]          { .dark-blue;     }
-  &[data-name$=".blade.php"]    { .dark-purple;   }
-  &[data-name$=".py"]           { .dark-yellow;   }
-  &[data-name$=".ipy"]          { .dark-blue;     }
-  &[data-name$=".rpy"]          { .medium-pink;   }
-  &[data-name$=".rpyb"]         { .medium-red;    }
-  &[data-name$=".rb"],
-  &[data-name$=".ru"],
-  &[data-name$=".erb"],
-  &[data-name$=".opal"]         { .medium-red;    }
-  &[data-name$="_spec.rb"]      { .light-green;   }
-  &[data-name$=".pp"]           { .medium-purple  }
-  &[data-name$=".feature"]      { .medium-green;  }
-  &[data-name$=".js"]           { .medium-yellow; }
-  &[data-name$=".ts"]           { .medium-purple; }
-  &[data-name$=".es6"]          { .medium-yellow; }
-  &[data-name$=".es"]           { .medium-yellow; }
-  &[data-name$=".jsx"]          { .medium-blue;   }
-  &[data-name$=".coffee"]       { .medium-maroon; }
-  &[data-name$=".cjsx"]         { .dark-maroon;   }
-  &[data-name$=".litcoffee"]    { .light-maroon;  }
-  &[data-name$=".js.erb"]       { .medium-red;    }
-  &[data-name$=".coffee.erb"]   { .medium-red;    }
-  &[data-name$=".html.erb"]     { .medium-red;    }
-  &[data-name$=".pl"]           { .medium-blue;   }
-  &[data-name$=".pm"]           { .medium-blue;   }
-  &[data-name$=".t" ]           { .medium-blue;   }
-  &[data-name$=".java"]         { .medium-purple; }
-  &[data-name$=".gohtml"]       { .dark-blue;     }
-  &[data-name$=".scala"]        { .medium-green;  }
-  &[data-name$=".hs"]           { .medium-purple; }
-  &[data-name$=".rs"]           { .medium-maroon; }
-  &[data-name$=".rlib"]         { .light-maroon;  }
-  &[data-name$=".c"]            { .medium-blue;   }
-  &[data-name$=".h"]            { .medium-purple; }
-  &[data-name$=".cpp"]          { .medium-blue;   }
-  &[data-name$=".hpp"]          { .medium-purple; }
-  &[data-name$=".cxx"]          { .medium-blue;   }
-  &[data-name$=".cc"]           { .medium-blue;   }
-  &[data-name$=".hxx"]          { .medium-purple; }
-  &[data-name$=".ipp"]          { .medium-orange; }
-  &[data-name$=".m"]            { .medium-blue;   }
-  &[data-name$=".mm"]           { .medium-blue;   }
-  &[data-name$=".swift"]        { .medium-green;  }
-  &[data-name$=".d"]            { .medium-red;    }
-  &[data-name$=".di"]           { .medium-red;    }
-  &[data-name$=".cs"]           { .medium-blue;   }
-  &[data-name$=".vb"]           { .medium-blue;   }
-  &[data-name$=".sp"],          { .medium-yellow; }
-  &[data-name$=".inc"]          { .medium-green;  }
-  &[data-name$=".mdown"],
-  &[data-name$=".markdown"],
-  &[data-name$=".mkd"],
-  &[data-name$=".mkdown"],
-  &[data-name$=".rmd"],
-  &[data-name$=".ron"],
-  &[data-name$=".md"]           { .medium-blue;   }
-  &[data-name$=".tt"]           { .medium-blue;   }
-  &[data-name$=".tt2"]          { .medium-blue;   }
-  &[data-name$=".tt3"]          { .medium-purple; }
-  &[data-name$=".txt"]          { .medium-cyan;   }
-  &[data-name$=".o"],
-  &[data-name$=".out"],
-  &[data-name$=".s"],
-  &[data-name$=".asm"]          { .medium-red;    }
-  &[data-name$=".sh"],
-  &[data-name$=".bash"],
-  &[data-name=".bashrc"]        { .medium-purple; }
-  &[data-name$=".fish"],
-  &[data-name=".fishrc"]        { .medium-green;  }
-  &[data-name$=".conf"]         { .dark-green;    }
-  &[data-name$=".lua"]          { .medium-blue;   }
-  &[data-name$=".png"]          { .medium-orange; }
-  &[data-name$=".gif"]          { .medium-yellow; }
-  &[data-name$=".jpg"]          { .medium-green;  }
-  &[data-name$=".bat"]          { .medium-purple; }
-  &[data-name$=".cmd"]          { .medium-purple; }
-  &[data-name$=".reg"]          { .medium-blue;   }
-  &[data-name$=".tex"]          { .medium-blue;   }
-  &[data-name$=".sty"]          { .medium-red;    }
-  &[data-name$=".cls"]          { .medium-orange; }
-  &[data-name$=".bib"]          { .medium-yellow; }
-  &[data-name$="Makefile"]      { .medium-yellow; }
-  &[data-name$="makefile"]      { .medium-yellow; }
-  &[data-name="GRUNTFILE.js"],
-  &[data-name="Gruntfile.js"],
-  &[data-name="gruntfile.js"]   { .medium-yellow; }
-  &[data-name="GRUNTFILE.coffee"],
-  &[data-name="Gruntfile.coffee"],
-  &[data-name="gruntfile.coffee"] { .light-red;   }
-  &[data-name="README.md"],
-  &[data-name="Readme.md"],
-  &[data-name="readme.md"]      { .medium-blue;   }  
-  &[data-name="npm-debug.log"]  { .medium-red;    }
-  &[data-name="bower.json"]     { .medium-yellow; }  
-  
+.minimap .highlight-selected {
+  background: blue;
+  color: blue;
 }
+ 
+.minimap .highlight-selected.selected {
+  background: red;
+  color: red;
+}
+
+@import "packages/file-icons/styles/colors";
+@import "packages/file-icons/styles/icons"; 
+@import "packages/file-icons/styles/items";
+@{pane-tab-selector}, .icon-file-text {
+  &[data-name$=".noon"]          { .medium-blue;             }
+  &[data-name$=".noon"]:before   { .noon-icon; .medium-blue; }
+}
+
+.noon-icon { .fa; content: "\f111"; }
