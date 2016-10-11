@@ -55,7 +55,9 @@ dpkg -L package
 xxd binary
 xxd -r ascii
 
-# os x startup
+# macOS 
+
+## startup
 
 /Library/StartupItems
 /Library/LaunchAgents
