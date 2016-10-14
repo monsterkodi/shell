@@ -57,7 +57,6 @@ alias aptdel 'sudo apt-get uninstall'
 ## misc
 alias h    'hist'
 alias p    'pwd'
-alias g    'gulp'
 alias e    'atom'
 alias e.   'atom .'
 alias cd.. 'cd ..'
@@ -121,7 +120,8 @@ if [ $PATH[-1] != "." ]
 end
 
 set PATH ./bin $PATH 
-set PATH $PATH /usr/local/sbin
+set PATH $PATH /usr/local/sbin 
+set PATH $PATH (yarn global bin | grep -oE '/.*')
 
 set TZ Europe/Berlin
 
@@ -153,7 +153,7 @@ function __fish_command_not_found_handler --on-event fish_command_not_found
     end
 
     set_color red
-	echo unknown command "'$argv'" >&2
+    echo unknown command "'$argv'" >&2
 end
 
 source ~/shell/fish/projects.fish
