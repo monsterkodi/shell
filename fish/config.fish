@@ -5,7 +5,7 @@ alias reload 'source ~/shell/fish/config.fish'
 # color-ls
 alias lso  '/bin/ls'
 if test (uname -n) != 'wecker'
-    alias ls   'color-ls -p'
+    alias ls   'color-ls'
     alias lss  'ls -ls --stats'
     alias lst  'ls -lt --stats'
     alias lsk  'ls -lk --stats'
@@ -153,7 +153,7 @@ function __fish_command_not_found_handler --on-event fish_command_not_found
     end
 
     set_color red
-	echo unknown command "'$argv'" >&2
+    echo unknown command "'$argv'" >&2
 end
 
 source ~/shell/fish/projects.fish

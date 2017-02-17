@@ -1,4 +1,4 @@
-fish/fish_history
+kofish/fish_history
 fish/fish_read_history
 fish/fishd*
 fish/.projects.fish
@@ -20,3 +20,4 @@ node_modules
 web/confluence.png
 stock/js
 stock/databases.txt
+/fish/fish_history

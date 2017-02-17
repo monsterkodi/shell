@@ -35,6 +35,12 @@ iface eth0 inet dhcp
 sudo apt-get update
 sudo apt-get upgrade
 
+## raspbian disable wifi dongle sleep
+
+cat /sys/module/8192cu/parameters/rtw_power_mgnt
+sudo nano /etc/modprobe.d/8192cu.conf
+options 8192cu rtw_power_mgnt=0 rtw_enusbss=0
+
 ## sources
 
 etc/apt/sources.list
