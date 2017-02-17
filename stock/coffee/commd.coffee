@@ -47,7 +47,7 @@ getStock = (stock, name, index) ->
             x += delta
     
     years s, 24, 13, 24
-    years s, 104, 3, 13*24+104
+    years s, 104, 4, 13*24+104
 
     title = s.text()
     title.attr
@@ -128,12 +128,12 @@ getStock = (stock, name, index) ->
                 set = data.dataset
                 values = (d[1] for d in set.data)
                 max = @max
-                x = 13*24+104*3
+                x = 13*24+104*4
                 graph @s, values, x, max, 'short'
                 
             arg = 
-                start_date:   "2016-01-01"
-                end_date:     "2017-01-01"
+                start_date:   "2017-01-01"
+                end_date:     "2018-01-01"
                 collapse:     "dayly"
                 order:        'asc'
             opt = ("#{k}=#{v}" for k,v of arg).join "&"
@@ -142,7 +142,7 @@ getStock = (stock, name, index) ->
                 
         arg = 
             start_date:   "2013-01-01"
-            end_date:     "2017-01-01"
+            end_date:     "2018-01-01"
             collapse:     "weekly"
             order:        'asc'
         opt = ("#{k}=#{v}" for k,v of arg).join "&"
@@ -151,7 +151,7 @@ getStock = (stock, name, index) ->
         
     arg = 
         start_date:   "2000-01-01"
-        end_date:     "2017-01-01"
+        end_date:     "2018-01-01"
         collapse:     "monthly"
         order:        'asc'
     opt = ("#{k}=#{v}" for k,v of arg).join "&"

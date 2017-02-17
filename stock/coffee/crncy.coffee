@@ -47,7 +47,7 @@ getStock = (stock, name, index) ->
             x += delta
     
     years s, 24, 13, 24
-    years s, 104, 3, 13*24+104
+    years s, 104, 4, 13*24+104
 
     title = s.text()
     title.attr
@@ -84,7 +84,6 @@ getStock = (stock, name, index) ->
         dequeue()
         data = JSON.parse @response
         set = data.dataset
-        # log JSON.stringify set
         values = (d[1] for d in set.data)
         max = Math.max.apply null, values
         y = parseInt(set.data[0][0].substr 2,2)
@@ -98,7 +97,7 @@ getStock = (stock, name, index) ->
         #000 0 000  000  000   000
         #000   000  000  0000000  
         
-        return if index #@stock == "PNFUEL_INDEX"
+        return if index
 
         req = new XMLHttpRequest()
         req.stock = @stock
@@ -129,12 +128,12 @@ getStock = (stock, name, index) ->
                 set = data.dataset
                 values = (d[1] for d in set.data)
                 max = @max
-                x = 13*24+104*3
+                x = 13*24+104*4
                 graph @s, values, x, max, 'short'
                 
             arg = 
-                start_date:   "2016-01-01"
-                end_date:     "2017-01-01"
+                start_date:   "2017-01-01"
+                end_date:     "2018-01-01"
                 collapse:     "dayly"
                 order:        'asc'
             opt = ("#{k}=#{v}" for k,v of arg).join "&"
@@ -143,7 +142,7 @@ getStock = (stock, name, index) ->
                 
         arg = 
             start_date:   "2013-01-01"
-            end_date:     "2017-01-01"
+            end_date:     "2018-01-01"
             collapse:     "weekly"
             order:        'asc'
         opt = ("#{k}=#{v}" for k,v of arg).join "&"
@@ -152,7 +151,7 @@ getStock = (stock, name, index) ->
         
     arg = 
         start_date:   "2000-01-01"
-        end_date:     "2017-01-01"
+        end_date:     "2018-01-01"
         collapse:     "monthly"
         order:        'asc'
     opt = ("#{k}=#{v}" for k,v of arg).join "&"
