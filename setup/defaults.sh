@@ -32,5 +32,5 @@ defaults write org.n8gray.QLColorCode hlTheme darkness
 sudo spctl --master-disable
 #sudo spctl --master-enable
 
-spctl --add    /Applications/some.app
+#spctl --add    /Applications/some.app
 #spctl --remove /Applications/some.app

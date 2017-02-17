@@ -1,7 +1,6 @@
 
 log = () -> 
     str = ([].slice.call arguments, 0).join " "
-    # $('log').innerHTML = str  
     console.log str
 $ = (id) -> document.getElementById id
 sw  = () -> $('body').clientWidth
@@ -9,6 +8,15 @@ sh  = () -> $('body').clientHeight - $('chart').clientHeight
     
 key = window.location.search.substring(1)
 api = "https://www.quandl.com/api/v3/datasets/FED/"
+
+queue = []
+
+enqueue = (req) ->
+    queue.push req
+    
+dequeue = () ->
+    req = queue.shift()
+    req.send() if req
 
 getStock = (stock, name, index) ->
 
@@ -73,6 +81,7 @@ getStock = (stock, name, index) ->
     req.stock = stock
     req.s = s
     req.addEventListener "load", () ->
+        dequeue()
         data = JSON.parse @response
         set = data.dataset
         # log JSON.stringify set
@@ -95,7 +104,8 @@ getStock = (stock, name, index) ->
         req.stock = @stock
         req.s = s
         req.max = max
-        req.addEventListener "load", () ->        
+        req.addEventListener "load", () ->   
+            dequeue()
             data = JSON.parse @response
             set = data.dataset
             values = (d[1] for d in set.data)
@@ -114,6 +124,7 @@ getStock = (stock, name, index) ->
             req.s = @s
             req.max = @max
             req.addEventListener "load", () ->                
+                dequeue()
                 data = JSON.parse @response
                 set = data.dataset
                 values = (d[1] for d in set.data)
@@ -128,7 +139,7 @@ getStock = (stock, name, index) ->
                 order:        'asc'
             opt = ("#{k}=#{v}" for k,v of arg).join "&"
             req.open 'GET', "#{api}#{stock}.json?#{opt}&api_key=#{key}", true
-            req.send()
+            enqueue req
                 
         arg = 
             start_date:   "2013-01-01"
@@ -137,7 +148,7 @@ getStock = (stock, name, index) ->
             order:        'asc'
         opt = ("#{k}=#{v}" for k,v of arg).join "&"
         req.open 'GET', "#{api}#{stock}.json?#{opt}&api_key=#{key}", true
-        req.send()
+        enqueue req
         
     arg = 
         start_date:   "2000-01-01"
@@ -146,7 +157,7 @@ getStock = (stock, name, index) ->
         order:        'asc'
     opt = ("#{k}=#{v}" for k,v of arg).join "&"
     req.open 'GET', "#{api}#{stock}.json?#{opt}&api_key=#{key}", true
-    req.send()
+    enqueue req
     
 window.onload = () ->
     getStock "JRXWTFB_N_B", "NOMINAL"
@@ -155,4 +166,5 @@ window.onload = () ->
     getStock "RXI_N_B_IN", "INDIA"
     getStock "RXI_N_B_BZ", "BRAZIL"
     getStock "RXI_N_B_JA", "JAPAN"
+    dequeue()
         

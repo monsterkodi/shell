@@ -5,7 +5,7 @@ alias reload 'source ~/shell/fish/config.fish'
 # color-ls
 alias lso  '/bin/ls'
 if test (uname -n) != 'wecker'
-    alias ls   'color-ls -p'
+    alias ls   'color-ls'
     alias lss  'ls -ls --stats'
     alias lst  'ls -lt --stats'
     alias lsk  'ls -lk --stats'
@@ -78,13 +78,11 @@ alias kd    'k -d'
 alias kr    'k -r'
 alias kR    'k -R'
 
-alias watch 'tmux new -c ~/s tmux source-file ~/shell/tmux/konrad-salter'
-alias unwatch 'tmux kill-server'
+# alias watch 'tmux new -c ~/s tmux source-file ~/shell/tmux/konrad-salter'
+# alias unwatch 'tmux kill-server'
 
 ## fish
 alias show functions
-alias - prevd
-alias + nextd
 alias d dirh
 
 [ -f /usr/local/share/autojump/autojump.fish ]; and . /usr/local/share/autojump/autojump.fish
