@@ -1,7 +1,6 @@
 
 log = () -> 
     str = ([].slice.call arguments, 0).join " "
-    # $('log').innerHTML = str  
     console.log str
 $ = (id) -> document.getElementById id
 sw  = () -> $('body').clientWidth
@@ -9,6 +8,15 @@ sh  = () -> $('body').clientHeight - $('chart').clientHeight
     
 key = window.location.search.substring(1)
 api = "https://www.quandl.com/api/v3/datasets/COM/"
+
+queue = []
+
+enqueue = (req) ->
+    queue.push req
+    
+dequeue = () ->
+    req = queue.shift()
+    req.send() if req
 
 getStock = (stock, name, index) ->
 
@@ -39,7 +47,7 @@ getStock = (stock, name, index) ->
             x += delta
     
     years s, 24, 13, 24
-    years s, 104, 3, 13*24+104
+    years s, 104, 4, 13*24+104
 
     title = s.text()
     title.attr
@@ -73,9 +81,9 @@ getStock = (stock, name, index) ->
     req.stock = stock
     req.s = s
     req.addEventListener "load", () ->
+        dequeue()
         data = JSON.parse @response
         set = data.dataset
-        # log JSON.stringify set
         values = (d[1] for d in set.data)
         max = Math.max.apply null, values
         y = parseInt(set.data[0][0].substr 2,2)
@@ -96,6 +104,7 @@ getStock = (stock, name, index) ->
         req.s = s
         req.max = max
         req.addEventListener "load", () ->        
+            dequeue()
             data = JSON.parse @response
             set = data.dataset
             values = (d[1] for d in set.data)
@@ -114,39 +123,40 @@ getStock = (stock, name, index) ->
             req.s = @s
             req.max = @max
             req.addEventListener "load", () ->                
+                dequeue()
                 data = JSON.parse @response
                 set = data.dataset
                 values = (d[1] for d in set.data)
                 max = @max
-                x = 13*24+104*3
+                x = 13*24+104*4
                 graph @s, values, x, max, 'short'
                 
             arg = 
-                start_date:   "2016-01-01"
-                end_date:     "2017-01-01"
+                start_date:   "2017-01-01"
+                end_date:     "2018-01-01"
                 collapse:     "dayly"
                 order:        'asc'
             opt = ("#{k}=#{v}" for k,v of arg).join "&"
             req.open 'GET', "#{api}#{stock}.json?#{opt}&api_key=#{key}", true
-            req.send()
+            enqueue req
                 
         arg = 
             start_date:   "2013-01-01"
-            end_date:     "2017-01-01"
+            end_date:     "2018-01-01"
             collapse:     "weekly"
             order:        'asc'
         opt = ("#{k}=#{v}" for k,v of arg).join "&"
         req.open 'GET', "#{api}#{stock}.json?#{opt}&api_key=#{key}", true
-        req.send()
+        enqueue req
         
     arg = 
         start_date:   "2000-01-01"
-        end_date:     "2017-01-01"
+        end_date:     "2018-01-01"
         collapse:     "monthly"
         order:        'asc'
     opt = ("#{k}=#{v}" for k,v of arg).join "&"
     req.open 'GET', "#{api}#{stock}.json?#{opt}&api_key=#{key}", true
-    req.send()
+    enqueue req
     
 window.onload = () ->
     getStock "AU_LAM", "GOLD"
@@ -160,5 +170,6 @@ window.onload = () ->
     getStock "PWHEAMT_USD", "WHEAT", true
     getStock "PRICENPQ_USD", "RICE", true
     getStock "PSUGAUSA_USD", "SUGAR", true
+    dequeue()
             
         

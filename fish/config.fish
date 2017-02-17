@@ -57,7 +57,6 @@ alias aptdel 'sudo apt-get uninstall'
 ## misc
 alias h    'hist'
 alias p    'pwd'
-alias g    'gulp'
 alias e    'atom'
 alias e.   'atom .'
 alias cd.. 'cd ..'
@@ -79,13 +78,11 @@ alias kd    'k -d'
 alias kr    'k -r'
 alias kR    'k -R'
 
-alias watch 'tmux new -c ~/s tmux source-file ~/shell/tmux/konrad-salter'
-alias unwatch 'tmux kill-server'
+# alias watch 'tmux new -c ~/s tmux source-file ~/shell/tmux/konrad-salter'
+# alias unwatch 'tmux kill-server'
 
 ## fish
 alias show functions
-alias - prevd
-alias + nextd
 alias d dirh
 
 [ -f /usr/local/share/autojump/autojump.fish ]; and . /usr/local/share/autojump/autojump.fish
@@ -121,7 +118,8 @@ if [ $PATH[-1] != "." ]
 end
 
 set PATH ./bin $PATH 
-set PATH $PATH /usr/local/sbin
+set PATH $PATH /usr/local/sbin 
+set PATH $PATH (yarn global bin | grep -oE '/.*')
 
 set TZ Europe/Berlin
 

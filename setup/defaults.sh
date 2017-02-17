@@ -12,6 +12,9 @@ defaults write com.apple.CrashReporter DialogType none
 # make quicklook text selectable
 defaults write com.apple.finder QLEnableTextSelection -bool TRUE; killall Finder
 
+# disable accent menu / enable key repeat
+defaults write -g ApplePressAndHoldEnabled -bool false 
+
 # show the library folder in finder
 chflags nohidden ~/Library/
 
@@ -27,3 +30,7 @@ defaults write org.n8gray.QLColorCode hlTheme darkness
 
 # disable gatekeeper
 sudo spctl --master-disable
+#sudo spctl --master-enable
+
+#spctl --add    /Applications/some.app
+#spctl --remove /Applications/some.app

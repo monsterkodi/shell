@@ -1,7 +1,6 @@
 
 log = () -> 
     str = ([].slice.call arguments, 0).join " "
-    # $('log').innerHTML = str  
     console.log str
 $ = (id) -> document.getElementById id
 sw  = () -> $('body').clientWidth
@@ -9,6 +8,15 @@ sh  = () -> $('body').clientHeight - $('chart').clientHeight
     
 key = window.location.search.substring(1)
 api = "https://www.quandl.com/api/v3/datasets/WIKI/"
+
+queue = []
+
+enqueue = (req) ->
+    queue.push req
+    
+dequeue = () ->
+    req = queue.shift()
+    req.send() if req
 
 getStock = (stock) ->
 
@@ -39,7 +47,7 @@ getStock = (stock) ->
             x += delta
     
     years s, 24, 13, 24
-    years s, 104, 3, 13*24+104
+    years s, 104, 4, 13*24+104
 
     title = s.text()
     title.attr
@@ -73,7 +81,7 @@ getStock = (stock) ->
     req.stock = stock
     req.s = s
     req.addEventListener "load", () ->
-        
+        dequeue()
         data = JSON.parse @response
         set = data.dataset
         values = (d[1] for d in set.data)
@@ -85,13 +93,13 @@ getStock = (stock) ->
         
     arg = 
         start_date:   "2000-01-01"
-        end_date:     "2017-01-01"
+        end_date:     "2018-01-01"
         collapse:     "monthly"
         column_index: 11 # close adjusted
         order:        'asc'
     opt = ("#{k}=#{v}" for k,v of arg).join "&"
     req.open 'GET', "#{api}#{stock}.json?#{opt}&api_key=#{key}", true
-    req.send()
+    enqueue req
     
     #00     00  000  0000000  
     #000   000  000  000   000
@@ -103,7 +111,7 @@ getStock = (stock) ->
     req.stock = stock
     req.s = s
     req.addEventListener "load", () ->        
-                
+        dequeue()        
         data = JSON.parse @response
         set = data.dataset
         values = (d[1] for d in set.data)
@@ -122,33 +130,33 @@ getStock = (stock) ->
         req.s = @s
         req.max = max
         req.addEventListener "load", () ->                
+            dequeue()
             data = JSON.parse @response
             set = data.dataset
             values = (d[1] for d in set.data)
             max = @max
-            x = 13*24+104*3
+            x = 13*24+104*4
             graph @s, values, x, max, 'short'
             
         arg = 
-            start_date:   "2016-01-01"
-            end_date:     "2017-01-01"
+            start_date:   "2017-01-01"
+            end_date:     "2018-01-01"
             collapse:     "dayly"
             column_index: 11 # close adjusted
             order:        'asc'
         opt = ("#{k}=#{v}" for k,v of arg).join "&"
         req.open 'GET', "#{api}#{stock}.json?#{opt}&api_key=#{key}", true
-        req.send()
+        enqueue req
             
-
     arg = 
         start_date:   "2013-01-01"
-        end_date:     "2017-01-01"
+        end_date:     "2018-01-01"
         collapse:     "weekly"
         column_index: 11 # close adjusted
         order:        'asc'
     opt = ("#{k}=#{v}" for k,v of arg).join "&"
     req.open 'GET', "#{api}#{stock}.json?#{opt}&api_key=#{key}", true
-    req.send()
+    enqueue req
     
 window.onload = () ->
     getStock "AAPL"
@@ -161,5 +169,6 @@ window.onload = () ->
     getStock "BA"
     getStock "LMT"
     getStock "NOC"
+    dequeue()
             
         

@@ -1,12 +1,11 @@
 # general bash configuration
 source ~/shell/bash/bash.sh
 
-# general aliases
-#source ~/shell/bash/alias.sh
-
 #source ~/shell/bash/tokens.sh
 
 #alias eject='diskutil eject '
+
+alias ls='color-ls'
 
 # syslogd
 # alias stopsyslogd='sudo launchctl stop com.apple.syslogd'
