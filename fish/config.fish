@@ -41,6 +41,7 @@ alias gd     'git diff -U0 --ignore-space-at-eol | colorcat -sP ~/s/konrad/cc/di
 alias push   'echo "git push 2>&1" | bash | cc -sP ~/s/konrad/cc/push.noon'
 alias pull   'git pull          | colorcat -sP ~/s/konrad/cc/pull.noon'         
 alias rebase 'git pull --rebase | colorcat -sP ~/s/konrad/cc/rebase.noon'
+alias updatedb 'sudo /usr/libexec/locate.updatedb'
 
 ## npm
 alias npmdev 'npm install --save-dev'
