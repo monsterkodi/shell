@@ -17,11 +17,11 @@ YARN=`yarn global bin | grep -oE '/.*'`
 
 export PATH="~/shell:${PATH/~\/shell:/}"
 export PATH="~/shell/bin:${PATH/~\/shell\/bin:/}"
-export PATH=".:${PATH/~\/\.:/}"
+export PATH="/usr/local/bin:${PATH/\/usr\/local\/bin:/}"
+export PATH=".:${PATH/\.:/}"
 export PATH="$PATH:$YARN"
 
 # prompt
-# PS1='\n\[\033[1;34m\][\[\033[1;33m\]\w\[\033[1;34m\]]\[\033[1;0m\]\n\n'
 PS1='\[\033[1;34m\][\[\033[1;33m\]\w\[\033[1;34m\]]\[\033[1;0m\] '
 # misc
 export CLICOLOR=1

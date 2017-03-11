@@ -34,3 +34,10 @@ sudo spctl --master-disable
 
 #spctl --add    /Applications/some.app
 #spctl --remove /Applications/some.app
+
+# disable notifcation center
+#launchctl unload -w /System/Library/LaunchAgents/com.apple.notificationcenterui.plist
+#killall NotificationCenter
+
+# enable notifcation center
+#launchctl load -w /System/Library/LaunchAgents/com.apple.notificationcenterui.plist
