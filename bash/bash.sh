@@ -13,12 +13,13 @@ shopt -s cdspell
 # esac
 # path
 
-YARN=`yarn global bin | grep -oE '/.*'`
 
 export PATH="~/shell:${PATH/~\/shell:/}"
 export PATH="~/shell/bin:${PATH/~\/shell\/bin:/}"
 export PATH="/usr/local/bin:${PATH/\/usr\/local\/bin:/}"
 export PATH=".:${PATH/\.:/}"
+
+YARN=`yarn global bin | grep -oE '/.*'`
 export PATH="$PATH:$YARN"
 
 # prompt
