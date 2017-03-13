@@ -3,7 +3,7 @@ module.exports = {
 
     fontSize: 16,
 
-    fontFamily: '"Liberation Mono", Menlo, "DejaVu Sans Mono", Consolas, "Lucida Console", monospace',
+    fontFamily: '"SF Mono", Menlo, "DejaVu Sans Mono", Consolas, "Lucida Console", monospace',
 
     cursorColor: 'rgba(255,255,0,1.0)',
 

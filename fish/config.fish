@@ -18,15 +18,9 @@ alias lla  'ls -la'
 
 # clear
 alias c   'clear'
-if test (uname -n) != 'wecker'
-    alias cl  'clear; and cwd; and ls -l'
-    alias cla 'clear; and cwd; and ls -la'
-    alias cls 'clear; and cwd; and ls'
-else
-    alias cl  'clear; and pwd; and ls -l'
-    alias cla 'clear; and pwd; and ls -la'
-    alias cls 'clear; and pwd; and ls'
-end
+alias cl  'clear; and cwd; and ls -l'
+alias cla 'clear; and cwd; and ls -la'
+alias cls 'clear; and cwd; and ls'
 alias cll 'cl'
 
 ## git
@@ -38,7 +32,9 @@ alias glg    'gl --graph'
 alias gld    'gl -p'
 alias add    'git add'
 alias gd     'git diff -U0 --ignore-space-at-eol | colorcat -sP ~/s/konrad/cc/diff.noon'
-alias push   'echo "git push 2>&1" | bash | cc -sP ~/s/konrad/cc/push.noon'
+alias fetch  'git fetch         | colorcat -sP ~/s/konrad/cc/fetch.noon'
+# alias push   'echo "git push 2>&1" | bash | colorcat -sP ~/s/konrad/cc/push.noon'
+alias push   'git push 2>&1     | colorcat -sP ~/s/konrad/cc/push.noon'
 alias pull   'git pull          | colorcat -sP ~/s/konrad/cc/pull.noon'         
 alias rebase 'git pull --rebase | colorcat -sP ~/s/konrad/cc/rebase.noon'
 alias updatedb 'sudo /usr/libexec/locate.updatedb'
@@ -46,10 +42,9 @@ alias updatedb 'sudo /usr/libexec/locate.updatedb'
 ## npm
 alias npmdev 'npm install --save-dev'
 alias npmadd 'npm install --save'
-alias npmdel 'npm uninstall --save'
-alias npmdeldev 'npm uninstall --save-dev'
-# alias npmls  'npm ls -s --depth 0 | colorcat -P ~/s/konrad/cc/npm.noon'
-alias npmll  'npm ls -s           | colorcat -P ~/s/konrad/cc/npm.noon'
+alias npmdel 'npm uninstall --save --save-dev'
+alias npmll  'npm ls -s         | colorcat -P ~/s/konrad/cc/npm.noon'
+# npmls is in functions to allow -g argument
 
 # apt
 alias aptadd 'sudo apt-get install'
@@ -120,6 +115,7 @@ end
 
 set PATH ./bin $PATH 
 set PATH $PATH /usr/local/sbin 
+set PATH $PATH ./node_modules/.bin
 set PATH $PATH (yarn global bin | grep -oE '/.*')
 
 set TZ Europe/Berlin
