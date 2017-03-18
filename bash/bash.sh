@@ -18,6 +18,7 @@ export PATH="~/shell:${PATH/~\/shell:/}"
 export PATH="~/shell/bin:${PATH/~\/shell\/bin:/}"
 export PATH="/usr/local/bin:${PATH/\/usr\/local\/bin:/}"
 export PATH=".:${PATH/\.:/}"
+export PATH="./bin:${PATH/\.\/bin:/}"
 export PATH="node_modules/.bin:${PATH/node_modules\/\.bin:/}"
 
 YARN=`yarn global bin | grep -oE '/.*'`
