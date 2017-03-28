@@ -3,6 +3,9 @@
 # disable spell check
 defaults write -g NSAllowContinuousSpellChecking -bool false
 
+# disable gamed
+defaults write com.apple.gamed Disabled -bool true
+
 # disable warnings when starting downloaded programs
 defaults write com.apple.LaunchServices LSQuarantine -bool NO
 
