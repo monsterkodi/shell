@@ -52,3 +52,7 @@ alias ks='k -s'
 alias kd='k -d'
 alias kr='k -r'
 alias kR='k -R'
+
+alias npmls='npm ls --depth 0 2>&1 | colorcat -P ~/s/konrad/cc/npm.noon'
+alias npmlsg='npm ls --depth 0 -g 2>&1 | colorcat -P ~/s/konrad/cc/npm.noon'
+

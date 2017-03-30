@@ -44,16 +44,11 @@ git remote set-url origin <remote-url>
 git tag -f -a -m "v1.0.1" v1.0.1
 git push --tags -q 
 
-# remove tag
-git tag -d v1.0.1
-git push origin:v1.0.1
+# del tag
+git tag -d TAG && git push origin :TAG
 
 # force push a tag
 git push --force origin refs/tags/tag
-
-# remove github release
-git tag -d v0.1.1  
-git push origin :v0.1.1
 
 # create github pages
 git checkout -b gh-pages
