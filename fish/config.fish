@@ -72,6 +72,9 @@ alias kd    'k -d'
 alias kr    'k -r'
 alias kR    'k -R'
 
+set PREF ~/Library/Application\ Support
+alias pref 'cd $PREF'
+
 ## fish
 alias show functions
 alias d dirh
