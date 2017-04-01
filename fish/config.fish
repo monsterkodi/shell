@@ -33,7 +33,6 @@ alias gld    'gl -p'
 alias add    'git add'
 alias gd     'git diff -U0 --ignore-space-at-eol | colorcat -sP ~/s/konrad/cc/diff.noon'
 alias fetch  'git fetch 2>&1    | colorcat -sP ~/s/konrad/cc/fetch.noon'
-# alias push   'echo "git push 2>&1" | bash | colorcat -sP ~/s/konrad/cc/push.noon'
 alias push   'git push 2>&1     | colorcat -sP ~/s/konrad/cc/push.noon'
 alias pull   'git pull 2>&1     | colorcat -sP ~/s/konrad/cc/pull.noon'         
 alias rebase 'git pull --rebase | colorcat -sP ~/s/konrad/cc/rebase.noon'
@@ -52,9 +51,8 @@ alias aptdel 'sudo apt-get uninstall'
 
 ## misc
 alias h    'hist'
-alias p    'pwd'
-alias e    'atom'
-alias e.   'atom .'
+alias .    'pwd'
+alias e    'electron .'
 alias cd.. 'cd ..'
 alias grep 'grep --color'
 alias less 'vimpager'
@@ -74,9 +72,6 @@ alias kd    'k -d'
 alias kr    'k -r'
 alias kR    'k -R'
 
-# alias watch 'tmux new -c ~/s tmux source-file ~/shell/tmux/konrad-salter'
-# alias unwatch 'tmux kill-server'
-
 ## fish
 alias show functions
 alias d dirh
@@ -87,24 +82,13 @@ function fish_title
     pwd
 end
 
-if test (uname -n) != 'wecker'
-    function fish_prompt
-        set_color blue
-        echo "▶ "
-    end
-    function fish_right_prompt
-        cwd
-    end    
-else
-    function fish_prompt
-        set_color red
-        echo "▶ "
-    end
-    function fish_right_prompt
-        set_color red
-        pwd
-    end    
+function fish_prompt
+    set_color blue
+    echo "▶ "
 end
+function fish_right_prompt
+    cwd
+end    
 
 set fish_greeting
 set fish_color_valid_path '--bold' '--underline'

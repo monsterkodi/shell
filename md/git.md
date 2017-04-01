@@ -58,6 +58,12 @@ git push --set-upstream origin gh-pages
 git-crypt export-key <file>
 git-crypt unlock <file>
 
+# change commit message of pushed commit
+git rebase -i <hash-of-commit-preceding-the-incorrect-one>
+# change pick to reword and save
+# change commit message and save
+git push --force
+
 # prepare syncing of clone and original repo (https://help.github.com/articles/configuring-a-remote-for-a-fork/)
 git remote -v
 git remote add upstream https://github.com/owner/repo.git
