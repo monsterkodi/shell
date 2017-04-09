@@ -31,6 +31,7 @@ alias gls    'gl --stat'
 alias glg    'gl --graph'
 alias gld    'gl -p'
 alias add    'git add'
+alias revert 'git checkout --'
 alias gd     'git diff -U0 --ignore-space-at-eol | colorcat -sP ~/s/konrad/cc/diff.noon'
 alias fetch  'git fetch 2>&1    | colorcat -sP ~/s/konrad/cc/fetch.noon'
 alias push   'git push 2>&1     | colorcat -sP ~/s/konrad/cc/push.noon'
@@ -41,7 +42,7 @@ alias updatedb 'sudo /usr/libexec/locate.updatedb'
 ## npm
 alias npmdev 'npm install --save-dev'
 alias npmadd 'npm install --save'
-alias npmdel 'npm uninstall --save --save-dev'
+alias npmdel 'npm uninstall --save'
 alias npmll  'npm ls -s         | colorcat -P ~/s/konrad/cc/npm.noon'
 # npmls is in functions to allow -g argument
 

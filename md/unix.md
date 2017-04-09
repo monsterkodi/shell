@@ -61,6 +61,9 @@ dpkg -L package
 xxd binary
 xxd -r ascii
 
+## count lines in files
+find . -name "*.coffee" | xargs wc -l  
+
 # macOS 
 
 ## startup
