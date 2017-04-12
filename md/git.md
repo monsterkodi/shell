@@ -47,6 +47,12 @@ git push --tags -q
 # del tag
 git tag -d TAG && git push origin :TAG
 
+# bulk remove tags
+git tag -l >> tags.txt
+### ... edit tags.txt
+cat tags.txt | xargs git push --delete origin
+cat tags.txt | xargs git tag -d
+
 # force push a tag
 git push --force origin refs/tags/tag
 
