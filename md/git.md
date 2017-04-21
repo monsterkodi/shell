@@ -28,6 +28,14 @@ git submodule update --init
 git remote add origin <remote-url>
 git branch --set-upstream-to=origin/master master
 
+# sync fork with original
+git remote -v
+git remote add upstream https://github.com/ORIGINAL_OWNER/ORIGINAL_REPOSITORY.git
+git remote -v
+git fetch upstream
+git checkout master
+git merge upstream/master
+
 # change commit message
 git commit --amend -m "new message"
 git push --force # if it was already pushed
