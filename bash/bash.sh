@@ -1,18 +1,13 @@
 # history
+
 export HISTCONTROL=erasedups
 export HISTIGNORE="[   ]*:&:bg:fg:exit"
 export PROMPT_COMMAND="history -a"
+
 shopt -s histappend
 shopt -s cmdhist
-# case insensitive glob and fuzzy cd
-shopt -s nocaseglob
-shopt -s cdspell
-# completion
-# case $- in
-#   *i*) [[ -f /etc/bash_completion ]] && . /etc/bash_completion ;;
-# esac
-# path
-
+shopt -s nocaseglob # case insensitive glob
+shopt -s cdspell # fuzzy cd
 
 export PATH="~/shell:${PATH/~\/shell:/}"
 export PATH="~/shell/bin:${PATH/~\/shell\/bin:/}"
@@ -20,9 +15,6 @@ export PATH="/usr/local/bin:${PATH/\/usr\/local\/bin:/}"
 export PATH=".:${PATH/\.:/}"
 export PATH="./bin:${PATH/\.\/bin:/}"
 export PATH="node_modules/.bin:${PATH/node_modules\/\.bin:/}"
-
-YARN=`yarn global bin | grep -oE '/.*'`
-export PATH="$PATH:$YARN"
 
 # prompt
 PS1='\[\033[1;34m\][\[\033[1;33m\]\w\[\033[1;34m\]]\[\033[1;0m\] '
@@ -32,15 +24,22 @@ export CVS_RSH=ssh
 # ruby
 export RUBYOPT=rubygems
 
-alias h='hist'
 alias c='clear'
-alias p='pwd'
+alias lso='/bin/ls'
+alias ls='color-ls'
 alias cl='clear && ls -l'
+alias la='ls -a'
 alias ll='ls -l'
+alias lla='ls -la'
+alias h='hist'
+alias e='electron .'
+alias .='pwd'
 alias cd..='cd ..'
 alias grep='grep --color'
-alias cc='colorcat'
-alias k='konrad'
+alias mocha='mocha --compilers coffee:coffee-script/register'
+alias js2coffee='js2coffee -i 4'
+alias cc='~/s/colorcat/bin/colorcat'
+alias k='~/s/konrad/bin/konrad'
 alias ku='k -u'
 alias kp='k -p'
 alias kc='k -c'
@@ -52,7 +51,11 @@ alias ks='k -s'
 alias kd='k -d'
 alias kr='k -r'
 alias kR='k -R'
+alias st='git status -sb 2>&1 | colorcat -P ~/s/konrad/cc/status.noon'
 
+alias npmdev='npm install --save-dev'
+alias npmadd='npm install --save'
+alias npmdel='npm uninstall --save'
 alias npmls='npm ls --depth 0 2>&1 | colorcat -P ~/s/konrad/cc/npm.noon'
 alias npmlsg='npm ls --depth 0 -g 2>&1 | colorcat -P ~/s/konrad/cc/npm.noon'
 
