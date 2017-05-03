@@ -18,11 +18,12 @@ export PATH="node_modules/.bin:${PATH/node_modules\/\.bin:/}"
 
 # prompt
 PS1='\[\033[1;34m\][\[\033[1;33m\]\w\[\033[1;34m\]]\[\033[1;0m\] '
+
 # misc
 export CLICOLOR=1
 export CVS_RSH=ssh
-# ruby
 export RUBYOPT=rubygems
+export PREF=~/Library/Application\ Support
 
 alias c='clear'
 alias lso='/bin/ls'
@@ -36,6 +37,7 @@ alias e='electron .'
 alias .='pwd'
 alias cd..='cd ..'
 alias grep='grep --color'
+
 alias mocha='mocha --compilers coffee:coffee-script/register'
 alias js2coffee='js2coffee -i 4'
 alias cc='~/s/colorcat/bin/colorcat'
