@@ -4,13 +4,13 @@ alias reload 'source ~/shell/fish/config.fish'
 
 # color-ls
 alias lso  '/bin/ls'
-if test (uname -n) != 'wecker'
-    alias ls   'color-ls'
-    alias lss  'ls -ls --stats'
-    alias lst  'ls -lt --stats'
-    alias lsk  'ls -lk --stats'
-    alias lll  'ls -lkro --stats'
-end
+
+alias ls   'color-ls'
+alias lss  'ls -ls --stats'
+alias lst  'ls -lt --stats'
+alias lsk  'ls -lk --stats'
+alias lll  'ls -lkro --stats'
+
 alias l    'ls'
 alias la   'ls -a'
 alias ll   'ls -l'
@@ -58,7 +58,7 @@ alias cd.. 'cd ..'
 alias grep 'grep --color'
 alias less 'vimpager'
 alias js2coffee 'js2coffee -i 4'
-alias mocha 'node_modules/.bin/mocha --compilers coffee:coffee-script/register'
+alias mocha 'mocha --compilers coffee:coffee-script/register'
 alias cc    '~/s/colorcat/bin/colorcat'
 alias k     '~/s/konrad/bin/konrad'
 alias ku    'k -u'
@@ -104,7 +104,6 @@ end
 set PATH ./bin $PATH 
 set PATH $PATH /usr/local/sbin 
 set PATH $PATH ./node_modules/.bin
-set PATH $PATH (yarn global bin | grep -oE '/.*')
 
 set TZ Europe/Berlin
 

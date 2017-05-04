@@ -1,11 +1,13 @@
 # history
+
 export HISTCONTROL=erasedups
 export HISTIGNORE="[   ]*:&:bg:fg:exit"
 export PROMPT_COMMAND="history -a"
+
 shopt -s histappend
 shopt -s cmdhist
-shopt -s nocaseglob
-shopt -s cdspell
+shopt -s nocaseglob # case insensitive glob
+shopt -s cdspell # fuzzy cd
 
 export PATH="~/shell:${PATH/~\/shell:/}"
 export PATH="~/shell/bin:${PATH/~\/shell\/bin:/}"
@@ -23,14 +25,22 @@ export CVS_RSH=ssh
 export RUBYOPT=rubygems
 export PREF=~/Library/Application\ Support
 
-alias h='hist'
 alias c='clear'
-alias p='pwd'
+alias lso='/bin/ls'
+alias ls='color-ls'
 alias cl='clear && ls -l'
+alias la='ls -a'
 alias ll='ls -l'
+alias lla='ls -la'
+alias h='hist'
+alias e='electron .'
+alias .='pwd'
 alias cd..='cd ..'
 alias grep='grep --color'
-alias cc='colorcat'
+
+alias mocha='mocha --compilers coffee:coffee-script/register'
+alias js2coffee='js2coffee -i 4'
+alias cc='~/s/colorcat/bin/colorcat'
 alias k='~/s/konrad/bin/konrad'
 alias ku='k -u'
 alias kp='k -p'
@@ -43,7 +53,11 @@ alias ks='k -s'
 alias kd='k -d'
 alias kr='k -r'
 alias kR='k -R'
+alias st='git status -sb 2>&1 | colorcat -P ~/s/konrad/cc/status.noon'
 
+alias npmdev='npm install --save-dev'
+alias npmadd='npm install --save'
+alias npmdel='npm uninstall --save'
 alias npmls='npm ls --depth 0 2>&1 | colorcat -P ~/s/konrad/cc/npm.noon'
 alias npmlsg='npm ls --depth 0 -g 2>&1 | colorcat -P ~/s/konrad/cc/npm.noon'
 

@@ -5,8 +5,6 @@ source ~/shell/bash/bash.sh
 
 #alias eject='diskutil eject '
 
-alias ls='color-ls'
-
 # syslogd
 # alias stopsyslogd='sudo launchctl stop com.apple.syslogd'
 # alias startsyslogd='sudo launchctl start com.apple.syslogd'
