@@ -1,0 +1,213 @@
+
+<meta charset="UTF-8"/>
+<html>
+  <head>
+    <title>index</title>
+    <style>body {
+  background-color: #444;
+  padding: 30px;
+}
+a {
+  outline: none;
+}
+#stage {
+  text-align: center;
+}
+span.site {
+  margin: 20px;
+  box-sizing: border-box;
+  width: 400px;
+  height: 400px;
+  display: inline-block;
+  position: relative;
+}
+img.site {
+  border-radius: 10px;
+  box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.2);
+}
+img.site:hover {
+  box-shadow: 3px 3px 6px 3px rgba(0,0,0,0.1);
+}
+.site.empty {
+  background-color: transparent;
+}
+.site.name {
+  font-family: Verdana, Arial, sans-serif;
+  font-weight: bold;
+  color: #fff;
+  max-width: 400px;
+  width: 400px;
+  overflow: hidden;
+  display: none;
+  position: absolute;
+  top: -25px;
+  white-space: nowrap;
+  text-align: center;
+}
+.site.name.on {
+  display: unset;
+}
+*:focus {
+  border-bottom: 3px solid #fff;
+}
+</style>
+    <script>(function() {
+  var down, onClick, onKeyDown, onMouseOut, onMouseOver, select, tab, tileForElement, tiles, up,
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+  tileForElement = function(e) {
+    if (e == null) {
+      return null;
+    }
+    if (indexOf.call(e.classList, 'tile') >= 0) {
+      return e;
+    } else {
+      return tileForElement(e.parentElement);
+    }
+  };
+
+  onClick = function(event) {
+    if (event.target.id === 'stage' || indexOf.call(event.target.classList, 'empty') >= 0) {
+      return window.location.href = "";
+    }
+  };
+
+  onMouseOver = function(event) {
+    var name, overStyle, tile;
+    if (indexOf.call(event.target.classList, 'site') >= 0) {
+      tile = tileForElement(event.target);
+      name = tile != null ? tile.getElementsByClassName('name')[0] : void 0;
+      overStyle = "unset";
+      if (indexOf.call(name.classList, "off") >= 0) {
+        overStyle = "none";
+      }
+      return name != null ? name.style.display = overStyle : void 0;
+    }
+  };
+
+  onMouseOut = function(event) {
+    var name, outStyle, tile;
+    if (indexOf.call(event.target.classList, 'site') >= 0) {
+      tile = tileForElement(event.target);
+      name = tile != null ? tile.getElementsByClassName('name')[0] : void 0;
+      outStyle = "none";
+      if (indexOf.call(name.classList, "on") >= 0) {
+        outStyle = "unset";
+      }
+      console.log(name.classList);
+      return name != null ? name.style.display = outStyle : void 0;
+    }
+  };
+
+  tiles = function() {
+    return [].slice.call(document.body.getElementsByClassName('site tile'));
+  };
+
+  select = function(t) {
+    var list;
+    list = document.body.getElementsByClassName('site link');
+    return list[t].focus();
+  };
+
+  tab = function(d) {
+    var list, tile, tileIndex;
+    tile = tileForElement(document.activeElement);
+    list = tiles();
+    tileIndex = list.indexOf(tile);
+    return select((list.length + tileIndex + d) % list.length);
+  };
+
+  down = function() {
+    var i, list, ntr, ref, ref1, ref2, ref3, t, tile, tileIndex, tr, tt, ttr;
+    tile = tileForElement(document.activeElement);
+    if (tile == null) {
+      select(0);
+      return;
+    }
+    list = tiles();
+    tileIndex = list.indexOf(tile);
+    tr = tile.getBoundingClientRect();
+    for (t = i = ref = tileIndex + 1, ref1 = list.length; ref <= ref1 ? i < ref1 : i > ref1; t = ref <= ref1 ? ++i : --i) {
+      if (t >= list.length) {
+        return;
+      }
+      tt = list[t];
+      ttr = tt.getBoundingClientRect();
+      if (ttr.top > tr.top) {
+        ntr = (ref2 = list[t + 1]) != null ? ref2.getBoundingClientRect() : void 0;
+        while ((ntr != null) && ntr.top === ttr.top && ntr.left <= tr.left) {
+          t += 1;
+          ntr = (ref3 = list[t + 1]) != null ? ref3.getBoundingClientRect() : void 0;
+        }
+        select(t);
+        return;
+      }
+    }
+  };
+
+  up = function() {
+    var i, list, ntr, ref, ref1, ref2, t, tile, tileIndex, tr, tt, ttr;
+    tile = tileForElement(document.activeElement);
+    if (tile == null) {
+      select(0);
+      return;
+    }
+    list = tiles();
+    tileIndex = list.indexOf(tile);
+    tr = tile.getBoundingClientRect();
+    for (t = i = ref = tileIndex - 1; ref <= 0 ? i <= 0 : i >= 0; t = ref <= 0 ? ++i : --i) {
+      if (t < 0) {
+        return;
+      }
+      tt = list[t];
+      ttr = tt.getBoundingClientRect();
+      if (ttr.top < tr.top) {
+        ntr = (ref1 = list[t - 1]) != null ? ref1.getBoundingClientRect() : void 0;
+        while ((ntr != null) && ntr.top === ttr.top && ntr.right >= tr.right) {
+          t -= 1;
+          ntr = (ref2 = list[t - 1]) != null ? ref2.getBoundingClientRect() : void 0;
+        }
+        select(t);
+        return;
+      }
+    }
+  };
+
+  onKeyDown = function(event) {
+    switch (event.keyCode) {
+      case 38:
+        return up();
+      case 37:
+        return tab(-1);
+      case 39:
+        return tab(1);
+      case 40:
+        return down();
+    }
+  };
+
+  window.onload = function() {
+    document.addEventListener('click', onClick);
+    if ("".length) {
+      document.getElementById('stage').style.cursor = 'n-resize';
+    }
+    document.addEventListener('mouseover', onMouseOver);
+    document.addEventListener('mouseout', onMouseOut);
+    document.addEventListener('keydown', onKeyDown);
+    return select(0);
+  };
+
+}).call(this);
+</script>
+  </head>
+</html>
+<body>
+  <div id="stage"><span class="site tile">
+      <div class="site name over">monsterkodi</div><a href="./monsterkodi.html" class="site link"><img src="img/monsterkodi.png" width="400" height="400" class="site image"/></a></span><span class="site tile">
+      <div class="site name over">projects</div><a href="./projects.html" class="site link"><img src="img/projects.png" width="400" height="400" class="site image"/></a></span>
+    <div class="break"></div><span class="site tile">
+      <div class="site name over">tools</div><a href="./tools.html" class="site link"><img src="img/tools.png" width="400" height="400" class="site image"/></a></span><span class="site tile">
+      <div class="site name over">misc</div><a href="./misc.html" class="site link"><img src="img/misc.png" width="400" height="400" class="site image"/></a></span>
+    <div class="break"></div>
+  </div>
+</body>

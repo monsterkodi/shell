@@ -7,7 +7,7 @@ sw  = () -> $('body').clientWidth
 sh  = () -> $('body').clientHeight - $('chart').clientHeight
     
 key = window.location.search.substring(1)
-api = "https://www.quandl.com/api/v3/datasets/WIKI/"
+api = "https://www.quandl.com/api/v3/datasets/BITFINEX/"
 
 queue = []
 
@@ -92,10 +92,10 @@ getStock = (stock) ->
         graph @s, values, x, max, 'long'
         
     arg = 
-        start_date:   "2000-01-01"
+        start_date:   "2014-01-07"
         end_date:     "2018-01-01"
         collapse:     "monthly"
-        column_index: 11 # close adjusted
+        column_index: 1 # open
         order:        'asc'
     opt = ("#{k}=#{v}" for k,v of arg).join "&"
     req.open 'GET', "#{api}#{stock}.json?#{opt}&api_key=#{key}", true
@@ -132,6 +132,7 @@ getStock = (stock) ->
         req.addEventListener "load", () ->                
             dequeue()
             data = JSON.parse @response
+            console.log @response
             set = data.dataset
             values = (d[1] for d in set.data)
             max = @max
@@ -141,8 +142,9 @@ getStock = (stock) ->
         arg = 
             start_date:   "2017-01-01"
             end_date:     "2018-01-01"
-            collapse:     "dayly"
-            column_index: 11 # close adjusted
+            # collapse:     "dayly"
+            # collapse:     "daily"
+            column_index: 1
             order:        'asc'
         opt = ("#{k}=#{v}" for k,v of arg).join "&"
         req.open 'GET', "#{api}#{stock}.json?#{opt}&api_key=#{key}", true
@@ -152,22 +154,17 @@ getStock = (stock) ->
         start_date:   "2013-01-01"
         end_date:     "2018-01-01"
         collapse:     "weekly"
-        column_index: 11 # close adjusted
+        column_index: 1
         order:        'asc'
     opt = ("#{k}=#{v}" for k,v of arg).join "&"
     req.open 'GET', "#{api}#{stock}.json?#{opt}&api_key=#{key}", true
     enqueue req
     
 window.onload = () ->
-    getStock "AAPL"
-    getStock "TSLA"
-    getStock "FB"
-    getStock "GOOGL"
-    getStock "AMZN"
-    getStock "MSFT"
-    getStock "BA"
-    getStock "LMT"
-    getStock "NOC"
+    getStock "BTCUSD"
+    getStock "LTCUSD"
+    getStock "ETHUSD"
+    getStock "DSHUSD"
     dequeue()
             
         
