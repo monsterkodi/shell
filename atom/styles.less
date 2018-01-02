@@ -5,22 +5,8 @@ atom-text-editor::shadow .blame-gutter {
   .author { color: white; }
 }
 
-.minimap .highlight-selected {
-  background: blue;
-  color: blue;
+.atom-dock-toggle-button-visible
+{
+    display: none;
 }
  
-.minimap .highlight-selected.selected {
-  background: red;
-  color: red;
-}
-
-@import "packages/file-icons/styles/colors";
-@import "packages/file-icons/styles/icons"; 
-@import "packages/file-icons/styles/items";
-@{pane-tab-selector}, .icon-file-text {
-  &[data-name$=".noon"]          { .medium-blue;             }
-  &[data-name$=".noon"]:before   { .noon-icon; .medium-blue; }
-}
-
-.noon-icon { .fa; content: "\f111"; }
