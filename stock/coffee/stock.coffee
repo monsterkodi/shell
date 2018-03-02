@@ -161,7 +161,6 @@ getStock = (stock) ->
 window.onload = () ->
     getStock "AAPL"
     getStock "TSLA"
-    getStock "SCTY"
     getStock "FB"
     getStock "GOOGL"
     getStock "AMZN"
