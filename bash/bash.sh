@@ -58,6 +58,5 @@ alias st='git status -sb 2>&1 | colorcat -P ~/s/konrad/cc/status.noon'
 alias npmdev='npm install --save-dev'
 alias npmadd='npm install --save'
 alias npmdel='npm uninstall --save'
-alias npmls='npm ls --depth 0 2>&1 | colorcat -P ~/s/konrad/cc/npm.noon'
-alias npmlsg='npm ls --depth 0 -g 2>&1 | colorcat -P ~/s/konrad/cc/npm.noon'
-
+alias npmls='npm ls --depth 0 2>&1 | cc -P ~/s/konrad/cc/npm.noon'
+alias npmlsg='npm ls --depth 0 -g 2>&1 | cc -P ~/s/konrad/cc/npm.noon'
