@@ -17,7 +17,11 @@ alias ll   'ls -l'
 alias lla  'ls -la'
 
 # clear
-# alias c   'clear'
+
+function c
+    printf "\x1bc"
+end
+
 alias cl  'c; and cwd; and ls -l'
 alias cla 'c; and cwd; and ls -la'
 alias cls 'c; and cwd; and ls'
@@ -43,22 +47,20 @@ alias updatedb 'sudo /usr/libexec/locate.updatedb'
 alias npmdev 'npm install --save-dev'
 alias npmadd 'npm install --save'
 alias npmdel 'npm uninstall --save'
-alias npmll  'npm ls -s         | colorcat -P ~/s/konrad/cc/npm.noon'
-# npmls is in functions to allow -g argument
 
 # apt
-alias aptadd 'sudo apt-get install'
-alias aptdel 'sudo apt-get uninstall'
+# alias aptadd 'sudo apt-get install'
+# alias aptdel 'sudo apt-get uninstall'
 
 ## misc
 alias h    'hist'
 alias .    'pwd'
-alias e    'electron .'
+alias e    'node_modules/.bin/electron .'
 alias cd.. 'cd ..'
 alias grep 'grep --color'
 alias less 'vimpager'
 alias js2coffee 'js2coffee -i 4'
-alias mocha 'mocha --compilers coffee:coffee-script/register'
+alias mocha 'mocha --require coffeescript/register'
 alias cc    '~/s/colorcat/bin/colorcat -a'
 alias k     '~/s/konrad/bin/konrad'
 alias ku    'k -u'
@@ -81,11 +83,6 @@ alias d dirh
 
 function fish_title
     pwd
-end
-
-function c
-    # printf "\x1bc\x1b[9999d"
-    printf "\x1bc"
 end
 
 function fish_prompt
@@ -117,7 +114,7 @@ if [ $PATH[-1] != "." ]
 end
 
 set PATH ./bin $PATH 
-set PATH $PATH ./node_modules/.bin
+##set PATH $PATH ./node_modules/.bin
 
 set TZ Europe/Berlin
 

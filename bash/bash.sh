@@ -14,7 +14,7 @@ export PATH="~/shell/bin:${PATH/~\/shell\/bin:/}"
 export PATH="/usr/local/bin:${PATH/\/usr\/local\/bin:/}"
 export PATH=".:${PATH/\.:/}"
 #export PATH="./bin:${PATH/\.\/bin:/}"
-export PATH="node_modules/.bin:${PATH/node_modules\/\.bin:/}"
+# export PATH="node_modules/.bin:${PATH/node_modules\/\.bin:/}"
 
 # prompt
 PS1='\[\033[1;34m\][\[\033[1;33m\]\w\[\033[1;34m\]]\[\033[1;0m\] '
