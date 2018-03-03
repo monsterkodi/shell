@@ -17,10 +17,10 @@ alias ll   'ls -l'
 alias lla  'ls -la'
 
 # clear
-alias c   'clear'
-alias cl  'clear; and cwd; and ls -l'
-alias cla 'clear; and cwd; and ls -la'
-alias cls 'clear; and cwd; and ls'
+# alias c   'clear'
+alias cl  'c; and cwd; and ls -l'
+alias cla 'c; and cwd; and ls -la'
+alias cls 'c; and cwd; and ls'
 alias cll 'cl'
 
 ## git
@@ -59,7 +59,7 @@ alias grep 'grep --color'
 alias less 'vimpager'
 alias js2coffee 'js2coffee -i 4'
 alias mocha 'mocha --compilers coffee:coffee-script/register'
-alias cc    '~/s/colorcat/bin/colorcat'
+alias cc    '~/s/colorcat/bin/colorcat -a'
 alias k     '~/s/konrad/bin/konrad'
 alias ku    'k -u'
 alias kp    'k -p'
@@ -73,9 +73,6 @@ alias kd    'k -d'
 alias kr    'k -r'
 alias kR    'k -R'
 
-set PREF ~/Library/Application\ Support
-alias pref 'cd $PREF'
-
 ## fish
 alias show functions
 alias d dirh
@@ -86,12 +83,30 @@ function fish_title
     pwd
 end
 
-function fish_prompt
-    set_color blue
-    echo "▶ "
+function c
+    # printf "\x1bc\x1b[9999d"
+    printf "\x1bc"
 end
+
+function fish_prompt
+    set_color 8888ff
+    printf "▶ "
+    set_color normal
+end
+
 function fish_right_prompt
-    cwd
+    set_color -b 111111
+    printf ' '
+    for t in (pwd | string split '/')
+        if test -n $t
+            set_color 441100
+            printf '/'
+            set_color -o ff8800
+            printf $t
+        end
+    end
+    printf ' '
+    set_color normal
 end    
 
 set fish_greeting
@@ -102,7 +117,6 @@ if [ $PATH[-1] != "." ]
 end
 
 set PATH ./bin $PATH 
-set PATH $PATH /usr/local/sbin 
 set PATH $PATH ./node_modules/.bin
 
 set TZ Europe/Berlin
@@ -138,5 +152,4 @@ function __fish_command_not_found_handler --on-event fish_command_not_found
     echo unknown command "'$argv'" >&2
 end
 
-source ~/shell/fish/projects.fish
-source ~/shell/fish/tokens.crypt
+# printf "\x1bc\x1b[9999d"

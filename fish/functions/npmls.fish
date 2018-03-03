@@ -1,3 +1,3 @@
 function npmls
-    npm ls --depth 0 $argv 2>&1 | colorcat -P ~/s/konrad/cc/npm.noon
+    npm ls --depth 0 | colorcat -aP ~/s/konrad/cc/npm.noon
 end    

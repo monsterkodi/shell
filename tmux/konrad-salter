@@ -1,7 +1,0 @@
-#tmux new -c ~/s tmux source-file ~/shell/tmux/konrad-salter
-
-rename-session konrad-salter
-
-split-window -l 8  ~/s/salter/bin/salter
-split-window -l 16 konrad
-split-window fish

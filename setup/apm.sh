@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+apm install dunkelbunt-syntax
+apm install flatland-dark-ui
+
 apm install stylus
 apm install aligner
 apm install aligner-css
@@ -19,9 +22,6 @@ apm install zentabs
 apm install pigments
 apm install tool-bar
 apm install flex-tool-bar
-
-apm install dunkelbunt-syntax
-apm install flatland-dark-ui
 
 apm install language-fish-shell
 apm install language-noon

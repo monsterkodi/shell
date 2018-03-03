@@ -58,7 +58,7 @@
     }
     {
         type:     "button"
-        icon:     "columns fa-rotate-270"
+        icon:     "columns"
         iconset:  "fa"
         callback: "pane:split-down"
         tooltip:  "Split Down"

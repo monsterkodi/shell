@@ -9,7 +9,7 @@ npm install -g sds
 npm install -g noon
 npm install -g konrad
 npm install -g npm-check-updates
-npm install -g coffee-script
+npm install -g coffeescript
 npm install -g css2stylus
 npm install -g js2coffee
 npm install -g html2jade

@@ -13,7 +13,7 @@ export PATH="~/shell:${PATH/~\/shell:/}"
 export PATH="~/shell/bin:${PATH/~\/shell\/bin:/}"
 export PATH="/usr/local/bin:${PATH/\/usr\/local\/bin:/}"
 export PATH=".:${PATH/\.:/}"
-export PATH="./bin:${PATH/\.\/bin:/}"
+#export PATH="./bin:${PATH/\.\/bin:/}"
 export PATH="node_modules/.bin:${PATH/node_modules\/\.bin:/}"
 
 # prompt
@@ -38,9 +38,9 @@ alias .='pwd'
 alias cd..='cd ..'
 alias grep='grep --color'
 
-alias mocha='mocha --compilers coffee:coffee-script/register'
+alias mocha='mocha --require coffeescript/register'
 alias js2coffee='js2coffee -i 4'
-alias cc='~/s/colorcat/bin/colorcat'
+alias cc='~/s/colorcat/bin/colorcat -a'
 alias k='~/s/konrad/bin/konrad'
 alias ku='k -u'
 alias kp='k -p'
