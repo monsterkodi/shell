@@ -9,8 +9,8 @@ shopt -s cmdhist
 shopt -s nocaseglob # case insensitive glob
 shopt -s cdspell # fuzzy cd
 
-export PATH="~/shell:${PATH/~\/shell:/}"
-export PATH="~/shell/bin:${PATH/~\/shell\/bin:/}"
+export PATH="$HOME/shell:${PATH/$HOME\/shell:/}"
+export PATH="$HOME/shell/bin:${PATH/$HOME\/shell\/bin:/}"
 export PATH="/usr/local/bin:${PATH/\/usr\/local\/bin:/}"
 export PATH=".:${PATH/\.:/}"
 #export PATH="./bin:${PATH/\.\/bin:/}"
