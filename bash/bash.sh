@@ -15,7 +15,7 @@ export PATH="/usr/local/bin:${PATH/\/usr\/local\/bin:/}"
 export PATH=".:${PATH/\.:/}"
 export PATH="/c/Program Files/nodejs:/mingw64/bin:$HOME/AppData/Roaming/npm:$PATH"
 
-export PATH="/C/Program Files/nodejs:/C/Program Files/Perforce:$HOME/AppData/Roaming/npm:$PATH"
+export PATH="/c/ProgramData/chocolatey/bin:/c/Program Files (x86)/Elm Platform/0.18/bin:/c/Program Files (x86)/Common Files/Oracle/Java/javapath:/c/Program Files/nodejs:/c/Program Files/Perforce:$HOME/AppData/Roaming/npm:$PATH"
 
 export P4PORT=p4:1666
 export P4CLIENT=workspace
