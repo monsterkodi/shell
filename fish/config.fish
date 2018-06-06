@@ -47,6 +47,9 @@ alias npmdev 'npm install --save-dev'
 alias npmadd 'npm install --save'
 alias npmdel 'npm uninstall --save'
 
+alias nl 'npmls'
+alias ni 'npm install'
+
 ## misc
 alias h    'hist'
 alias .    'pwd'
