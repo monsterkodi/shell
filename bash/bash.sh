@@ -13,7 +13,7 @@ export PATH="$HOME/shell:${PATH/$HOME\/shell:/}"
 export PATH="$HOME/shell/bin:${PATH/$HOME\/shell\/bin:/}"
 export PATH="/usr/local/bin:${PATH/\/usr\/local\/bin:/}"
 export PATH=".:${PATH/\.:/}"
-export PATH="/c/Program Files/nodejs:/mingw64/bin:$HOME/AppData/Roaming/npm:$PATH"
+export PATH="/c/Program Files (x86)/Elm Platform/0.18/bin:/c/Program Files/nodejs:/mingw64/bin:$HOME/AppData/Roaming/npm:/c/ProgramData/chocolatey/bin:/c/tools/ruby25/bin:$PATH"
 
 export PATH="/c/ProgramData/chocolatey/bin:/c/Program Files (x86)/Elm Platform/0.18/bin:/c/Program Files (x86)/Common Files/Oracle/Java/javapath:/c/Program Files/nodejs:/c/Program Files/Perforce:$HOME/AppData/Roaming/npm:/c/Users/t.kohnhorst/.cargo/bin:$PATH"
 
@@ -65,6 +65,10 @@ alias npmadd='npm install --save'
 alias npmdel='npm uninstall --save'
 alias npmls='npm ls --depth 0 2>&1 | cc -P ~/s/konrad/cc/npm.noon'
 alias npmlsg='npm ls --depth 0 -g 2>&1 | cc -P ~/s/konrad/cc/npm.noon'
+
+alias ni='npm install'
+alias nl='npmls'
+alias ed='e -D'
 
 # if [[ ($# == 0) && ($0 == '-bash') ]] 
 # then

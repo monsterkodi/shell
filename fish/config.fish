@@ -47,13 +47,14 @@ alias npmdev 'npm install --save-dev'
 alias npmadd 'npm install --save'
 alias npmdel 'npm uninstall --save'
 
-alias nl 'npmls'
-alias ni 'npm install'
+alias ni    'npm install; and npmls'
+alias nl    'npmls'
 
 ## misc
 alias h    'hist'
 alias .    'pwd'
 alias e    'node_modules/.bin/electron .'
+alias ed   'e -D'
 alias cd.. 'cd ..'
 alias grep 'grep --color'
 alias less 'vimpager'
