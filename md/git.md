@@ -28,6 +28,15 @@ git submodule update --init
 git remote add origin <remote-url>
 git branch --set-upstream-to=origin/master master
 
+# revert repository and history to previous commit
+
+git checkout <commit-id>     # checkout previous commit
+...                          #    [ change and commit ]
+git checkout -b temp         # get rid of ...
+git checkout -B master temp  # ... detached HEAD
+git push [--force]           
+git branch -d temp
+
 # sync fork with original
 git remote -v
 git remote add upstream https://github.com/ORIGINAL_OWNER/ORIGINAL_REPOSITORY.git

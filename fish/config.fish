@@ -5,7 +5,7 @@ alias reload 'source ~/shell/fish/config.fish'
 # color-ls
 alias lso  '/bin/ls'
 
-alias ls   'color-ls'
+alias ls   '~/s/colorls/bin/color-ls'
 alias lss  'ls -ls --stats'
 alias lst  'ls -lt --stats'
 alias lsk  'ls -lk --stats'
@@ -87,25 +87,35 @@ function fish_title
 end
 
 function fish_prompt
-    set_color 8888ff
-    printf "▶ "
-    set_color normal
-end
-
-function fish_right_prompt
-    set_color -b 111111
-    printf ' '
+    # set_color -b 444444
     for t in (pwd | string split '/')
         if test -n $t
-            set_color 441100
+            set_color 111111
             printf '/'
             set_color -o ff8800
             printf $t
         end
     end
     printf ' '
+    set_color 4444ff
+    printf "▶ "
     set_color normal
-end    
+end
+
+#function fish_right_prompt
+#    set_color -b 111111
+#    printf ' '
+#    for t in (pwd | string split '/')
+#        if test -n $t
+#            set_color 441100
+#            printf '/'
+#            set_color -o ff8800
+#            printf $t
+#        end
+#    end
+#    printf ' '
+#    set_color normal
+#end    
 
 set fish_greeting
 set fish_color_valid_path '--bold' '--underline'

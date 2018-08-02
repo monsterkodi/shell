@@ -13,9 +13,7 @@ export PATH="$HOME/shell:${PATH/$HOME\/shell:/}"
 export PATH="$HOME/shell/bin:${PATH/$HOME\/shell\/bin:/}"
 export PATH="/usr/local/bin:${PATH/\/usr\/local\/bin:/}"
 export PATH=".:${PATH/\.:/}"
-export PATH="/c/Program Files (x86)/Elm Platform/0.18/bin:/c/Program Files/nodejs:/mingw64/bin:$HOME/AppData/Roaming/npm:/c/ProgramData/chocolatey/bin:/c/tools/ruby25/bin:$PATH"
-
-export PATH="/c/ProgramData/chocolatey/bin:/c/Program Files (x86)/Elm Platform/0.18/bin:/c/Program Files (x86)/Common Files/Oracle/Java/javapath:/c/Program Files/nodejs:/c/Program Files/Perforce:$HOME/AppData/Roaming/npm:/c/Users/t.kohnhorst/.cargo/bin:$PATH"
+export PATH="/c/ProgramData/AppGet/bin:/c/ProgramData/chocolatey/bin:/c/Program Files/nodejs:/c/Program Files/Perforce:$HOME/AppData/Roaming/npm:/c/Users/t.kohnhorst/.cargo/bin:$PATH"
 
 export P4PORT=p4:1666
 export P4CLIENT=workspace
@@ -32,7 +30,7 @@ export PREF=~/Library/Application\ Support
 
 alias c='clear'
 alias lso='/bin/ls'
-alias ls='color-ls'
+alias ls='node ~/s/colorls/js/color-ls.js'
 alias cl='clear && ls -l'
 alias la='ls -a'
 alias ll='ls -l'
@@ -69,8 +67,3 @@ alias npmlsg='npm ls --depth 0 -g 2>&1 | cc -P ~/s/konrad/cc/npm.noon'
 alias ni='npm install'
 alias nl='npmls'
 alias ed='e -D'
-
-# if [[ ($# == 0) && ($0 == '-bash') ]] 
-# then
-    # exec fish
-# fi
