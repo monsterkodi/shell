@@ -13,16 +13,19 @@ export PATH="$HOME/shell:${PATH/$HOME\/shell:/}"
 export PATH="$HOME/shell/bin:${PATH/$HOME\/shell\/bin:/}"
 export PATH="/usr/local/bin:${PATH/\/usr\/local\/bin:/}"
 export PATH=".:${PATH/\.:/}"
-export PATH="/c/ProgramData/AppGet/bin:/c/ProgramData/chocolatey/bin:/c/Program Files/nodejs:/c/Program Files/Perforce:$HOME/AppData/Roaming/npm:/c/Users/t.kohnhorst/.cargo/bin:$PATH"
+export PATH="/c/msys64/usr/bin:/c/ProgramData/AppGet/bin:/c/ProgramData/chocolatey/bin:/c/Program Files/nodejs:/c/Program Files/Perforce:$HOME/AppData/Roaming/npm:/c/Users/t.kohnhorst/.cargo/bin:$PATH"
 
 export P4PORT=p4:1666
 export P4CLIENT=workspace
 
 # prompt
 
-PS1='\[\033[1;34m\][\[\033[1;33m\]\w\[\033[1;34m\]]\[\033[1;0m\] '
+PS1='\[\e]0;\w\a\]\[\033[1;34m\][\[\033[1;33m\]\w\[\033[1;34m\]]\[\033[1;0m\] '
 
 # misc
+# export TERM=xterm
+export TERM=xterm-color
+# export COLORTERM=truecolor
 export CLICOLOR=1
 export CVS_RSH=ssh
 export RUBYOPT=rubygems

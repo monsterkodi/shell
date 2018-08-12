@@ -86,36 +86,40 @@ function fish_title
     pwd
 end
 
+set -g fish_term256   1
+set -g fish_term24bit 0
+
+# black, red, green, yellow, blue, magenta, cyan, white
+
 function fish_prompt
-    # set_color -b 444444
+    set_color bryellow -b black
     for t in (pwd | string split '/')
         if test -n $t
-            set_color 111111
+            set_color red
             printf '/'
-            set_color -o ff8800
+            set_color --bold bryellow
             printf $t
         end
     end
-    printf ' '
-    set_color 4444ff
-    printf "▶ "
+    set_color brblue -b normal
+    printf " ▶ "
     set_color normal
 end
 
-#function fish_right_prompt
-#    set_color -b 111111
-#    printf ' '
-#    for t in (pwd | string split '/')
-#        if test -n $t
-#            set_color 441100
-#            printf '/'
-#            set_color -o ff8800
-#            printf $t
-#        end
-#    end
-#    printf ' '
-#    set_color normal
-#end    
+# function fish_right_prompt
+    # set_color -b 111111
+    # printf ' '
+    # for t in (pwd | string split '/')
+        # if test -n $t
+            # set_color 441100
+            # printf '/'
+            # set_color -o ff8800
+            # printf $t
+        # end
+    # end
+    # printf ' '
+    # set_color normal
+# end    
 
 set fish_greeting
 set fish_color_valid_path '--bold' '--underline'
@@ -124,7 +128,7 @@ if [ $PATH[-1] != "." ]
     set PATH $PATH .
 end
 
-set PATH ./bin $PATH 
+set PATH ./bin /c/msys64/usr/bin $PATH 
 
 set TZ Europe/Berlin
 
