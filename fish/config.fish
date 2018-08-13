@@ -92,6 +92,7 @@ set -g fish_term24bit 0
 # black, red, green, yellow, blue, magenta, cyan, white
 
 function fish_prompt
+    printf "\e[A"
     set_color bryellow -b black
     for t in (pwd | string split '/')
         if test -n $t
@@ -105,21 +106,6 @@ function fish_prompt
     printf " ▶ "
     set_color normal
 end
-
-# function fish_right_prompt
-    # set_color -b 111111
-    # printf ' '
-    # for t in (pwd | string split '/')
-        # if test -n $t
-            # set_color 441100
-            # printf '/'
-            # set_color -o ff8800
-            # printf $t
-        # end
-    # end
-    # printf ' '
-    # set_color normal
-# end    
 
 set fish_greeting
 set fish_color_valid_path '--bold' '--underline'
