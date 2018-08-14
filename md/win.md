@@ -4,6 +4,10 @@
 #### set buffer size
 mode con lines=32766
 
+#### create symlink
+
+mklink -D c:\link\... c:\target\...
+
 ### p4
 
 #### get curent changelist

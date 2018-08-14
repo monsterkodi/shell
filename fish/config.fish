@@ -1,3 +1,7 @@
+
+[ -d /c/Users/t.kohnhorst ]; and set -g HOME /c/Users/t.kohnhorst; and set -g XDG_DATA_HOME /c/Users/t.kohnhorst/.config
+[ -d /c/Users/kodi ]; and set -g HOME /c/Users/kodi; and set -g XDG_DATA_HOME /c/Users/kodi/.config
+
 # fish
 alias frc    'atom ~/shell/fish/config.fish'
 alias reload 'source ~/shell/fish/config.fish'
@@ -19,6 +23,10 @@ alias lla  'ls -la'
 # clear
 
 function c
+    printf "\x1bc"
+end
+
+function clear
     printf "\x1bc"
 end
 
@@ -94,10 +102,12 @@ set -g fish_term24bit 0
 function fish_prompt
     printf "\e[A"
     set_color bryellow -b black
-    for t in (pwd | string split '/')
+    for t in (pwd | string replace $HOME '~' | string split '/')
         if test -n $t
-            set_color red
-            printf '/'
+            if test $t != '~'
+                set_color red
+                printf '/'
+            end
             set_color --bold bryellow
             printf $t
         end
