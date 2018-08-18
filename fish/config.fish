@@ -100,7 +100,6 @@ set -g fish_term24bit 0
 # black, red, green, yellow, blue, magenta, cyan, white
 
 function fish_prompt
-    printf "\e[A"
     set_color bryellow -b black
     for t in (pwd | string replace $HOME '~' | string split '/')
         if test -n $t
