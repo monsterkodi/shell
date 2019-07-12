@@ -9,10 +9,6 @@ else if [ -d /home/kodi ]
     set HOME /home/kodi
 end
     
-# set XDG_DATA_HOME $HOME/.config
-
-# echo $HOME $XDG_DATA_HOME
-
 # fish
 alias reload 'source ~/shell/fish/config.fish'
 
@@ -21,8 +17,6 @@ alias lso  '/bin/ls'
 
 if [ -f $HOME/s/colorls/bin/color-ls ]
     alias ls $HOME/s/colorls/bin/color-ls
-# else if [ -f /mnt/c/Users/t.kohnhorst/AppData/Roaming/npm/color-ls ]
-    # alias ls /mnt/c/Users/t.kohnhorst/AppData/Roaming/npm/color-ls
 end
 
 alias lss  'ls -ls --stats'
@@ -85,7 +79,6 @@ alias e    'node_modules/.bin/electron .'
 alias ed   'e -D'
 alias cd.. 'cd ..'
 alias grep 'grep --color'
-# alias less 'vimpager'
 alias js2coffee 'js2coffee -i 4'
 alias mocha 'mocha -c --require ~/s/koffee/js/register'
 alias cc    '~/s/colorcat/bin/colorcat -a'
@@ -120,22 +113,18 @@ set -g fish_term24bit 0
 # black, red, green, yellow, blue, magenta, cyan, white
 
 function fish_prompt
-    # set_color bryellow -b black
-    set_color bryellow -b brblack
+    printf "[48;5;235m "
     for t in (pwd | string replace $HOME '~' | string split '/')
         if test -n $t
             if test $t != '~'
-                set_color red
-                printf '/'
+                printf '[38;5;19m/'
             end
             set_color --bold bryellow
-            printf $t
+            printf "[38;5;147m"$t
         end
     end
-    printf " "
-    set_color brblack -b normal
     # printf " ▶ "
-    printf "\ue0b0 "
+    printf " [38;5;235m[49m\ue0b0 "
     set_color normal
 end
 
