@@ -1,20 +1,34 @@
 
-[ -d /c/Users/t.kohnhorst ]; and set -g HOME /c/Users/t.kohnhorst; and set -g XDG_DATA_HOME /c/Users/t.kohnhorst/.config
-[ -d /c/Users/kodi ]; and set -g HOME /c/Users/kodi; and set -g XDG_DATA_HOME /c/Users/kodi/.config
+if [ -d /c/Users/t.kohnhorst ] 
+    set HOME /c/Users/t.kohnhorst
+else if [ -d /mnt/c/Users/t.kohnhorst ] 
+    set HOME /mnt/c/Users/t.kohnhorst
+else if [ -d /c/Users/kodi ]
+    set HOME /c/Users/kodi
+else if [ -d /home/kodi ]
+    set HOME /home/kodi
+end
+    
+# set XDG_DATA_HOME $HOME/.config
+
+# echo $HOME $XDG_DATA_HOME
 
 # fish
-alias frc    'atom ~/shell/fish/config.fish'
 alias reload 'source ~/shell/fish/config.fish'
 
 # color-ls
 alias lso  '/bin/ls'
 
-alias ls   '~/s/colorls/bin/color-ls'
+if [ -f $HOME/s/colorls/bin/color-ls ]
+    alias ls $HOME/s/colorls/bin/color-ls
+# else if [ -f /mnt/c/Users/t.kohnhorst/AppData/Roaming/npm/color-ls ]
+    # alias ls /mnt/c/Users/t.kohnhorst/AppData/Roaming/npm/color-ls
+end
+
 alias lss  'ls -ls --stats'
 alias lst  'ls -lt --stats'
 alias lsk  'ls -lk --stats'
 alias lll  'ls -lkro --stats'
-
 alias l    'ls'
 alias la   'ls -a'
 alias ll   'ls -l'
@@ -54,9 +68,15 @@ alias rebase 'git pull --rebase | colorcat -sP ~/s/konrad/cc/rebase.noon'
 alias npmdev 'npm install --save-dev'
 alias npmadd 'npm install --save'
 alias npmdel 'npm uninstall --save'
+alias npmlsg 'npm ls -g --depth=0'
+alias npmls  'npm ls --depth=0'
 
 alias ni    'npm install; and npmls'
 alias nl    'npmls'
+alias na    'npmadd'
+alias nd    'npmdev'
+alias nr    'npmdel'
+alias ng    'npmlsg'
 
 ## misc
 alias h    'hist'
@@ -65,9 +85,9 @@ alias e    'node_modules/.bin/electron .'
 alias ed   'e -D'
 alias cd.. 'cd ..'
 alias grep 'grep --color'
-alias less 'vimpager'
+# alias less 'vimpager'
 alias js2coffee 'js2coffee -i 4'
-alias mocha 'mocha -c --require coffeescript/register'
+alias mocha 'mocha -c --require ~/s/koffee/js/register'
 alias cc    '~/s/colorcat/bin/colorcat -a'
 alias ko    '~/s/ko/ko-win32-x64/ko.exe'
 alias k     '~/s/konrad/bin/konrad'
@@ -100,7 +120,8 @@ set -g fish_term24bit 0
 # black, red, green, yellow, blue, magenta, cyan, white
 
 function fish_prompt
-    set_color bryellow -b black
+    # set_color bryellow -b black
+    set_color bryellow -b brblack
     for t in (pwd | string replace $HOME '~' | string split '/')
         if test -n $t
             if test $t != '~'
@@ -111,8 +132,10 @@ function fish_prompt
             printf $t
         end
     end
-    set_color brblue -b normal
-    printf " ▶ "
+    printf " "
+    set_color brblack -b normal
+    # printf " ▶ "
+    printf "\ue0b0 "
     set_color normal
 end
 
@@ -123,8 +146,20 @@ if [ $PATH[-1] != "." ]
     set PATH $PATH .
 end
 
-set PATH ./bin /c/msys64/usr/bin $PATH 
+if [ -d /c/msys64/usr/bin ]
+    set PATH ./bin /c/msys64/usr/bin $PATH 
+end
 
+if [ -d /c/Users/t.kohnhorst/AppData/Roaming/nvm/v12.2.0 ]
+    set PATH /c/Users/t.kohnhorst/AppData/Roaming/nvm/v12.2.0 $PATH 
+end
+
+if [ -d "/c/Program Files/Mozilla Firefox/" ]
+    set -g BROWSER "/c/Program\ Files/Mozilla\ Firefox/firefox.exe"
+end
+
+set PATH ./bin ./node_modules/.bin $PATH 
+    
 set TZ Europe/Berlin
 
 function code 
