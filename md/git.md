@@ -54,6 +54,10 @@ git config user.name monsterkodi
 git config user.email monsterkodi@gmx.net
 git config -l
 
+git config --global user.name monsterkodi
+git config --global user.email monsterkodi@gmx.net
+git config --global -l
+
 # change remote url
 git remote set-url origin <remote-url>
 

@@ -13,7 +13,7 @@ export PATH="$HOME/shell:${PATH/$HOME\/shell:/}"
 export PATH="$HOME/shell/bin:${PATH/$HOME\/shell\/bin:/}"
 export PATH="/usr/local/bin:${PATH/\/usr\/local\/bin:/}"
 export PATH=".:${PATH/\.:/}"
-export PATH="/c/msys64/usr/bin:/c/ProgramData/AppGet/bin:/c/ProgramData/chocolatey/bin:/c/Program Files/nodejs:/c/Program Files/Perforce:$HOME/AppData/Roaming/npm:/c/Users/t.kohnhorst/.cargo/bin:$PATH"
+# export PATH="/c/msys64/usr/bin:/c/ProgramData/AppGet/bin:/c/ProgramData/chocolatey/bin:/c/Program Files/nodejs:/c/Program Files/Perforce:$HOME/AppData/Roaming/npm:/c/Users/t.kohnhorst/.cargo/bin:$PATH"
 
 export P4PORT=p4:1666
 export P4CLIENT=workspace
@@ -70,3 +70,8 @@ alias npmlsg='npm ls --depth 0 -g 2>&1 | cc -P ~/s/konrad/cc/npm.noon'
 alias ni='npm install'
 alias nl='npmls'
 alias ed='e -D'
+
+source ~/.tokens
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
