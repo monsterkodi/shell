@@ -112,12 +112,18 @@ set -g fish_term24bit 0
 
 # black, red, green, yellow, blue, magenta, cyan, white
 
+# 00000000   00000000    0000000   00     00  00000000   000000000  
+# 000   000  000   000  000   000  000   000  000   000     000     
+# 00000000   0000000    000   000  000000000  00000000      000     
+# 000        000   000  000   000  000 0 000  000           000     
+# 000        000   000   0000000   000   000  000           000     
+
 function fish_prompt
     printf "[48;5;235m "
     for t in (pwd | string replace $HOME '~' | string split '/')
         if test -n $t
             if test $t != '~'
-                printf '[38;5;19m/'
+                printf '[38;5;238m/'
             end
             set_color --bold bryellow
             printf "[38;5;147m"$t
