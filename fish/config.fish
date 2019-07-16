@@ -59,11 +59,33 @@ alias pull   'git pull 2>&1     | colorcat -sP ~/s/konrad/cc/pull.noon'
 alias rebase 'git pull --rebase | colorcat -sP ~/s/konrad/cc/rebase.noon'
 
 ## npm
-alias npmdev 'npm install --save-dev ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon'
-alias npmadd 'npm install --save ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon'
-alias npmdel 'npm uninstall --save ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon'
-alias npmlsg 'npm ls -g --depth=0 ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon'
-alias npmls  'npm ls --depth=0 ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon'
+
+function npmadd
+    npm install --save $argv ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon
+end   
+
+function npmdel
+    npm uninstall --save $argv ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon
+end   
+
+function npmdev
+    npm install --save-dev $argv ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon
+end   
+
+function npmls
+    npm ls --depth 0 $argv ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon
+end    
+
+function npmlsg
+    npm ls -g --depth 0 ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon
+end    
+
+function npmup
+    echo 'updating' $argv
+    npm uninstall --save $argv
+    npm install --save $argv
+    npm ls --depth 0 | colorcat -sP ~/s/konrad/cc/npm.noon
+end    
 
 alias ni    'npm install; and npmls'
 alias nl    'npmls'
