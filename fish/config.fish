@@ -59,11 +59,11 @@ alias pull   'git pull 2>&1     | colorcat -sP ~/s/konrad/cc/pull.noon'
 alias rebase 'git pull --rebase | colorcat -sP ~/s/konrad/cc/rebase.noon'
 
 ## npm
-alias npmdev 'npm install --save-dev'
-alias npmadd 'npm install --save'
-alias npmdel 'npm uninstall --save'
-alias npmlsg 'npm ls -g --depth=0'
-alias npmls  'npm ls --depth=0'
+alias npmdev 'npm install --save-dev ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon'
+alias npmadd 'npm install --save     ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon'
+alias npmdel 'npm uninstall --save   ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon'
+alias npmlsg 'npm ls -g --depth=0    ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon'
+alias npmls  'npm ls --depth=0       ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon'
 
 alias ni    'npm install; and npmls'
 alias nl    'npmls'
