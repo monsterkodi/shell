@@ -52,18 +52,46 @@ alias glg    'gl --graph'
 alias gld    'gl -p'
 alias add    'git add'
 alias revert 'git checkout --'
-alias gd     'git diff -U0 --ignore-space-at-eol | colorcat -sP ~/s/konrad/cc/diff.noon'
+alias gd     'git diff'
 alias fetch  'git fetch 2>&1    | colorcat -sP ~/s/konrad/cc/fetch.noon'
 alias push   'git push 2>&1     | colorcat -sP ~/s/konrad/cc/push.noon'
 alias pull   'git pull 2>&1     | colorcat -sP ~/s/konrad/cc/pull.noon'
 alias rebase 'git pull --rebase | colorcat -sP ~/s/konrad/cc/rebase.noon'
 
 ## npm
-alias npmdev 'npm install --save-dev ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon'
-alias npmadd 'npm install --save     ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon'
-alias npmdel 'npm uninstall --save   ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon'
-alias npmlsg 'npm ls -g --depth=0    ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon'
-alias npmls  'npm ls --depth=0       ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon'
+
+# alias npmdev 'npm install --save-dev ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon'
+# alias npmadd 'npm install --save     ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon'
+# alias npmdel 'npm uninstall --save   ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon'
+# alias npmlsg 'npm ls -g --depth=0    ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon'
+# alias npmls  'npm ls --depth=0       ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon'
+
+function npmadd
+    npm install --save $argv ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon
+end   
+
+function npmdel
+    npm uninstall --save $argv ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon
+end   
+
+function npmdev
+    npm install --save-dev $argv ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon
+end   
+
+function npmls
+    npm ls --depth 0 $argv ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon
+end    
+
+function npmlsg
+    npm ls -g --depth 0 ^&1 | colorcat -sP ~/s/konrad/cc/npm.noon
+end    
+
+function npmup
+    echo 'updating' $argv
+    npm uninstall --save $argv
+    npm install --save $argv
+    npm ls --depth 0 | colorcat -sP ~/s/konrad/cc/npm.noon
+end    
 
 alias ni    'npm install; and npmls'
 alias nl    'npmls'
@@ -81,7 +109,7 @@ alias cd.. 'cd ..'
 alias grep 'grep --color'
 alias js2coffee 'js2coffee -i 4'
 alias mocha 'mocha -c --require ~/s/koffee/js/register'
-alias cc    '~/s/colorcat/bin/colorcat -a'
+alias cc    '~/s/colorcat/bin/colorcat'
 alias ko    '~/s/ko/ko-win32-x64/ko.exe'
 alias k     '~/s/konrad/bin/konrad'
 alias ku    'k -u'

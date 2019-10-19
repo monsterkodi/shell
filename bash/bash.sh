@@ -71,7 +71,7 @@ alias ni='npm install'
 alias nl='npmls'
 alias ed='e -D'
 
-source ~/.tokens
+[ -f ~/.tokens ] && source ~/.tokens
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
