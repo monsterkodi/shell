@@ -1,6 +1,10 @@
 
 ## cmd
 
+#### msys pacman upgrade
+
+pacman -Syu
+
 #### set buffer size
 mode con lines=32766
 

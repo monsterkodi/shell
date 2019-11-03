@@ -8,7 +8,9 @@ else if [ -d /c/Users/kodi ]
 else if [ -d /home/kodi ]
     set HOME /home/kodi
 end
-    
+  
+cd $HOME
+
 # fish
 alias reload 'source ~/shell/fish/config.fish'
 
@@ -122,8 +124,14 @@ alias kh    'k -h'
 alias ks    'k -s'
 alias kd    'k -d'
 alias kr    'k -r'
+alias km    'k -m'
 alias kR    'k -R'
 alias win   'npm run win'
+
+alias kill   'wxw terminate'
+alias pid    'wxw proc'
+alias handle 'wxw handle'
+alias handle64 'handle64 -nobanner'
 
 ## fish
 alias show functions
@@ -137,8 +145,6 @@ end
 
 set -g fish_term256   1
 set -g fish_term24bit 0
-
-# black, red, green, yellow, blue, magenta, cyan, white
 
 # 00000000   00000000    0000000   00     00  00000000   000000000  
 # 000   000  000   000  000   000  000   000  000   000     000     
@@ -157,7 +163,6 @@ function fish_prompt
             printf "[38;5;147m"$t
         end
     end
-    # printf " ▶ "
     printf " [38;5;235m[49m\ue0b0 "
     set_color normal
 end
@@ -165,23 +170,32 @@ end
 set fish_greeting
 set fish_color_valid_path '--bold' '--underline'
 
-if [ $PATH[-1] != "." ]
-    set PATH $PATH .
+if [ -d /c/msys64/usr/bin ]
+    set PATH /c/msys64/usr/bin $PATH 
 end
 
-if [ -d /c/msys64/usr/bin ]
-    set PATH ./bin /c/msys64/usr/bin $PATH 
+if [ -d "/c/Program Files/nodejs" ]
+    set PATH "/c/Program Files/nodejs" $PATH 
+end
+
+if [ -d /c/ProgramData/chocolatey/bin ]
+    set PATH /c/ProgramData/chocolatey/bin $PATH 
+end
+
+if [ -d /c/Users/kodi/AppData/Roaming/npm ]
+    set PATH /c/Users/kodi/AppData/Roaming/npm $PATH 
 end
 
 if [ -d /c/Users/t.kohnhorst/AppData/Roaming/nvm/v12.2.0 ]
     set PATH /c/Users/t.kohnhorst/AppData/Roaming/nvm/v12.2.0 $PATH 
 end
 
+
 if [ -d "/c/Program Files/Mozilla Firefox/" ]
     set -g BROWSER "/c/Program\ Files/Mozilla\ Firefox/firefox.exe"
 end
 
-set PATH ./bin ./node_modules/.bin $PATH 
+set PATH . ./bin ./node_modules/.bin $PATH 
     
 set TZ Europe/Berlin
 
