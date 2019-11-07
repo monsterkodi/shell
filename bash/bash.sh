@@ -9,11 +9,14 @@ shopt -s cmdhist
 shopt -s nocaseglob # case insensitive glob
 shopt -s cdspell # fuzzy cd
 
-export PATH="$HOME/shell:${PATH/$HOME\/shell:/}"
-export PATH="$HOME/shell/bin:${PATH/$HOME\/shell\/bin:/}"
-export PATH="/usr/local/bin:${PATH/\/usr\/local\/bin:/}"
-export PATH=".:${PATH/\.:/}"
-# export PATH="/c/msys64/usr/bin:/c/ProgramData/AppGet/bin:/c/ProgramData/chocolatey/bin:/c/Program Files/nodejs:/c/Program Files/Perforce:$HOME/AppData/Roaming/npm:/c/Users/t.kohnhorst/.cargo/bin:$PATH"
+[ -d $HOME/s/krep/bin ] && export PATH="$HOME/s/krep/bin:$PATH"
+[ -d $HOME/s/colorcat/bin ] && export PATH="$HOME/s/colorcat/bin:$PATH"
+[ -d $HOME/s/colorls/bin ] && export PATH="$HOME/s/colorls/bin:$PATH"
+[ -d $HOME/shell/bin ] && export PATH="$HOME/shell/bin:$PATH"
+[ -d /usr/local/bin ] &&  export PATH="/usr/local/bin:$PATH"
+[ -d "/c/Program Files/nodejs" ] && export PATH="/c/Program Files/nodejs:$PATH"
+
+export PATH=".:./bin:./node_modules/.bin:$PATH"
 
 export P4PORT=p4:1666
 export P4CLIENT=workspace
@@ -33,7 +36,8 @@ export PREF=~/Library/Application\ Support
 
 alias c='clear'
 alias lso='/bin/ls'
-alias ls='node ~/s/colorls/js/color-ls.js'
+#alias ls='node ~/s/colorls/js/color-ls.js'
+alias ls='color-ls'
 alias cl='clear && ls -l'
 alias la='ls -a'
 alias ll='ls -l'
@@ -58,6 +62,8 @@ alias kh='k -h'
 alias ks='k -s'
 alias kd='k -d'
 alias kr='k -r'
+alias kf='k -f'
+alias km='k -m'
 alias kR='k -R'
 alias st='git status -sb 2>&1 | colorcat -P ~/s/konrad/cc/status.noon'
 
