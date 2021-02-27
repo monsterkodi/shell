@@ -170,6 +170,10 @@ end
 set fish_greeting
 set fish_color_valid_path '--bold' '--underline'
 
+if [ -d /usr/local/bin ]
+    set PATH /usr/local/bin $PATH 
+end
+
 if [ -d /c/msys64/usr/bin ]
     set PATH /c/msys64/usr/bin $PATH 
 end
