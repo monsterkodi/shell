@@ -1,2 +1,0 @@
-noon        . ext null
-jade        . ext html . replace .. /jade/ /
