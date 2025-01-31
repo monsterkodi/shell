@@ -1,0 +1,36 @@
+# ghostty +validate-config
+# ghostty +list-themes
+
+command = clear & /opt/homebrew/bin/fish
+confirm-close-surface = false
+quit-after-last-window-closed = true
+cursor-style-blink = false
+window-save-state = "always"
+shell-integration = "fish"
+shell-integration-features = title, no-cursor
+
+theme = Builtin Dark
+
+font-family = "LiterationMono Nerd Font"
+font-size = 18
+font-thicken = true
+font-thicken-strength = 255
+
+macos-icon = "custom-style"
+macos-icon-frame = plastic
+macos-icon-ghost-color = ffff00
+macos-icon-screen-color = 000000
+
+window-height = 50
+window-width  = 77
+window-position-y = 0
+
+keybind = cmd+up=unbind
+keybind = cmd+down=unbind
+keybind = cmd+left=unbind
+keybind = cmd+right=unbind
+keybind = cmd+shift+up=unbind  
+keybind = cmd+shift+down=unbind  
+keybind = cmd+c=unbind
+keybind = cmd+v=unbind
+keybind = cmd+d=unbind

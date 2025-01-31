@@ -9,7 +9,7 @@ else if [ -d /home/kodi ]
     set HOME /home/kodi
 end
   
-cd $HOME
+# cd $HOME
 
 # fish
 alias reload 'source ~/shell/fish/config.fish'
@@ -17,18 +17,17 @@ alias reload 'source ~/shell/fish/config.fish'
 # color-ls
 alias lso  '/bin/ls'
 
-if [ -f $HOME/s/colorls/bin/color-ls ]
-    alias ls $HOME/s/colorls/bin/color-ls
+if [ -f $HOME/s/z/colorls/bin/color-ls ]
+    alias ls $HOME/s/z/colorls/bin/color-ls
+    alias lss  'ls -ls --stats'
+    alias lst  'ls -lt --stats'
+    alias lsk  'ls -lk --stats'
+    alias lll  'ls -lkro --stats'
+    alias l    'ls'
+    alias la   'ls -a'
+    alias ll   'ls -l'
+    alias lla  'ls -la'
 end
-
-alias lss  'ls -ls --stats'
-alias lst  'ls -lt --stats'
-alias lsk  'ls -lk --stats'
-alias lll  'ls -lkro --stats'
-alias l    'ls'
-alias la   'ls -a'
-alias ll   'ls -l'
-alias lla  'ls -la'
 
 # clear
 
@@ -37,7 +36,7 @@ function c
 end
 
 function clear
-    printf "\x1bc"
+    printf "\033]1337;ClearScrollback\a"
 end
 
 alias cl  'c; and ls -l'
@@ -47,7 +46,7 @@ alias cll 'cl'
 
 ## git
 alias ci     'git commit -m'
-alias st     'git status -sb 2>&1 | colorcat -aP ~/s/konrad/cc/status.noon'
+alias st     'git status -sb 2>&1 | colorcat -aP ~/s/z/konrad/cc/status.noon'
 alias gl     'git log --pretty=format:%\>\|\(14\)%Cred%cr\ %Cgreen%\<\|\(40\)%cn%Cblue%d\ %\<\|\(120,trunc\)%Creset%s'
 alias gls    'gl --stat'
 alias glg    'gl --graph'
@@ -55,44 +54,36 @@ alias gld    'gl -p'
 alias add    'git add'
 alias revert 'git checkout --'
 alias gd     'git diff'
-alias fetch  'git fetch 2>&1    | colorcat -sP ~/s/konrad/cc/fetch.noon'
-alias push   'git push 2>&1     | colorcat -sP ~/s/konrad/cc/push.noon'
-alias pull   'git pull 2>&1     | colorcat -sP ~/s/konrad/cc/pull.noon'
-alias rebase 'git pull --rebase | colorcat -sP ~/s/konrad/cc/rebase.noon'
-
-## npm
-
-# alias npmdev 'npm install --save-dev 2>&1 | colorcat -sP ~/s/konrad/cc/npm.noon'
-# alias npmadd 'npm install --save     2>&1 | colorcat -sP ~/s/konrad/cc/npm.noon'
-# alias npmdel 'npm uninstall --save   2>&1 | colorcat -sP ~/s/konrad/cc/npm.noon'
-# alias npmlsg 'npm ls -g --depth=0    2>&1 | colorcat -sP ~/s/konrad/cc/npm.noon'
-# alias npmls  'npm ls --depth=0       2>&1 | colorcat -sP ~/s/konrad/cc/npm.noon'
+alias fetch  'git fetch 2>&1    | colorcat -sP ~/s/z/konrad/cc/fetch.noon'
+alias push   'git push 2>&1     | colorcat -sP ~/s/z/konrad/cc/push.noon'
+alias pull   'git pull 2>&1     | colorcat -sP ~/s/z/konrad/cc/pull.noon'
+alias rebase 'git pull --rebase | colorcat -sP ~/s/z/konrad/cc/rebase.noon'
 
 function npmadd
-    npm install --save $argv 2>&1 | colorcat -sP ~/s/konrad/cc/npm.noon
+    npm install --save $argv 2>&1 | colorcat -sP ~/s/z/konrad/cc/npm.noon
 end   
 
 function npmdel
-    npm uninstall --save $argv 2>&1 | colorcat -sP ~/s/konrad/cc/npm.noon
+    npm uninstall --save $argv 2>&1 | colorcat -sP ~/s/z/konrad/cc/npm.noon
 end   
 
 function npmdev
-    npm install --save-dev $argv 2>&1 | colorcat -sP ~/s/konrad/cc/npm.noon
+    npm install --save-dev $argv 2>&1 | colorcat -sP ~/s/z/konrad/cc/npm.noon
 end   
 
 function npmls
-    npm ls --depth 0 $argv 2>&1 | colorcat -sP ~/s/konrad/cc/npm.noon
+    npm ls --depth 0 $argv 2>&1 | colorcat -sP ~/s/z/konrad/cc/npm.noon
 end    
 
 function npmlsg
-    npm ls -g --depth 0 2>&1 | colorcat -sP ~/s/konrad/cc/npm.noon
+    npm ls -g --depth 0 2>&1 | colorcat -sP ~/s/z/konrad/cc/npm.noon
 end    
 
 function npmup
     echo 'updating' $argv
     npm uninstall --save $argv
     npm install --save $argv
-    npm ls --depth 0 | colorcat -sP ~/s/konrad/cc/npm.noon
+    npm ls --depth 0 | colorcat -sP ~/s/z/konrad/cc/npm.noon
 end    
 
 alias ni    'npm install; and npmls'
@@ -109,22 +100,17 @@ alias e    'node_modules/.bin/electron .'
 alias ed   'e -D'
 alias cd.. 'cd ..'
 alias grep 'grep --color'
-alias js2coffee 'js2coffee -i 4'
-alias mocha 'mocha -c --require ~/s/koffee/js/register'
-alias cc    '~/s/colorcat/bin/colorcat'
-alias ko    '~/s/ko/ko-win32-x64/ko.exe'
-alias k     '~/s/konrad/bin/konrad'
-alias ku    'k -u'
-alias kp    'k -p'
+alias cc    '~/s/z/colorcat/bin/colorcat'
+alias k     '~/s/ko/ko.app/kk'
+alias kr    'k -k'
 alias kc    'k -c'
 alias kb    'k -b'
 alias kt    'k -t'
 alias ki    'k -i'
-alias kh    'k -h'
 alias ks    'k -s'
 alias kd    'k -d'
-alias kr    'k -r'
-alias km    'k -m'
+alias kv    'k -v'
+alias kw    'k -w'
 alias kR    'k -R'
 alias win   'npm run win'
 
@@ -132,6 +118,9 @@ alias kill   'wxw terminate'
 alias pid    'wxw proc'
 alias handle 'wxw handle'
 alias handle64 'handle64 -nobanner'
+
+alias vi    'nvim'
+alias vim   'nvim'
 
 ## fish
 alias show functions
@@ -169,9 +158,28 @@ end
 
 set fish_greeting
 set fish_color_valid_path '--bold' '--underline'
+set PNPM_HOME /Users/kodi/Library/pnpm
+
+# 00000000    0000000   000000000  000   000  
+# 000   000  000   000     000     000   000  
+# 00000000   000000000     000     000000000  
+# 000        000   000     000     000   000  
+# 000        000   000     000     000   000  
 
 if [ -d /usr/local/bin ]
     set PATH /usr/local/bin $PATH 
+end
+
+if [ -d /Applications/Postgres.app/Contents/Versions/16/bin ]
+    set PATH /Applications/Postgres.app/Contents/Versions/16/bin $PATH
+end
+
+if [ -d /Users/kodi/.local/bin ]
+    set PATH /Users/kodi/.local/bin $PATH 
+end
+
+if [ -d /opt/homebrew/Cellar/python@3.12/3.12.3/bin/ ]
+    set PATH /opt/homebrew/Cellar/python@3.12/3.12.3/bin/ $PATH
 end
 
 if [ -d /opt/homebrew/bin ]
@@ -194,10 +202,9 @@ if [ -d /c/Users/kodi/AppData/Roaming/npm ]
     set PATH /c/Users/kodi/AppData/Roaming/npm $PATH 
 end
 
-if [ -d /c/Users/t.kohnhorst/AppData/Roaming/nvm/v12.2.0 ]
-    set PATH /c/Users/t.kohnhorst/AppData/Roaming/nvm/v12.2.0 $PATH 
+if [ -d $PNPM_HOME ]
+    set PATH $PNPM_HOME $PATH
 end
-
 
 if [ -d "/c/Program Files/Mozilla Firefox/" ]
     set -g BROWSER "/c/Program\ Files/Mozilla\ Firefox/firefox.exe"

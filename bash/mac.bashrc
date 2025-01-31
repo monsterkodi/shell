@@ -14,7 +14,8 @@ export PATH="/usr/local/bin:${PATH/\/usr\/local\/bin:/}"
 export PATH="/usr/local/sbin:${PATH/\/usr\/local\/sbin:/}"
 export PATH="/usr/local/git/bin:${PATH/\/usr\/local\/git\/bin:/}"
 export PATH="/usr/local/share/npm/bin:${PATH/\/usr\/share\/npm\/bin:/}"
-# export PATH="${PATH}:/usr/local/Cellar/ruby/2.0.0-p0/bin"
+
+#export PNPM_HOME="/opt/homebrew/bin"
 
 # editor
 export PAGER=vimpager
