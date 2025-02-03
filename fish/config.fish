@@ -1,13 +1,13 @@
 
-if [ -d /c/Users/t.kohnhorst ] 
-    set HOME /c/Users/t.kohnhorst
-else if [ -d /mnt/c/Users/t.kohnhorst ] 
-    set HOME /mnt/c/Users/t.kohnhorst
-else if [ -d /c/Users/kodi ]
-    set HOME /c/Users/kodi
-else if [ -d /home/kodi ]
-    set HOME /home/kodi
-end
+#if [ -d /c/Users/t.kohnhorst ] 
+#    set HOME /c/Users/t.kohnhorst
+#else if [ -d /mnt/c/Users/t.kohnhorst ] 
+#    set HOME /mnt/c/Users/t.kohnhorst
+#else if [ -d /c/Users/kodi ]
+#    set HOME /c/Users/kodi
+#else if [ -d /home/kodi ]
+#    set HOME /home/kodi
+#end
   
 # cd $HOME
 
@@ -132,8 +132,8 @@ function fish_title
     pwd
 end
 
-set -g fish_term256   1
-set -g fish_term24bit 0
+set -g fish_term256   0
+set -g fish_term24bit 1
 
 # 00000000   00000000    0000000   00     00  00000000   000000000  
 # 000   000  000   000  000   000  000   000  000   000     000     
@@ -141,20 +141,20 @@ set -g fish_term24bit 0
 # 000        000   000  000   000  000 0 000  000           000     
 # 000        000   000   0000000   000   000  000           000     
 
-function fish_prompt
-    printf "[48;5;235m "
-    for t in (pwd | string replace $HOME '~' | string split '/')
-        if test -n $t
-            if test $t != '~'
-                printf '[38;5;238m/'
-            end
-            set_color --bold bryellow
-            printf "[38;5;147m"$t
-        end
-    end
-    printf " [38;5;235m[49m\ue0b0 "
-    set_color normal
-end
+# function fish_prompt
+#     printf "[48;5;235m "
+#     for t in (pwd | string replace $HOME '~' | string split '/')
+#         if test -n $t
+#             if test $t != '~'
+#                 printf '[38;5;238m/'
+#             end
+#             set_color --bold bryellow
+#             printf "[38;5;147m"$t
+#         end
+#     end
+#     printf " [38;5;235m[49m\ue0b0 "
+#     set_color normal
+# end
 
 set fish_greeting
 set fish_color_valid_path '--bold' '--underline'
@@ -216,4 +216,6 @@ set TZ Europe/Berlin
 
 function code 
     env VSCODE_CWD="$PWD" open -n -b "com.microsoft.VSCode" --args "$argv"
-end
+end      
+
+starship init fish | source
