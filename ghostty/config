@@ -1,8 +1,9 @@
 # ghostty +validate-config
 # ghostty +list-themes
+# ghostty +list-keybinds
 
 command = clear & /opt/homebrew/bin/fish
-confirm-close-surface = false
+confirm-close-surface = true
 quit-after-last-window-closed = true
 cursor-style-blink = false
 window-save-state = "always"
@@ -25,12 +26,26 @@ window-height = 50
 window-width  = 77
 window-position-y = 0
 
+desktop-notifications = false
+clipboard-read = allow
+clipboard-write = allow
+copy-on-select = clipboard
+window-theme = dark
+
 keybind = cmd+up=unbind
 keybind = cmd+down=unbind
 keybind = cmd+left=unbind
 keybind = cmd+right=unbind
 keybind = cmd+shift+up=unbind  
 keybind = cmd+shift+down=unbind  
+keybind = cmd+shift+d=unbind  
 keybind = cmd+c=unbind
 keybind = cmd+v=unbind
-keybind = cmd+d=unbind
+keybind = cmd+d=unbind 
+keybind = cmd+a=unbind
+
+keybind = alt+left=unbind
+keybind = alt+right=unbind  
+
+keybind = alt+c=copy_to_clipboard
+keybind = alt+v=paste_from_clipboard

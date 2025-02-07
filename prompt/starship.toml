@@ -1,9 +1,8 @@
-format = """
-[](fg:#444444 bg:#333333)\
+format = """[](fg:#444444 bg:#333333)\
 $directory\
 [](fg:#444444 bg:#333333)\
 $git_status\
-[ ](fg:#333333 bg:#222222)\
+[ ](fg:#333333 bg:#222222)\  
 [ ](fg:#222222)\
 """
 
@@ -28,9 +27,11 @@ repo_root_format = '[$before_root_path]($before_repo_root_style)[$repo_root]($re
 
 [nodejs]
 style = "bg:#222222"
-format = '[[ ($version)](fg:#769ff0 bg:#222222)]($style)'
+format = '[[($version) ](fg:#444444 bg:#222222)]($style)'
+version_format = '${major}.${minor}'
       
 [git_status]
 style = 'fg:#666666 bg:#333333'  
 format = '[$modified]($style)'
 modified = " ⚙"
+
