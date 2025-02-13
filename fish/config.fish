@@ -1,20 +1,14 @@
 
-#if [ -d /c/Users/t.kohnhorst ] 
-#    set HOME /c/Users/t.kohnhorst
-#else if [ -d /mnt/c/Users/t.kohnhorst ] 
-#    set HOME /mnt/c/Users/t.kohnhorst
-#else if [ -d /c/Users/kodi ]
-#    set HOME /c/Users/kodi
-#else if [ -d /home/kodi ]
-#    set HOME /home/kodi
-#end
-  
 # cd $HOME
 
-# fish
+if [ -d /mnt/c/Program\ Files/Neovim/bin ]
+    set PATH /mnt/c/Program\ Files/Neovim/bin $PATH 
+end
+
+set XDG_CONFIG_HOME /home/kodi/.config
+
 alias reload 'source ~/shell/fish/config.fish'
 
-# color-ls
 alias lso  '/bin/ls'
 
 if [ -f $HOME/s/z/colorls/bin/color-ls ]
@@ -28,8 +22,6 @@ if [ -f $HOME/s/z/colorls/bin/color-ls ]
     alias ll   'ls -l'
     alias lla  'ls -la'
 end
-
-# clear
 
 function c
     printf "\x1bc"
@@ -142,17 +134,17 @@ set -g fish_term24bit 1
 # 000        000   000   0000000   000   000  000           000     
 
 # function fish_prompt
-#     printf "[48;5;235m "
+#     printf "�[48;5;235m "
 #     for t in (pwd | string replace $HOME '~' | string split '/')
 #         if test -n $t
 #             if test $t != '~'
-#                 printf '[38;5;238m/'
+#                 printf '�[38;5;238m/'
 #             end
 #             set_color --bold bryellow
-#             printf "[38;5;147m"$t
+#             printf "�[38;5;147m"$t
 #         end
 #     end
-#     printf " [38;5;235m[49m\ue0b0 "
+#     printf " �[38;5;235m�[49m\ue0b0 "
 #     set_color normal
 # end
 
@@ -218,4 +210,5 @@ function code
     env VSCODE_CWD="$PWD" open -n -b "com.microsoft.VSCode" --args "$argv"
 end      
 
-starship init fish | source
+nvm -s use latest
+
