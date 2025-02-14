@@ -216,7 +216,7 @@ function code
 end      
 
 if [ -d /opt/homebrew/bin ]
-    /opt/homebrew/bin/starhip init fish | source
+    /opt/homebrew/bin/starship init fish | source
 else 
     if [ -f /usr/local/bin/starship ]
         /usr/local/bin/starship init fish | source
