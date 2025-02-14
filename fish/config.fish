@@ -5,7 +5,12 @@ if [ -d /mnt/c/Program\ Files/Neovim/bin ]
     set PATH /mnt/c/Program\ Files/Neovim/bin $PATH 
 end
 
-set XDG_CONFIG_HOME /home/kodi/.config
+set --export XDG_CONFIG_HOME $HOME/.config
+
+if [ -d "$HOME/.bun" ]
+    set --export BUN_INSTALL "$HOME/.bun"
+    set --export PATH $BUN_INSTALL/bin $PATH
+end
 
 alias reload 'source ~/shell/fish/config.fish'
 
@@ -210,5 +215,12 @@ function code
     env VSCODE_CWD="$PWD" open -n -b "com.microsoft.VSCode" --args "$argv"
 end      
 
-nvm -s use latest
+if [ -d /opt/homebrew/bin ]
+    /opt/homebrew/bin/starhip init fish | source
+else 
+    if [ -f /usr/local/bin/starship ]
+        /usr/local/bin/starship init fish | source
+    end
+end
 
+nvm -s use latest
