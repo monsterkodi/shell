@@ -1,43 +1,68 @@
+
 [user]
-	name = monsterkodi
-	email = monsterkodi@gmx.net
+    name = monsterkodi
+    email = monsterkodi@gmx.net
 [mergetool]
-	keepBackup = true
-	prompt = false
+    keepBackup = true
+    prompt = false
 [core]
-	autocrlf = input
-	excludesfile = /Users/kodi/.gitignore_global
+    autocrlf = input
+    excludesfile = /Users/kodi/.gitignore_global
+    pager = delta
 [color]
-	ui = 1
-	diff = always
-	grep =  always
-	interactive = always
+    ui = 1
+    diff = always
+    grep =  always
+    interactive = always
 [credential]
-	helper = osxkeychain
+    helper = osxkeychain
 [push]
-	default = simple
-[mergetool "Kaleidoscope"]
-	cmd = ksdiff --merge --output \"$MERGED\" --base \"$BASE\" -- \"$LOCAL\" --snapshot \"$REMOTE\" --snapshot
-	trustexitcode = true
-[merge]
-	tool = Kaleidoscope
-[difftool "Kaleidoscope"]
-	cmd = ksdiff --partial-changeset --relative-path \"$MERGED\" -- \"$LOCAL\" \"$REMOTE\"
-[diff]
-	tool = Kaleidoscope
+    default = simple
 [filter "lfs"]
-	required = true
-	clean = git-lfs clean -- %f
-	smudge = git-lfs smudge -- %f
-	process = git-lfs filter-process
-[difftool "sourcetree"]
-	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
-	path = 
-[mergetool "sourcetree"]
-	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
-	trustExitCode = true
+    required = true
+    clean = git-lfs clean -- %f
+    smudge = git-lfs smudge -- %f
+    process = git-lfs filter-process
 [filter "media"]
-	clean = git-media-clean %f
-	smudge = git-media-smudge %f
+    clean = git-media-clean %f
+    smudge = git-media-smudge %f
 [pull]
-	rebase = true
+    rebase = true
+[interactive]
+    diffFilter = delta --color-only
+
+[delta "kodis"]
+    commit-decoration-style = 130 box
+    dark = true
+    file-decoration-style = "#4444aa" overline
+    file-added-label = [●]
+    file-copied-label = [C]
+    file-modified-label = [+]
+    file-removed-label = [⛌]
+    file-renamed-label = [→]
+    file-style = white bold "#4444aa" 
+    hunk-header-decoration-style = "#222222"  box ul
+    hunk-header-line-number-style = "#8888ff" bold "#222222"
+    hunk-header-style = line-number syntax bold "#222222"
+    line-numbers = true
+    line-numbers-left-format  = "{nm:>4}"
+    line-numbers-right-format = "{np:>4}"
+    line-numbers-left-style   = "#111111"
+    line-numbers-right-style  = "#111111"
+    line-numbers-minus-style  = "#880000" bold "#330000"
+    line-numbers-plus-style   = "#006600" bold "#002200"
+    line-numbers-zero-style   = "#222222" "#111111" 
+    minus-emph-style = normal "#880000"
+    minus-style = normal "#440000"
+    plus-emph-style = syntax bold "#008800"
+    plus-style = syntax "#003500"
+    syntax-theme = Vibrant Sunburst
+    whitespace-error-style = "#80002a" reverse
+    zero-style = syntax
+    
+[delta]
+    navigate = true
+    hyperlinks = true
+    hyperlinks-file-link-format = "vscode://file/{path}:{line}"
+    side-by-side = true
+    features = "kodis"

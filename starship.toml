@@ -15,7 +15,7 @@ truncation_length = 3
 truncation_symbol = "…/"
 
 [directory.substitutions]
-"/mnt/c/Users/t.kohnhorst" = " "
+"/Users/kodi" = " "
 
 [git_branch]
 symbol = ""

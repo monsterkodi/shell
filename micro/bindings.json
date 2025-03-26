@@ -1,0 +1,9 @@
+{
+    "Alt-/": "lua:comment.comment",
+    "Alt-G": "lua:bounce.bounce",
+    "Ctrl-g": "lua:bounce.bounce",
+    "CtrlP": "command:palettero",
+    "CtrlSpace": "command:palettero",
+    "CtrlUnderscore": "lua:comment.comment",
+    "F4": "command:jumptag"
+}

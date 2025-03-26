@@ -40,6 +40,7 @@ alias cl  'c; and ls -l'
 alias cla 'c; and ls -la'
 alias cls 'c; and ls'
 alias cll 'cl'
+alias z   'zoxide'
 
 ## git
 alias ci     'git commit -m'
@@ -97,6 +98,7 @@ alias e    'node_modules/.bin/electron .'
 alias ed   'e -D'
 alias cd.. 'cd ..'
 alias grep 'grep --color'
+alias rg   "rg --colors 'match:bg:0x11,0x11,0x11' --colors 'match:fg:yellow' --colors 'line:fg:0x55,0x55,0x55' --colors 'path:fg:0xaa,0xaa,0xff' --colors 'path:bg:0xf,0xf,0x55'"
 alias cc    '~/s/z/colorcat/bin/colorcat'
 alias k     '~/s/ko/ko.app/kk'
 alias kr    'k -k'
@@ -163,6 +165,10 @@ set PNPM_HOME /Users/kodi/Library/pnpm
 # 000        000   000     000     000   000  
 # 000        000   000     000     000   000  
 
+if [ -d /Users/kodi/s/kakao/kakao.app/bin ]
+    set PATH /Users/kodi/s/kakao/kakao.app/bin $PATH 
+end
+
 if [ -d /usr/local/bin ]
     set PATH /usr/local/bin $PATH 
 end
@@ -215,12 +221,7 @@ function code
     env VSCODE_CWD="$PWD" open -n -b "com.microsoft.VSCode" --args "$argv"
 end      
 
-if [ -d /opt/homebrew/bin ]
-    /opt/homebrew/bin/starship init fish | source
-else 
-    if [ -f /usr/local/bin/starship ]
-        /usr/local/bin/starship init fish | source
-    end
-end
-
 nvm -s use latest
+
+zoxide init fish | source
+

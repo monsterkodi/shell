@@ -1,6 +1,9 @@
+##########################
 # ghostty +validate-config
 # ghostty +list-themes
 # ghostty +list-keybinds
+
+window-theme = dark
 
 command = clear & /opt/homebrew/bin/fish
 # confirm-close-surface = true
@@ -12,7 +15,8 @@ shell-integration-features = title, no-cursor
 
 theme = Builtin Dark    
 
-font-family = "LiterationMono Nerd Font"
+font-family = "MesloLGSDZ Nerd Font Mono"
+# font-family = "JetBrainsMono Nerd Font Mono"
 font-size = 18
 font-thicken = true
 font-thicken-strength = 255
@@ -23,7 +27,7 @@ macos-icon-ghost-color = ffff00
 macos-icon-screen-color = 000000   
 macos-non-native-fullscreen = true     
 # window-padding-color = extend   
-window-step-resize = true
+# window-step-resize = true
 
 window-height = 50
 window-width  = 77
@@ -33,7 +37,6 @@ desktop-notifications = false
 clipboard-read = allow
 clipboard-write = allow
 copy-on-select = clipboard
-window-theme = dark
 
 keybind = cmd+up=unbind
 keybind = cmd+down=unbind
@@ -41,11 +44,17 @@ keybind = cmd+left=unbind
 keybind = cmd+right=unbind
 keybind = cmd+shift+up=unbind  
 keybind = cmd+shift+down=unbind  
+keybind = cmd+?=unbind  
+keybind = cmd+,=unbind  
 keybind = cmd+shift+d=unbind  
 keybind = cmd+c=unbind
 keybind = cmd+v=unbind
 keybind = cmd+d=unbind 
 keybind = cmd+a=unbind
+keybind = cmd+m=unbind
+keybind = cmd+1=unbind
+keybind = cmd+2=unbind
+keybind = cmd+3=unbind
 
 keybind = alt+left=unbind
 keybind = alt+right=unbind  

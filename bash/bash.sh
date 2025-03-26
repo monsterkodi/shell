@@ -21,6 +21,8 @@ export PATH=".:./bin:./node_modules/.bin:$PATH"
 export P4PORT=p4:1666
 export P4CLIENT=workspace
 
+export EDITOR $HOME/s/kakao/kakao.app/bin/ked
+
 # prompt
 
 PS1='\[\e]0;\w\a\]\[\033[1;34m\][\[\033[1;33m\]\w\[\033[1;34m\]]\[\033[1;0m\] '

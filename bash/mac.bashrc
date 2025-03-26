@@ -26,3 +26,5 @@ export LESSEDIT='atom %lm %f'
 shopt -s histverify
 
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+
+source /Users/kodi/.config/broot/launcher/bash/br
