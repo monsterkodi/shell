@@ -6,14 +6,11 @@ font_size                   20
 # font_family                 JetBrainsMono Nerd Font Mono
 # font_family                 Lilex Nerd Font Mono
 font_family                 TwilioSansM Nerd Font
-italic_font                 Twilio Sans Mono Semibold Italic
-bold_font                   Twilio Sans Mono Extrabold
-bold_italic_font            Twilio Sans Mono Extrabold Italic
 # bold_font                   JetBrainsMono Nerd Font Mono Bold
 # bold_italic_font            Maple Mono NF Bold
-# bold_italic_font            MesloLGSDZ Nerd Font Mono
-# italic_font                 MesloLGSDZ Nerd Font Mono
-# italic_font               Maple Mono NF Light
+bold_italic_font            MesloLGSDZ Nerd Font Mono
+italic_font                 MesloLGSDZ Nerd Font Mono
+# italic_font                 Maple Mono NF Light
 # bold_font                 GeistMono Nerd Font Mono
 # bold_font                 TwilioSansM Nerd Font
 # bold_font                 MonaspiceNe Nerd Font Mono
@@ -35,6 +32,7 @@ tab_bar_style               separator
 tab_separator               ''
 tab_powerline_style         round
 tab_activity_symbol         ''
+# tab_title_max_length        11
 tab_bar_margin_width        0.0
 tab_bar_margin_height       0.0 0.0
 tab_bar_align               center
@@ -45,6 +43,8 @@ inactive_tab_font_style     italic
 inactive_tab_foreground     #999
 inactive_tab_background     #333
 tab_bar_background          #222
+#tab_title_template          "{fmt.fg._333}{fmt.bg._222}{fmt.fg.tab}{fmt.bg.tab}{title.split('/')[-1][max(0,len(title.split('/')[-1])-19):]}{fmt.fg._333}{fmt.bg._222}"
+#active_tab_title_template   "{fmt.fg._44a}{fmt.bg._222}{fmt.fg.tab}{fmt.bg.tab}{title.split('/')[-1][max(0,len(title.split('/')[-1])-19):]}{fmt.fg._44a}{fmt.bg._222}"
 
 tab_title_template          "{fmt.fg._333}{fmt.bg._222}{fmt.fg.tab}{fmt.bg.tab}{title.split('/')[-1]}{fmt.fg._333}{fmt.bg._222}"
 active_tab_title_template   "{fmt.fg._44a}{fmt.bg._222}{fmt.fg.tab}{fmt.bg.tab}{title.split('/')[-1]}{fmt.fg._44a}{fmt.bg._222}"
@@ -60,8 +60,6 @@ map kitty_mod+3
 map cmd+1
 map cmd+2
 map cmd+3
-map cmd+shift+d
-map shift+cmd+d
 
 map alt+c copy_to_clipboard  
 map alt+v paste_from_clipboard
@@ -71,4 +69,7 @@ map kitty_mod+w close_other_tabs_in_os_window
 
 mouse_map shift+left press grabbed discard_event
 
+# BEGIN_KITTY_THEME
+# ANSI 1987
 include current-theme.conf
+# END_KITTY_THEME

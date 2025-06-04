@@ -5,6 +5,20 @@ if [ -d /mnt/c/Program\ Files/Neovim/bin ]
     set PATH /mnt/c/Program\ Files/Neovim/bin $PATH 
 end
 
+if [ -d $HOME/.luarocks ]
+    set PATH $HOME/.luarocks/bin $PATH 
+end
+
+if [ -d $HOME/.nimble/bin ]
+    set PATH $HOME/.nimble/bin $PATH 
+end
+
+if [ -d $HOME/.cargo/bin ] 
+    set PATH $HOME/.cargo/bin $PATH 
+end
+
+set --export ICU_DATA /opt/homebrew/opt/icu4c@77/share/icu/77.1
+
 set --export XDG_CONFIG_HOME $HOME/.config
 
 if [ -d "$HOME/.bun" ]
@@ -92,13 +106,13 @@ alias nr    'npmdel'
 alias ng    'npmlsg'
 
 ## misc
-alias h    'hist'
-alias .    'pwd'
-alias e    'node_modules/.bin/electron .'
-alias ed   'e -D'
-alias cd.. 'cd ..'
-alias grep 'grep --color'
-alias rg   "rg --colors 'match:bg:0x11,0x11,0x11' --colors 'match:fg:yellow' --colors 'line:fg:0x55,0x55,0x55' --colors 'path:fg:0xaa,0xaa,0xff' --colors 'path:bg:0xf,0xf,0x55'"
+alias h     'hist'
+alias .     'pwd'
+alias e     'node_modules/.bin/electron .'
+alias ed    'e -D'
+alias cd..  'cd ..'
+alias grep  'grep --color'
+alias rg    "rg --hyperlink-format=default --colors 'match:bg:0x11,0x11,0x11' --colors 'match:fg:yellow' --colors 'line:fg:0x55,0x55,0x55' --colors 'path:fg:0xaa,0xaa,0xff' --colors 'path:bg:0xf,0xf,0x55'"
 alias cc    '~/s/z/colorcat/bin/colorcat'
 alias k     '~/s/ko/ko.app/kk'
 alias kr    'k -k'
@@ -113,10 +127,10 @@ alias kw    'k -w'
 alias kR    'k -R'
 alias win   'npm run win'
 
-alias kill   'wxw terminate'
-alias pid    'wxw proc'
-alias handle 'wxw handle'
-alias handle64 'handle64 -nobanner'
+# alias kill   'wxw terminate'
+# alias pid    'wxw proc'
+# alias handle 'wxw handle'
+# alias handle64 'handle64 -nobanner'
 
 alias vi    'nvim'
 alias vim   'nvim'
@@ -139,21 +153,6 @@ set -g fish_term24bit 1
 # 00000000   0000000    000   000  000000000  00000000      000     
 # 000        000   000  000   000  000 0 000  000           000     
 # 000        000   000   0000000   000   000  000           000     
-
-# function fish_prompt
-#     printf "�[48;5;235m "
-#     for t in (pwd | string replace $HOME '~' | string split '/')
-#         if test -n $t
-#             if test $t != '~'
-#                 printf '�[38;5;238m/'
-#             end
-#             set_color --bold bryellow
-#             printf "�[38;5;147m"$t
-#         end
-#     end
-#     printf " �[38;5;235m�[49m\ue0b0 "
-#     set_color normal
-# end
 
 set fish_greeting
 set fish_color_valid_path '--bold' '--underline'
@@ -222,6 +221,9 @@ function code
 end      
 
 nvm -s use latest
+
+set EDITOR "/Users/kodi/s/kakao/kakao.app/bin/ked"
+set PAGER  "/Users/kodi/s/kakao/kakao.app/bin/ked"
 
 zoxide init fish | source
 

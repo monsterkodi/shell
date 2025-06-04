@@ -4,16 +4,18 @@ export HISTCONTROL=erasedups
 export HISTIGNORE="[   ]*:&:bg:fg:exit"
 export PROMPT_COMMAND="history -a"
 
+export PNPM_HOME=$HOME/Library/pnpm
+
 shopt -s histappend
 shopt -s cmdhist
 shopt -s nocaseglob # case insensitive glob
-shopt -s cdspell # fuzzy cd
+shopt -s cdspell    # fuzzy cd
 
-[ -d $HOME/s/krep/bin ] && export PATH="$HOME/s/krep/bin:$PATH"
-[ -d $HOME/s/colorcat/bin ] && export PATH="$HOME/s/colorcat/bin:$PATH"
-[ -d $HOME/s/colorls/bin ] && export PATH="$HOME/s/colorls/bin:$PATH"
-[ -d $HOME/shell/bin ] && export PATH="$HOME/shell/bin:$PATH"
-[ -d /usr/local/bin ] &&  export PATH="/usr/local/bin:$PATH"
+[ -d $HOME/s/krep/bin ]          && export PATH="$HOME/s/krep/bin:$PATH"
+[ -d $HOME/s/colorcat/bin ]      && export PATH="$HOME/s/colorcat/bin:$PATH"
+[ -d $HOME/s/colorls/bin ]       && export PATH="$HOME/s/colorls/bin:$PATH"
+[ -d $HOME/shell/bin ]           && export PATH="$HOME/shell/bin:$PATH"
+[ -d /usr/local/bin ]            && export PATH="/usr/local/bin:$PATH"
 [ -d "/c/Program Files/nodejs" ] && export PATH="/c/Program Files/nodejs:$PATH"
 
 export PATH=".:./bin:./node_modules/.bin:$PATH"
@@ -21,14 +23,13 @@ export PATH=".:./bin:./node_modules/.bin:$PATH"
 export P4PORT=p4:1666
 export P4CLIENT=workspace
 
-export EDITOR $HOME/s/kakao/kakao.app/bin/ked
+export EDITOR=$HOME/s/kakao/kakao.app/bin/ked
 
 # prompt
 
 PS1='\[\e]0;\w\a\]\[\033[1;34m\][\[\033[1;33m\]\w\[\033[1;34m\]]\[\033[1;0m\] '
 
 # misc
-# export TERM=xterm
 export TERM=xterm-color
 # export COLORTERM=truecolor
 export CLICOLOR=1
@@ -44,13 +45,10 @@ alias cl='clear && ls -l'
 alias la='ls -a'
 alias ll='ls -l'
 alias lla='ls -la'
-alias h='hist'
 alias e='electron .'
-alias .='pwd'
 alias cd..='cd ..'
 alias grep='grep --color'
 
-alias mocha='mocha --require coffeescript/register'
 alias js2coffee='js2coffee -i 4'
 alias cc='~/s/colorcat/bin/colorcat -a'
 alias k='~/s/konrad/bin/konrad'

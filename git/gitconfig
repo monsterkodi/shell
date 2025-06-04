@@ -63,6 +63,6 @@
 [delta]
     navigate = true
     hyperlinks = true
-    hyperlinks-file-link-format = "vscode://file/{path}:{line}"
+    hyperlinks-file-link-format = "file:///{path}"
     side-by-side = true
     features = "kodis"
