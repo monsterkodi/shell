@@ -56,7 +56,6 @@
     minus-style = normal "#440000"
     plus-emph-style = syntax bold "#008800"
     plus-style = syntax "#003500"
-    syntax-theme = Vibrant Sunburst
     whitespace-error-style = "#80002a" reverse
     zero-style = syntax
     
